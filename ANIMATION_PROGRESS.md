@@ -9,9 +9,9 @@
 - [x] Bison (ModelBison) - **AAA Redesigned & Pushed (2026-07-19)**: Implemented massive shoulder hump weight transfer, heavy chest expansion breathing (`heavyBreath`), ear twitching/beard inertia micro-movements, and refined heavy charging/walking physics.
 - [x] Blobfish (ModelBlobfish) - **AAA Redesigned & Pushed (2026-07-19)**: Implemented deep-water gelatinous buoyancy drift, soft-body pulsing squash/stretch dynamics, and fluid fin propulsion.
 - [x] Blue Jay (ModelBlueJay) - **AAA Redesigned & Pushed (2026-07-19)**: Implemented avian chest breathing, crest expression dynamics, head bobbing stabilization, and energetic perching balance.
+- [x] Bunfungus (ModelBunfungus) - **AAA Redesigned & Pushed (2026-07-19)**: Implemented heavy amphibious breathing (`heavyBreath`), belly expansion scaling (`belly.setScale`), fluid ear flopping, and refined hopping/landing biomechanics.
 
 ## Remaining Creatures in Batch 1 & Beyond
-- [ ] Bunfungus (ModelBunfungus)
 - [ ] Cachalot Whale (ModelCachalotWhale)
 - [ ] Caiman
 - [ ] Capuchin Monkey
@@ -102,6 +102,7 @@
 - Bison: 2026-07-19
 - Blobfish: 2026-07-19
 - Blue Jay: 2026-07-19
+- Bunfungus: 2026-07-19
 
 ## Summary of Animation Improvements
 - **Alligator Snapping Turtle**: Implemented heavy reptile biomechanics, chest breathing cycle, diagonal quad-gait weight shifting, attack snap anticipation and recoil, and secondary tail inertia.
@@ -112,6 +113,7 @@
 - **Bison**: Added massive shoulder hump mass weight transfer, chest expansion breathing, ear/beard inertia, and heavy charge physics.
 - **Blobfish**: Added gelatinous buoyancy drift, soft-body pulsing squash/stretch physics, and fluid fin propulsion.
 - **Blue Jay**: Added avian chest breathing, crest expression, head bobbing stabilization, and perching balance.
+- **Bunfungus**: Added heavy amphibious breathing, belly expansion scaling, ear fluidity, and refined hopping mechanics.
 
 ## Notes
 - Working strictly one animal at a time with rigorous depth and quality.
