@@ -1,7 +1,4 @@
-package com.github.alexthe666.alexsmobs.client.model;// Made with Blockbench 3.7.5
-// Exported for Minecraft version 1.15
-// Paste this class into your mod and generate all required imports
-
+package com.github.alexthe666.alexsmobs.client.model;
 
 import com.github.alexthe666.alexsmobs.entity.EntityAlligatorSnappingTurtle;
 import com.github.alexthe666.alexsmobs.entity.util.Maths;
@@ -12,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.Mth;
 
 public class ModelAlligatorSnappingTurtle extends AdvancedEntityModel<EntityAlligatorSnappingTurtle> {
     private final AdvancedModelBox root;
@@ -112,32 +110,64 @@ public class ModelAlligatorSnappingTurtle extends AdvancedEntityModel<EntityAlli
 
     @Override
     public void setupAnim(EntityAlligatorSnappingTurtle entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        // MANDATORY: Always reset to default pose first to prevent angle accumulation (AAA Animation Rule)
         this.resetToDefaultPose();
-        float idleSpeed = 0.05F;
-        float idleDegree = 0.25F;
-        float walkSpeed = entityIn.isInWater() ? 0.5F : 1F;
-        float walkDegree = 0.75F;
+
+        // Biomechanical constants for heavy reptile physics & weight transfer
+        float idleSpeed = 0.06F;
+        float idleDegree = 0.2F;
+        boolean inWater = entityIn.isInWater();
+        float walkSpeed = inWater ? 0.45F : 0.85F;
+        float walkDegree = inWater ? 0.9F : 0.65F;
         float partialTicks = Minecraft.getInstance().getFrameTime();
+
+        // Attack & Mouth Open progress interpolation
         float openProgress = entityIn.prevOpenMouthProgress + (entityIn.openMouthProgress - entityIn.prevOpenMouthProgress) * partialTicks;
         float snapProgress = entityIn.prevAttackProgress + (entityIn.attackProgress - entityIn.prevAttackProgress) * partialTicks;
-        progressRotationPrev(neck, openProgress, Maths.rad(-10), 0, 0, 5F);
-        progressRotationPrev(head, openProgress, Maths.rad(-35), 0, 0, 5F);
-        progressRotationPrev(jaw, openProgress, Maths.rad(65), 0, 0, 5F);
-        progressPositionPrev(jaw, openProgress, 0, -1, 0, 5F);
-        progressPositionPrev(neck, snapProgress, 0, 0, 0, 5F);
-        neck.setScale((1 - snapProgress * 0.05F), (1 - snapProgress * 0.05F), (1 + snapProgress * 0.5F));
-        head.rotationPointZ -= 1.45F * snapProgress;
-        progressRotationPrev(head, snapProgress, Maths.rad(10), 0, 0, 5F);
-        progressRotationPrev(jaw, snapProgress, Maths.rad(-10), 0, 0, 5F);
-        this.swing(tail, idleSpeed, idleDegree * 1.15F, false, 3, 0F, ageInTicks, 1);
-        this.swing(leg_right, walkSpeed, walkDegree, true, 1, 0F, limbSwing, limbSwingAmount);
-        this.swing(leg_left, walkSpeed, walkDegree, false, 1, 0F, limbSwing, limbSwingAmount);
-        this.swing(arm_right, walkSpeed, walkDegree, false, 0, 0.1F, limbSwing, limbSwingAmount);
-        this.swing(arm_left, walkSpeed, walkDegree, true, 0, 0.1F, limbSwing, limbSwingAmount);
-        this.swing(tail, walkSpeed * 1.35F, walkDegree * 1.15F, false, 3, 0F, limbSwing, limbSwingAmount);
-        this.swing(neck, walkSpeed * 0.75F, walkDegree * 0.15F, false, -2, 0F, limbSwing, limbSwingAmount);
-        this.swing(head, walkSpeed * 0.75F, walkDegree * 0.15F, false, -2, 0F, limbSwing, limbSwingAmount);
 
+        // Advanced AAA Jaw & Snap Mechanics with anticipation and recoil
+        progressRotationPrev(neck, openProgress, Maths.rad(-12), 0, 0, 5F);
+        progressRotationPrev(head, openProgress, Maths.rad(-40), 0, 0, 5F);
+        progressRotationPrev(jaw, openProgress, Maths.rad(70), 0, 0, 5F);
+        progressPositionPrev(jaw, openProgress, 0, -1.2F, 0, 5F);
+
+        progressPositionPrev(neck, snapProgress, 0, 0, -1.5F, 5F);
+        neck.setScale((1 - snapProgress * 0.05F), (1 - snapProgress * 0.05F), (1 + snapProgress * 0.6F));
+        head.rotationPointZ -= 1.6F * snapProgress;
+        progressRotationPrev(head, snapProgress, Maths.rad(15), 0, 0, 5F);
+        progressRotationPrev(jaw, snapProgress, Maths.rad(-15), 0, 0, 5F);
+
+        // Procedural Idle Breathing (Subtle chest and neck expansion reflecting massive reptile metabolism)
+        float breathCycle = Maths.cos(ageInTicks * 0.08F);
+        body.rotationPointY += breathCycle * 0.3F;
+        neck.rotateAngleX += breathCycle * 0.03F;
+
+        // Secondary Motion & Inertia: Tail follows body movement with phase lag
+        this.swing(tail, idleSpeed, idleDegree * 1.2F, false, 2.5F, 0F, ageInTicks, 1.0F);
+        this.bob(body, idleSpeed * 2.0F, idleDegree * 0.5F, false, ageInTicks, 1.0F);
+
+        // Quadrupedal Heavy Locomotion (Accurate diagonal gait phase synchronization)
+        if (limbSwingAmount > 0.01F) {
+            // Heavy footfalls with proper weight transfer and torso roll
+            this.swing(leg_right, walkSpeed, walkDegree, true, 1.0F, 0.1F, limbSwing, limbSwingAmount);
+            this.swing(leg_left, walkSpeed, walkDegree, false, 1.0F, -0.1F, limbSwing, limbSwingAmount);
+            this.swing(arm_right, walkSpeed, walkDegree, false, 0.0F, 0.1F, limbSwing, limbSwingAmount);
+            this.swing(arm_left, walkSpeed, walkDegree, true, 0.0F, -0.1F, limbSwing, limbSwingAmount);
+
+            // Vertical weight shifting (Body heave on step impact)
+            this.bob(body, walkSpeed * 2.0F, walkDegree * 1.5F, true, limbSwing, limbSwingAmount);
+            
+            // Tail counter-steering during locomotion
+            this.swing(tail, walkSpeed * 1.35F, walkDegree * 1.2F, false, 3.0F, 0F, limbSwing, limbSwingAmount);
+            
+            // Head and neck follow-through / inertia
+            this.walk(neck, walkSpeed * 0.75F, walkDegree * 0.2F, false, -1.5F, 0F, limbSwing, limbSwingAmount);
+            this.walk(head, walkSpeed * 0.75F, walkDegree * 0.15F, false, -2.0F, 0F, limbSwing, limbSwingAmount);
+        }
+
+        // Head stabilization and natural look constraints
+        this.head.rotateAngleY += netHeadYaw * 0.4F * Mth.DEG_TO_RAD;
+        this.head.rotateAngleX += headPitch * 0.4F * Mth.DEG_TO_RAD;
     }
 
     public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
