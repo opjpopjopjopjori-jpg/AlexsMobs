@@ -6,9 +6,9 @@
 - [x] Anteater (ModelAnteater) - **AAA Redesigned & Pushed (2026-07-19)**: Added procedural resting breath, micro-movement ear twitching, refined quadrupedal gait with body weight bobbing, and precise tongue/snout follow-through mechanics.
 - [x] Bald Eagle (ModelBaldEagle) - **AAA Redesigned & Pushed (2026-07-19)**: Implemented avian flight wingtip flexibility (`tipL`, `tipR`), procedural breathing during flight and perching, stabilized head look mechanics, and natural perching balance.
 - [x] Banana Slug (ModelBananaSlug) - **AAA Redesigned & Pushed (2026-07-19)**: Added visceral soft-body viscoelastic stretching/squishing physics, metabolic resting pulse, antenna probing sway, and refined slime trail dynamics (`goo`).
+- [x] Bison (ModelBison) - **AAA Redesigned & Pushed (2026-07-19)**: Implemented massive shoulder hump weight transfer, heavy chest expansion breathing (`heavyBreath`), ear twitching/beard inertia micro-movements, and refined heavy charging/walking physics.
 
 ## Remaining Creatures in Batch 1 & Beyond
-- [ ] Bison (ModelBison)
 - [ ] Blobfish (ModelBlobfish)
 - [ ] Blue Jay (ModelBlueJay)
 - [ ] Bunfungus (ModelBunfungus)
@@ -99,6 +99,7 @@
 - Anteater: 2026-07-19
 - Bald Eagle: 2026-07-19
 - Banana Slug: 2026-07-19
+- Bison: 2026-07-19
 
 ## Summary of Animation Improvements
 - **Alligator Snapping Turtle**: Implemented heavy reptile biomechanics, chest breathing cycle, diagonal quad-gait weight shifting, attack snap anticipation and recoil, and secondary tail inertia.
@@ -106,6 +107,7 @@
 - **Anteater**: Added procedural resting breath, micro ear twitching, refined quadrupedal locomotion physics, and tongue darting follow-through.
 - **Bald Eagle**: Added avian wingtip flexibility, flight breathing mechanics, head stabilization, and precise perching balance.
 - **Banana Slug**: Added soft-body viscoelastic stretch/squish mechanics, metabolic resting pulse, antenna probing, and slime trail physics.
+- **Bison**: Added massive shoulder hump mass weight transfer, chest expansion breathing, ear/beard inertia, and heavy charge physics.
 
 ## Notes
 - Working strictly one animal at a time with rigorous depth and quality.
