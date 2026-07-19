@@ -55,7 +55,7 @@ public class ModelAnteater extends AdvancedEntityModel<EntityAnteater> {
         right_ear = new AdvancedModelBox(this, "right_ear");
         right_ear.setRotationPoint(-2.0F, 0.0F, -4.0F);
         head.addChild(right_ear);
-        right_ear.setTextureOffset(11, 0).addBox(-1.0F, -2.0F, 0.0F, 2.0F, 2.0F, 0.0F, 0.0F, true);
+        right_ear.setTextureOffset(11, 0).addBox(-1.0F, -2.0F, 0.0F, 2.0F, 2.0F, 0.0F, true);
 
         snout = new AdvancedModelBox(this, "snout");
         snout.setRotationPoint(0.0F, 1.5F, -6.5F);
@@ -143,7 +143,7 @@ public class ModelAnteater extends AdvancedEntityModel<EntityAnteater> {
         animator.rotate(body, Maths.rad(-15), Maths.rad(15), 0);
         animator.rotate(tail, Maths.rad(25), Maths.rad(-15), 0);
         animator.rotate(head, Maths.rad(15), Maths.rad(-15), 0);
-        animator.rotate(right_leg, Maths.rad(15), 0, 0);
+        animator.rotate(right_leg, Maths.rad(-15), 0, 0); // fixed minor rotation sync
         animator.rotate(left_leg, Maths.rad(15), 0, 0);
         animator.rotate(right_arm, Maths.rad(-50), 0, Maths.rad(45));
         animator.endKeyframe();
@@ -153,24 +153,28 @@ public class ModelAnteater extends AdvancedEntityModel<EntityAnteater> {
         animator.rotate(right_arm, Maths.rad(-10) + Maths.rad(-70) * inverStandProgress, 0, Maths.rad(-65) * standProgress);
         animator.endKeyframe();
         animator.resetKeyframe(5);
-
     }
-
 
     @Override
     public void setupAnim(EntityAnteater entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
+        // MANDATORY: Always reset to default pose first (AAA Animation Rule)
         this.resetToDefaultPose();
+
         animate(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+
         float tongueSpeed = 0.7F;
         float tongueDegree = 0.35F;
-        float walkSpeed = 0.5F;
-        float walkDegree = 1F;
-        float idleSpeed = 0.1F;
-        float idleDegree = 0.2F;
+        float walkSpeed = 0.6F;
+        float walkDegree = 0.85F;
+        float idleSpeed = 0.08F;
+        float idleDegree = 0.15F;
         float partialTick = ageInTicks - entity.tickCount;
+
         float standProgress = entity.prevStandProgress + (entity.standProgress - entity.prevStandProgress) * partialTick;
         float feedProgress = entity.prevTongueProgress + (entity.tongueProgress - entity.prevTongueProgress) * partialTick;
         float leaningProgress = entity.prevLeaningProgress + (entity.leaningProgress - entity.prevLeaningProgress) * partialTick;
+
+        // Bipedal stance transformations
         progressRotationPrev(body, standProgress, Maths.rad(-80), 0, 0, 5F);
         progressRotationPrev(left_leg, standProgress, Maths.rad(80), Maths.rad(10), 0, 5F);
         progressRotationPrev(right_leg, standProgress, Maths.rad(80), Maths.rad(-10), 0, 5F);
@@ -185,6 +189,7 @@ public class ModelAnteater extends AdvancedEntityModel<EntityAnteater> {
         progressPositionPrev(right_leg, standProgress, 0, -2, 0, 5F);
         progressPositionPrev(left_arm, standProgress, 1, -1, 2, 5F);
         progressPositionPrev(right_arm, standProgress, -1, -1, 2, 5F);
+
         if(entity.isBaby() && entity.isPassenger()){
             progressRotationPrev(left_arm, 1, 0,  Maths.rad(-90), Maths.rad(-60), 1);
             progressRotationPrev(right_arm, 1, 0,  Maths.rad(90), Maths.rad(60), 1);
@@ -192,27 +197,45 @@ public class ModelAnteater extends AdvancedEntityModel<EntityAnteater> {
             progressRotationPrev(right_leg, 1, Maths.rad(20), 0, Maths.rad(60), 1);
             progressRotationPrev(tail, 1, Maths.rad(-20), 0, 0, 1);
         }
+
         progressRotationPrev(head, leaningProgress, Maths.rad(50), 0, 0, 20F);
+
+        // Procedural Idle Breathing
+        float breath = Maths.cos(ageInTicks * 0.1F);
+        body.rotationPointY += breath * 0.35F;
+        head.rotateAngleX += breath * 0.04F;
+
+        // Ear twitching micro-movements for wildlife realism
+        left_ear.rotateAngleY += Maths.sin(ageInTicks * 0.2F) * 0.1F;
+        right_ear.rotateAngleY += Maths.cos(ageInTicks * 0.23F) * 0.1F;
+
+        // Tongue darting mechanics during feeding
         double tongueM = Math.min(Math.sin(ageInTicks * 0.15F), 0);
         float toungeF = 12F + 12F * (float) tongueM * (feedProgress * 0.2F);
         float toungeMinus = (float) -tongueM * (feedProgress * 0.2F);
         this.walk(tongue1, tongueSpeed * 2F, tongueDegree, false, 0F, 0F, ageInTicks,  toungeMinus);
         this.walk(tongue2, tongueSpeed * 2F, tongueDegree, false, 0F, 0F, ageInTicks,  toungeMinus);
         this.tongue1.rotationPointZ += toungeF;
-        this.walk(tail, idleSpeed, idleDegree, true, 2F, 0.2F, ageInTicks, 1);
+
+        // Tail and arm secondary motion during rest
+        this.walk(tail, idleSpeed, idleDegree, true, 2F, 0.2F, ageInTicks, 1.0F);
         this.walk(right_arm, idleSpeed, idleDegree, true, 2F, 0.2F, ageInTicks, standProgress * 0.2F);
         this.walk(left_arm, idleSpeed, idleDegree, true, 2F, 0.2F, ageInTicks, standProgress * 0.2F);
-        this.walk(right_leg, walkSpeed, walkDegree, false, 0F, 0F, limbSwing, limbSwingAmount);
-        this.walk(left_leg, walkSpeed, walkDegree, true, 0F, 0F, limbSwing, limbSwingAmount);
-        this.walk(left_arm, walkSpeed, walkDegree, false, 0F, 0F, limbSwing, limbSwingAmount);
-        this.walk(right_arm, walkSpeed, walkDegree, true, 0F, 0F, limbSwing, limbSwingAmount);
-        this.swing(tail, walkSpeed, walkDegree * 0.2F, true, 1F, 0F, limbSwing, limbSwingAmount);
-        this.bob(body, walkSpeed, walkDegree * 2F, true, limbSwing, limbSwingAmount);
-        this.bob(head, walkSpeed, walkDegree, true, limbSwing, limbSwingAmount);
+
+        // Quadrupedal locomotion with refined weight distribution and vertical bobbing
+        if (limbSwingAmount > 0.01F) {
+            this.walk(right_leg, walkSpeed, walkDegree, false, 0F, 0F, limbSwing, limbSwingAmount);
+            this.walk(left_leg, walkSpeed, walkDegree, true, 0F, 0F, limbSwing, limbSwingAmount);
+            this.walk(left_arm, walkSpeed, walkDegree, false, 0F, 0F, limbSwing, limbSwingAmount);
+            this.walk(right_arm, walkSpeed, walkDegree, true, 0F, 0F, limbSwing, limbSwingAmount);
+            this.swing(tail, walkSpeed, walkDegree * 0.25F, true, 1F, 0F, limbSwing, limbSwingAmount);
+            this.bob(body, walkSpeed * 2F, walkDegree * 1.8F, true, limbSwing, limbSwingAmount);
+            this.bob(head, walkSpeed, walkDegree * 0.8F, true, limbSwing, limbSwingAmount);
+        }
+
         if(standProgress <= 0.0F){
             this.faceTarget(netHeadYaw, headPitch, 1, head);
         }
-
     }
 
     @Override
