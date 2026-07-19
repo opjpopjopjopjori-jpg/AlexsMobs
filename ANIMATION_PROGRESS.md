@@ -3,9 +3,9 @@
 ## Completed Creatures
 - [x] Alligator Snapping Turtle (ModelAlligatorSnappingTurtle) - **AAA Redesigned & Pushed (2026-07-19)**: Added heavy-shell weight transfer, procedural breathing, precise diagonal quad gait phase synchronization, jaw snap anticipation/recoil, and tail inertia.
 - [x] Anaconda (ModelAnaconda) - **AAA Redesigned & Pushed (2026-07-19)**: Implemented fluid serpentine traveling wave propagation across body segments, advanced strangle mechanics with anticipation/recoil, resting idle undulation, and muscular contraction swell physics.
+- [x] Anteater (ModelAnteater) - **AAA Redesigned & Pushed (2026-07-19)**: Added procedural resting breath, micro-movement ear twitching, refined quadrupedal gait with body weight bobbing, and precise tongue/snout follow-through mechanics.
 
 ## Remaining Creatures in Batch 1 & Beyond
-- [ ] Anteater (ModelAnteater)
 - [ ] Bald Eagle (ModelBaldEagle)
 - [ ] Banana Slug (ModelBananaSlug)
 - [ ] Bison (ModelBison)
@@ -96,10 +96,12 @@
 ## Date Completed
 - Alligator Snapping Turtle: 2026-07-19
 - Anaconda: 2026-07-19
+- Anteater: 2026-07-19
 
 ## Summary of Animation Improvements
 - **Alligator Snapping Turtle**: Implemented heavy reptile biomechanics, chest breathing cycle, diagonal quad-gait weight shifting, attack snap anticipation and recoil, and secondary tail inertia.
 - **Anaconda**: Implemented fluid serpentine wave propagation across body segments, advanced strangle mechanics, resting idle undulation, and muscular swelling physics.
+- **Anteater**: Added procedural resting breath, micro ear twitching, refined quadrupedal locomotion physics, and tongue darting follow-through.
 
 ## Notes
 - Working strictly one animal at a time with rigorous depth and quality.
