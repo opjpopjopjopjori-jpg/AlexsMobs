@@ -98,7 +98,6 @@ public class ModelCapuchinMonkey extends AdvancedEntityModel<EntityCapuchinMonke
 	}
 
 	public void animate(IAnimatedEntity entity, float f, float f1, float f2, float f3, float f4) {
-		this.resetToDefaultPose();
 		animator.update(entity);
 		animator.setAnimation(EntityCapuchinMonkey.ANIMATION_THROW);
 		animator.startKeyframe(3);
@@ -136,6 +135,7 @@ public class ModelCapuchinMonkey extends AdvancedEntityModel<EntityCapuchinMonke
 		animator.rotate(arm_left, Maths.rad(-50), 0,  Maths.rad(-5));
 		animator.endKeyframe();
 		animator.resetKeyframe(4);
+
 		animator.setAnimation(EntityCapuchinMonkey.ANIMATION_SCRATCH);
 		animator.startKeyframe(3);
 		animator.move(body, 0, 1, 0);
@@ -178,6 +178,7 @@ public class ModelCapuchinMonkey extends AdvancedEntityModel<EntityCapuchinMonke
 		animator.rotate(arm_left, Maths.rad(-50), 0,  Maths.rad(-15));
 		animator.endKeyframe();
 		animator.resetKeyframe(5);
+
 		animator.setAnimation(EntityCapuchinMonkey.ANIMATION_HEADTILT);
 		animator.startKeyframe(5);
 		animator.rotate(head, 0, 0, Maths.rad(25));
@@ -190,10 +191,9 @@ public class ModelCapuchinMonkey extends AdvancedEntityModel<EntityCapuchinMonke
 		animator.endKeyframe();
 		animator.setStaticKeyframe(2);
 		animator.resetKeyframe(5);
-
 	}
 
-		@Override
+	@Override
 	public Iterable<BasicModelPart> parts() {
 		return ImmutableList.of(root);
 	}
@@ -205,15 +205,24 @@ public class ModelCapuchinMonkey extends AdvancedEntityModel<EntityCapuchinMonke
 
 	@Override
 	public void setupAnim(EntityCapuchinMonkey entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
+		// MANDATORY: Always reset to default pose first (AAA Animation Rule)
+		this.resetToDefaultPose();
+
 		this.animate(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-		float idleSpeed = 0.2F;
-		float idleDegree = 0.4F;
-		float walkSpeed = 0.8F;
-		float walkDegree = 0.7F;
+
+		float idleSpeed = 0.22F;
+		float idleDegree = 0.45F;
+		float walkSpeed = 0.85F;
+		float walkDegree = 0.75F;
 		float stillProgress = 5F * (1F - limbSwingAmount);
 		float partialTick = Minecraft.getInstance().getFrameTime();
-		float sitProgress = entity.isPassenger() ? 0 :entity.prevSitProgress + (entity.sitProgress - entity.prevSitProgress) * partialTick;
+		float sitProgress = entity.isPassenger() ? 0 : entity.prevSitProgress + (entity.sitProgress - entity.prevSitProgress) * partialTick;
 		float rideProgress = entity.isPassenger() && entity.getVehicle() instanceof LivingEntity && entity.isOwnedBy((LivingEntity) entity.getVehicle()) ? 10 : 0;
+
+		// Procedural Primate Chest Breathing
+		float breath = Maths.cos(ageInTicks * 0.12F);
+		body.rotationPointY += breath * 0.2F;
+
 		progressPositionPrev(body, rideProgress, 3, 12F, 0, 10F);
 		progressRotationPrev(body, rideProgress, 0,  Maths.rad(90), 0, 10F);
 		progressRotationPrev(head, rideProgress, 0,  Maths.rad(-90), 0, 10F);
@@ -229,19 +238,18 @@ public class ModelCapuchinMonkey extends AdvancedEntityModel<EntityCapuchinMonke
 		progressRotationPrev(leg_left, sitProgress, Maths.rad(85), Maths.rad(-15), 0, 10F);
 		progressRotationPrev(leg_right, sitProgress, Maths.rad(85), Maths.rad(-15), 0, 10F);
 
-		this.faceTarget(netHeadYaw, headPitch, 1, head);
-		this.swing(tail1, idleSpeed, idleDegree * 0.2F, false, 0.3F, 0F, ageInTicks, 1);
-		this.swing(tail2, idleSpeed, idleDegree * 0.2F, false, 0.3F, 0F, ageInTicks, 1);
-		this.walk(tail1, walkSpeed, walkDegree * 0.2F, false, 1, 0F, limbSwing, limbSwingAmount);
-		this.walk(tail2, walkSpeed, walkDegree * 0.2F, false, 1.3F, 0F, limbSwing, limbSwingAmount);
-		this.walk(tail2_r1, walkSpeed, walkDegree * 0.2F, false, 1.5F, 0F, limbSwing, limbSwingAmount);
+		this.faceTarget(netHeadYaw, headPitch, 1.0F, head);
+		this.swing(tail1, idleSpeed, idleDegree * 0.25F, false, 0.3F, 0F, ageInTicks, 1.0F);
+		this.swing(tail2, idleSpeed, idleDegree * 0.25F, false, 0.3F, 0F, ageInTicks, 1.0F);
+		this.walk(tail1, walkSpeed, walkDegree * 0.25F, false, 1.0F, 0F, limbSwing, limbSwingAmount);
+		this.walk(tail2, walkSpeed, walkDegree * 0.25F, false, 1.3F, 0F, limbSwing, limbSwingAmount);
+		this.walk(tail2_r1, walkSpeed, walkDegree * 0.25F, false, 1.5F, 0F, limbSwing, limbSwingAmount);
 		this.walk(body, walkSpeed, walkDegree * 0.2F, false, 0, 0F, limbSwing, limbSwingAmount);
-		this.bob(body, walkSpeed, walkDegree * 2F, false, limbSwing, limbSwingAmount);
+		this.bob(body, walkSpeed, walkDegree * 2.2F, false, limbSwing, limbSwingAmount);
 		this.walk(arm_left, walkSpeed, walkDegree, false, 1.4F, 0F, limbSwing, limbSwingAmount);
 		this.walk(arm_right, walkSpeed, walkDegree, false, 1.4F, 0F, limbSwing, limbSwingAmount);
-		this.walk(leg_left, walkSpeed, walkDegree, false, -2F, 0F, limbSwing, limbSwingAmount);
-		this.walk(leg_right, walkSpeed, walkDegree, false, -2F, 0F, limbSwing, limbSwingAmount);
-
+		this.walk(leg_left, walkSpeed, walkDegree, false, -2.0F, 0F, limbSwing, limbSwingAmount);
+		this.walk(leg_right, walkSpeed, walkDegree, false, -2.0F, 0F, limbSwing, limbSwingAmount);
 	}
 
 	public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
@@ -264,7 +272,6 @@ public class ModelCapuchinMonkey extends AdvancedEntityModel<EntityCapuchinMonke
 			});
 			matrixStackIn.popPose();
 		}
-
 	}
 
 	public void setRotationAngle(AdvancedModelBox AdvancedModelBox, float x, float y, float z) {
