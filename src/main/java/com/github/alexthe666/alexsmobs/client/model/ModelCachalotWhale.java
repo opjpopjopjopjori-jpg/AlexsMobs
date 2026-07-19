@@ -1,7 +1,4 @@
-package com.github.alexthe666.alexsmobs.client.model;// Made with Blockbench 3.8.3
-// Exported for Minecraft version 1.15 - 1.16
-// Paste this class into your mod and generate all required imports
-
+package com.github.alexthe666.alexsmobs.client.model;
 
 import com.github.alexthe666.alexsmobs.entity.EntityCachalotWhale;
 import com.github.alexthe666.alexsmobs.entity.util.Maths;
@@ -98,39 +95,50 @@ public class ModelCachalotWhale extends AdvancedEntityModel<EntityCachalotWhale>
 
 	@Override
 	public void setupAnim(EntityCachalotWhale entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
+		// MANDATORY: Always reset to default pose first (AAA Animation Rule)
 		this.resetToDefaultPose();
+
 		float partialTicks = ageInTicks - entity.tickCount;
-		float renderYaw = (float)entity.getMovementOffsets(0, partialTicks)[0] ;
+		float renderYaw = (float)entity.getMovementOffsets(0, partialTicks)[0];
 		float properPitch = entity.xRotO + (entity.getXRot() - entity.xRotO) * partialTicks;
 		float chargeProgress = entity.prevChargingProgress + (entity.chargeProgress - entity.prevChargingProgress) * partialTicks;
 		float sleepProgress = entity.prevSleepProgress + (entity.sleepProgress - entity.prevSleepProgress) * partialTicks;
 		float beachedProgress = entity.prevBeachedProgress + (entity.beachedProgress - entity.prevBeachedProgress) * partialTicks;
 		float grabProgress = entity.prevGrabProgress + (entity.grabProgress - entity.prevGrabProgress) * partialTicks;
+
 		float f = Mth.clamp((float)entity.getMovementOffsets(7, partialTicks)[0] - renderYaw, -50, 50);
-		this.tail1.rotateAngleY += (float) Mth.clamp((float)entity.getMovementOffsets(15, partialTicks)[0] - renderYaw, -50, 50)  * 0.017453292F;
-		this.tail2.rotateAngleY += (float) Mth.clamp((float)entity.getMovementOffsets(17, partialTicks)[0] - renderYaw, -50, 50)  * 0.017453292F;
+		this.tail1.rotateAngleY += (float) Mth.clamp((float)entity.getMovementOffsets(15, partialTicks)[0] - renderYaw, -50, 50) * 0.017453292F;
+		this.tail2.rotateAngleY += (float) Mth.clamp((float)entity.getMovementOffsets(17, partialTicks)[0] - renderYaw, -50, 50) * 0.017453292F;
 		this.body.rotateAngleX += Math.min(properPitch, sleepProgress * -9) * Mth.DEG_TO_RAD;
 		this.body.rotateAngleZ += f * 0.017453292F;
 		this.head.rotateAngleY += Math.sin((entity.grabTime + partialTicks) * 0.3F) * 0.1F * grabProgress;
+
 		AdvancedModelBox[] tailBoxes = new AdvancedModelBox[]{tail1, tail2, tail3};
-		float swimSpeed = 0.2F + 0;
-		float swimDegree = 0.4F;
+		float swimSpeed = 0.2F;
+		float swimDegree = 0.45F;
 		float beachedSpeed = 0.05F;
 		float beachedIdle = 0.4F;
+
+		// Majestic deep-sea hydrodynamic idle drifting (Whale breathing/buoyancy rhythm)
+		float idleDrift = Maths.cos(ageInTicks * 0.05F);
+		body.rotationPointY += idleDrift * 1.5F;
+		this.chainWave(tailBoxes, 0.05F, 0.15F, -2.0F, ageInTicks, 1.0F);
+
 		progressRotationPrev(jaw, Math.max(chargeProgress, grabProgress * 0.8F), Maths.rad(30), 0, 0, 10F);
 		progressRotationPrev(jaw, beachedProgress, Maths.rad(20), Maths.rad(5), 0, 10F);
-		progressRotationPrev(body, beachedProgress, 0, 0,  Maths.rad(80), 10F);
-		progressRotationPrev(tail1, beachedProgress, Maths.rad(-30), Maths.rad(10),  0, 10F);
-		progressRotationPrev(tail2, beachedProgress, Maths.rad(-30), Maths.rad(-30),  Maths.rad(-30), 10F);
-		progressRotationPrev(tail3, beachedProgress, 0, Maths.rad(-10),  Maths.rad(-60), 10F);
+		progressRotationPrev(body, beachedProgress, 0, 0, Maths.rad(80), 10F);
+		progressRotationPrev(tail1, beachedProgress, Maths.rad(-30), Maths.rad(10), 0, 10F);
+		progressRotationPrev(tail2, beachedProgress, Maths.rad(-30), Maths.rad(-30), Maths.rad(-30), 10F);
+		progressRotationPrev(tail3, beachedProgress, 0, Maths.rad(-10), Maths.rad(-60), 10F);
 		progressRotationPrev(head, beachedProgress, 0, Maths.rad(-10), 0, 10F);
-		progressRotationPrev(arm_right, beachedProgress, 0, 0,  Maths.rad(-110), 10F);
-		progressRotationPrev(arm_left, beachedProgress, 0, 0,  Maths.rad(110), 10F);
+		progressRotationPrev(arm_right, beachedProgress, 0, 0, Maths.rad(-110), 10F);
+		progressRotationPrev(arm_left, beachedProgress, 0, 0, Maths.rad(110), 10F);
 		progressPositionPrev(tail1, beachedProgress, -2F, -1F, -10F, 10F);
 		progressPositionPrev(tail2, beachedProgress, 0F, -1F, -4F, 10F);
 		progressPositionPrev(tail3, beachedProgress, 0F, 2F, 0F, 10F);
 		progressPositionPrev(body, beachedProgress, 0F, 5F, 0F, 10F);
 		progressPositionPrev(head, beachedProgress, 0F, 0F, 3F, 10F);
+
 		if(beachedProgress > 0){
 			this.swing(arm_left, beachedSpeed, beachedIdle * 0.2F, true, 1F, 0F, ageInTicks, 1);
 			this.flap(arm_right, beachedSpeed, beachedIdle * 0.2F, true, 3F, 0.06F, ageInTicks, 1);
@@ -146,7 +154,7 @@ public class ModelCachalotWhale extends AdvancedEntityModel<EntityCachalotWhale>
 			this.flap(arm_left, swimSpeed, swimDegree * 1.4F, true, 2.5F, 0F, limbSwing, limbSwingAmount);
 			this.flap(arm_right, swimSpeed, swimDegree * 1.4F, false, 2.5F, 0F, limbSwing, limbSwingAmount);
 			this.bob(body, swimSpeed, swimDegree * 20, false, limbSwing, limbSwingAmount);
-			this.chainWave(tailBoxes, swimSpeed, swimDegree * 0.8F, -2F, limbSwing, limbSwingAmount);
+			this.chainWave(tailBoxes, swimSpeed, swimDegree * 0.85F, -2F, limbSwing, limbSwingAmount);
 			this.walk(head, swimSpeed, swimDegree * 0.1F, false, 2F, 0, limbSwing, limbSwingAmount);
 			this.tail1.rotationPointZ -= 4 * limbSwingAmount;
 			this.tail2.rotationPointZ -= 2 * limbSwingAmount;
