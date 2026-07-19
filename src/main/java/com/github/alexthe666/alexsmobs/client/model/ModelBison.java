@@ -189,7 +189,6 @@ public class ModelBison extends AdvancedEntityModel<EntityBison> {
         animator.rotate(right_arm, Maths.rad(20), 0, 0);
         animator.endKeyframe();
         animator.resetKeyframe(5);
-
     }
 
     private void eatPose(){
@@ -206,44 +205,58 @@ public class ModelBison extends AdvancedEntityModel<EntityBison> {
 
     @Override
     public void setupAnim(EntityBison entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        // MANDATORY: Always reset to default pose first (AAA Animation Rule)
+        this.resetToDefaultPose();
+
         this.animate(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-        float walkSpeed = 0.7F;
+
+        float walkSpeed = 0.65F;
         float walkDegree = 0.6F;
-        float idleSpeed = 0.1F;
-        float idleDegree = 0.1F;
+        float idleSpeed = 0.09F;
+        float idleDegree = 0.12F;
         float partialTick = ageInTicks - entity.tickCount;
         float runProgress = entity.prevChargeProgress + (entity.chargeProgress - entity.prevChargeProgress) * partialTick;
+
         progressPositionPrev(head, runProgress, 0, 1, -3.5F, 5F);
         progressRotationPrev(head, runProgress, Maths.rad(30), 0, 0, 5F);
+
+        // Advanced AAA Heavy Mammal Biomechanics & Weight Transfer
+        float heavyBreath = Maths.cos(ageInTicks * 0.07F);
+        torso.rotationPointY += heavyBreath * 0.4F;
+        body.rotationPointY += heavyBreath * 0.25F;
+
         if (runProgress > 0) {
-            this.walk(right_arm, walkSpeed, walkDegree, false, 0F, 0F, limbSwing, limbSwingAmount);
-            this.walk(left_arm, walkSpeed, walkDegree, false, 0F, 0F, limbSwing, limbSwingAmount);
-            this.flap(right_arm, walkSpeed, walkDegree * 0.25F, true, 0F, 0F, limbSwing, limbSwingAmount);
-            this.flap(left_arm, walkSpeed, walkDegree * 0.25F, false, 0F, 0F, limbSwing, limbSwingAmount);
-            this.walk(right_leg, walkSpeed, walkDegree, true, 0F, 0F, limbSwing, limbSwingAmount);
-            this.walk(left_leg, walkSpeed, walkDegree, true, 0F, 0F, limbSwing, limbSwingAmount);
-            this.flap(right_leg, walkSpeed, walkDegree * 0.25F, true, 0F, 0F, limbSwing, limbSwingAmount);
-            this.flap(left_leg, walkSpeed, walkDegree * 0.25F, false, 0F, 0F, limbSwing, limbSwingAmount);
-            this.walk(tail, walkSpeed, walkDegree * 0.2F, true, 1F, -0.6F, limbSwing, limbSwingAmount);
-            this.bob(body, walkSpeed * 0.5F, walkDegree * 5F, true, limbSwing, limbSwingAmount);
-            this.bob(head, walkSpeed * 0.5F, -walkDegree * 2F, false, limbSwing, limbSwingAmount);
+            this.walk(right_arm, walkSpeed * 1.2F, walkDegree * 1.2F, false, 0F, 0F, limbSwing, limbSwingAmount);
+            this.walk(left_arm, walkSpeed * 1.2F, walkDegree * 1.2F, false, 0F, 0F, limbSwing, limbSwingAmount);
+            this.flap(right_arm, walkSpeed * 1.2F, walkDegree * 0.3F, true, 0F, 0F, limbSwing, limbSwingAmount);
+            this.flap(left_arm, walkSpeed * 1.2F, walkDegree * 0.3F, false, 0F, 0F, limbSwing, limbSwingAmount);
+            this.walk(right_leg, walkSpeed * 1.2F, walkDegree * 1.2F, true, 0F, 0F, limbSwing, limbSwingAmount);
+            this.walk(left_leg, walkSpeed * 1.2F, walkDegree * 1.2F, true, 0F, 0F, limbSwing, limbSwingAmount);
+            this.flap(right_leg, walkSpeed * 1.2F, walkDegree * 0.3F, true, 0F, 0F, limbSwing, limbSwingAmount);
+            this.flap(left_leg, walkSpeed * 1.2F, walkDegree * 0.3F, false, 0F, 0F, limbSwing, limbSwingAmount);
+            this.walk(tail, walkSpeed * 1.2F, walkDegree * 0.25F, true, 1F, -0.6F, limbSwing, limbSwingAmount);
+            this.bob(body, walkSpeed * 0.75F, walkDegree * 6.5F, true, limbSwing, limbSwingAmount);
+            this.bob(head, walkSpeed * 0.75F, -walkDegree * 2.5F, false, limbSwing, limbSwingAmount);
         } else {
             this.walk(right_arm, walkSpeed, walkDegree, false, 0F, 0F, limbSwing, limbSwingAmount);
             this.walk(left_arm, walkSpeed, walkDegree, true, 0F, 0F, limbSwing, limbSwingAmount);
             this.walk(right_leg, walkSpeed, walkDegree, true, 0F, 0F, limbSwing, limbSwingAmount);
             this.walk(left_leg, walkSpeed, walkDegree, false, 0F, 0F, limbSwing, limbSwingAmount);
-            this.walk(tail, walkSpeed, walkDegree * 0.1F, true, 1F, -0.6F, limbSwing, limbSwingAmount);
-            this.bob(body, walkSpeed, walkDegree, true, limbSwing, limbSwingAmount);
-            this.bob(head, walkSpeed, -walkDegree, false, limbSwing, limbSwingAmount);
+            this.walk(tail, walkSpeed, walkDegree * 0.15F, true, 1F, -0.6F, limbSwing, limbSwingAmount);
+            this.bob(body, walkSpeed, walkDegree * 1.2F, true, limbSwing, limbSwingAmount);
+            this.bob(head, walkSpeed, -walkDegree * 1.1F, false, limbSwing, limbSwingAmount);
         }
-        this.flap(beard, idleSpeed, idleDegree, false, 2F, 0F, ageInTicks, 1);
-        this.swing(left_ear, idleSpeed, idleDegree * 0.5F, true, 3F, -0.2F, ageInTicks, 1);
-        this.swing(right_ear, idleSpeed, idleDegree * 0.5F, true, 3F, 0.2F, ageInTicks, 1);
-        this.walk(tail, idleSpeed, idleDegree, false, 1F, 0.1F, ageInTicks, 1);
-        this.bob(head, idleSpeed, idleDegree, false, ageInTicks, 1);
+
+        // Secondary motion & micro-movements (ears, beard inertia)
+        this.flap(beard, idleSpeed, idleDegree, false, 2F, 0F, ageInTicks, 1.0F);
+        this.swing(left_ear, idleSpeed, idleDegree * 0.6F, true, 3F, -0.2F, ageInTicks, 1.0F);
+        this.swing(right_ear, idleSpeed, idleDegree * 0.6F, true, 3F, 0.2F, ageInTicks, 1.0F);
+        this.walk(tail, idleSpeed, idleDegree * 1.2F, false, 1F, 0.1F, ageInTicks, 1.0F);
+        this.bob(head, idleSpeed, idleDegree * 1.2F, false, ageInTicks, 1.0F);
+
+        // Head tracking and natural orientation
         this.head.rotateAngleY += netHeadYaw * 0.35F * Mth.DEG_TO_RAD;
         this.head.rotateAngleX += headPitch * Mth.DEG_TO_RAD;
-
     }
 
     public void setRotationAngle(AdvancedModelBox AdvancedModelBox, float x, float y, float z) {
