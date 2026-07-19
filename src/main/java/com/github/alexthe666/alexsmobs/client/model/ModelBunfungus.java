@@ -184,8 +184,8 @@ public class ModelBunfungus extends AdvancedEntityModel<EntityBunfungus> {
         animator.endKeyframe();
         animator.setStaticKeyframe(5);
         animator.resetKeyframe(5);
-
     }
+
     @Override
     public Iterable<BasicModelPart> parts() {
         return ImmutableList.of(root);
@@ -198,19 +198,25 @@ public class ModelBunfungus extends AdvancedEntityModel<EntityBunfungus> {
 
     @Override
     public void setupAnim(EntityBunfungus entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        // MANDATORY: Always reset to default pose first (AAA Animation Rule)
         this.resetToDefaultPose();
+
         animate(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-        float idleSpeed = 0.1F;
-        float idleDegree = 0.1F;
+
+        float idleSpeed = 0.08F;
+        float idleDegree = 0.12F;
         float walkSpeed = 0.7F;
         float walkDegree = 2F;
         float partialTicks = ageInTicks - entity.tickCount;
+
         float sleepProgress = entity.prevSleepProgress + (entity.sleepProgress - entity.prevSleepProgress) * partialTicks;
         float fallProgress = entity.prevReboundProgress + (entity.reboundProgress - entity.prevReboundProgress) * partialTicks;
         float jumpProgress = Math.max(0, entity.prevJumpProgress + (entity.jumpProgress - entity.prevJumpProgress) * partialTicks - fallProgress);
         float interestedProgress = entity.prevInterestedProgress + (entity.interestedProgress - entity.prevInterestedProgress) * partialTicks;
+
         float walkMod = 1F - (Math.max(jumpProgress, fallProgress) * 0.2F);
         float limbSwingMod = Math.min(limbSwingAmount, 0.38F) * walkMod;
+
         progressRotationPrev(body, sleepProgress, Maths.rad(90), 0, 0, 5F);
         progressRotationPrev(tail, sleepProgress, Maths.rad(-70), 0, 0, 5F);
         progressRotationPrev(right_ear, sleepProgress, Maths.rad(50), Maths.rad(80), 0, 5F);
@@ -226,10 +232,12 @@ public class ModelBunfungus extends AdvancedEntityModel<EntityBunfungus> {
         progressPositionPrev(left_arm, sleepProgress, 0, -3, 2, 5F);
         progressPositionPrev(right_arm, sleepProgress, 0, -3, 2, 5F);
         progressPositionPrev(head, sleepProgress, 0, -3, -1, 5F);
+
         progressRotationPrev(left_foot, limbSwingMod, 0, Maths.rad(40), 0, 0.38F);
         progressRotationPrev(right_foot, limbSwingMod, 0, Maths.rad(-40), 0, 0.38F);
         progressRotationPrev(left_ear, limbSwingMod, Maths.rad(-30), Maths.rad(30), 0, 0.38F);
         progressRotationPrev(right_ear, limbSwingMod, Maths.rad(-30), Maths.rad(-30), 0, 0.38F);
+
         progressRotationPrev(body, jumpProgress, Maths.rad(20), 0, 0, 5F);
         progressRotationPrev(left_foot, jumpProgress, Maths.rad(70), Maths.rad(40), 0, 5F);
         progressRotationPrev(right_foot, jumpProgress, Maths.rad(70), Maths.rad(-40), 0, 5F);
@@ -237,6 +245,7 @@ public class ModelBunfungus extends AdvancedEntityModel<EntityBunfungus> {
         progressRotationPrev(left_arm, jumpProgress, Maths.rad(-70), Maths.rad(-40), 0, 5F);
         progressPositionPrev(body, jumpProgress, 0, -3, 0, 5F);
         progressPositionPrev(head, jumpProgress, 0, -1, 3, 5F);
+
         progressRotationPrev(body, fallProgress, Maths.rad(20), 0, 0, 5F);
         progressRotationPrev(left_foot, fallProgress, Maths.rad(-20), 0, 0, 5F);
         progressRotationPrev(right_foot, fallProgress, Maths.rad(-20), 0, 0, 5F);
@@ -247,31 +256,43 @@ public class ModelBunfungus extends AdvancedEntityModel<EntityBunfungus> {
         progressPositionPrev(body, fallProgress, 0, -1, 0, 5F);
         progressPositionPrev(left_foot, fallProgress, 0, 1, -1, 5F);
         progressPositionPrev(right_foot, fallProgress, 0, 1, -1, 5F);
-        progressRotationPrev(head, interestedProgress, 0, Maths.rad(-20),  Maths.rad(-10), 5F);
-        progressRotationPrev(right_brow, interestedProgress, 0, 0,  Maths.rad(10), 5F);
-        progressPositionPrev(right_brow, interestedProgress, -0.5F,  -0.75F, 0, 5F);
+
+        progressRotationPrev(head, interestedProgress, 0, Maths.rad(-20), Maths.rad(-10), 5F);
+        progressRotationPrev(right_brow, interestedProgress, 0, 0, Maths.rad(10), 5F);
+        progressPositionPrev(right_brow, interestedProgress, -0.5F, -0.75F, 0, 5F);
         progressPositionPrev(left_brow, interestedProgress, 0, 0.5F, 0, 5F);
+
+        // Procedural Heavy Amphibious Breathing (Belly and body expansion)
+        float heavyBreath = Maths.cos(ageInTicks * 0.08F);
+        body.rotationPointY += heavyBreath * 0.3F;
+        belly.setScale(1.0F + heavyBreath * 0.04F, 1.0F + heavyBreath * 0.04F, 1.0F);
+
         if(sleepProgress == 0){
             this.faceTarget(netHeadYaw, headPitch, 1.3F, head);
         }
-        this.flap(left_ear, idleSpeed, idleDegree, false, 1F, 0.2F, ageInTicks, 1);
-        this.flap(right_ear, idleSpeed, idleDegree, true, 1F, 0.2F, ageInTicks, 1);
-        this.swing(left_ear, idleSpeed, idleDegree, false, 2F, 0.2F, ageInTicks, 1);
-        this.swing(right_ear, idleSpeed, idleDegree, true, 2F, 0.2F, ageInTicks, 1);
-        this.walk(tail, idleSpeed, idleDegree, false, 2F, 0.2F, ageInTicks, 1);
-        this.walk(right_arm, idleSpeed, idleDegree, false, -2F, -0.1F, ageInTicks, 1);
-        this.walk(left_arm, idleSpeed, idleDegree, false, -2F, -0.1F, ageInTicks, 1);
-        this.flap(snout_r1, idleSpeed * 8, idleDegree, false, -2F, 0F, ageInTicks, 1);
+
+        this.flap(left_ear, idleSpeed, idleDegree * 1.2F, false, 1F, 0.2F, ageInTicks, 1.0F);
+        this.flap(right_ear, idleSpeed, idleDegree * 1.2F, true, 1F, 0.2F, ageInTicks, 1.0F);
+        this.swing(left_ear, idleSpeed, idleDegree * 1.2F, false, 2F, 0.2F, ageInTicks, 1.0F);
+        this.swing(right_ear, idleSpeed, idleDegree * 1.2F, true, 2F, 0.2F, ageInTicks, 1.0F);
+        this.walk(tail, idleSpeed, idleDegree, false, 2F, 0.2F, ageInTicks, 1.0F);
+        this.walk(right_arm, idleSpeed, idleDegree, false, -2F, -0.1F, ageInTicks, 1.0F);
+        this.walk(left_arm, idleSpeed, idleDegree, false, -2F, -0.1F, ageInTicks, 1.0F);
+        this.flap(snout_r1, idleSpeed * 8, idleDegree, false, -2F, 0F, ageInTicks, 1.0F);
+
         this.flap(body, walkSpeed, walkDegree * 0.5F, false, 0F, 0F, limbSwing, limbSwingMod);
         this.swing(body, walkSpeed, walkDegree * 0.5F, false, 1F, 0F, limbSwing, limbSwingMod);
         this.swing(right_foot, walkSpeed, walkDegree * 0.5F, false, -2.5F, 0F, limbSwing, limbSwingMod);
         this.swing(left_foot, walkSpeed, walkDegree * 0.5F, false, -2.5F, 0F, limbSwing, limbSwingMod);
+
         this.left_foot.rotateAngleX -= (left_leg.rotateAngleX + body.rotateAngleX);
         this.left_foot.rotateAngleZ -= body.rotateAngleZ;
         this.right_foot.rotateAngleX -= (right_leg.rotateAngleX + body.rotateAngleX);
         this.right_foot.rotateAngleZ -= body.rotateAngleZ;
+
         this.left_leg.rotationPointY += 2F * (float) (Math.sin((double) (limbSwing * walkSpeed) + 2.5F) * (double) limbSwingMod * (double) walkDegree - (double) (limbSwingMod * walkDegree));
         this.right_leg.rotationPointY += 2F * (float) (Math.sin(-(double) (limbSwing * walkSpeed) + 2.5F) * (double) limbSwingMod * (double) walkDegree - (double) (limbSwingMod * walkDegree));
+
         this.flap(head, walkSpeed, walkDegree * 0.5F, true, 0F, 0F, limbSwing, limbSwingMod);
         this.swing(head, walkSpeed, walkDegree * 0.5F, true, 1F, 0F, limbSwing, limbSwingMod);
         this.flap(tail, walkSpeed, walkDegree * 0.5F, true, 0F, 0F, limbSwing, limbSwingMod);
