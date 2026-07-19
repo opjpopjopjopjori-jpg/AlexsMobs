@@ -68,7 +68,7 @@ public class ModelBaldEagle extends AdvancedEntityModel<EntityBaldEagle> {
         footR.setPos(0.0F, 4.2F, 0.5F);
         legR.addChild(footR);
         setRotationAngle(footR, 0.0F, -0.1745F, 0.1745F);
-        footR.setTextureOffset(5, 25).addBox(-1.5F, 0.0F, -1.9F, 3.0F, 2.0F, 4.0F, 0.0F, false);
+        footR.setTextureOffset(5, 25).addBox(-1.5F, 0.0F, -1.9F, 3.0F, 2.0F, 4.0F, 0.0F, true);
 
         tail = new AdvancedModelBox(this, "tail");
         tail.setPos(0.0F, 8.07F, 1.36F);
@@ -150,13 +150,16 @@ public class ModelBaldEagle extends AdvancedEntityModel<EntityBaldEagle> {
 
     @Override
     public void setupAnim(EntityBaldEagle entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
+        // MANDATORY: Always reset to default pose first (AAA Animation Rule)
         this.resetToDefaultPose();
-        float flapSpeed = 0.4F;
-        float flapDegree = 0.2F;
+
+        float flapSpeed = 0.45F;
+        float flapDegree = 0.25F;
         float walkSpeed = 0.5F;
         float walkDegree = 0.5F;
-        float idleSpeed = 0.1F;
-        float idleDegree = 0.1F;
+        float idleSpeed = 0.12F;
+        float idleDegree = 0.12F;
+
         float partialTicks = ageInTicks - entity.tickCount;
         float flyProgress = entity.prevFlyProgress + (entity.flyProgress - entity.prevFlyProgress) * partialTicks;
         float perchProgress = entity.prevSitProgress + (entity.sitProgress - entity.prevSitProgress) * partialTicks;
@@ -165,6 +168,7 @@ public class ModelBaldEagle extends AdvancedEntityModel<EntityBaldEagle> {
         float flyFeetProgress = Math.max(0, flyProgress - tackleProgress);
         float biteProgress = entity.prevAttackProgress + (entity.attackProgress - entity.prevAttackProgress) * partialTicks;
         float flapAmount = (entity.prevFlapAmount + (entity.flapAmount - entity.prevFlapAmount) * partialTicks) * flyProgress * 0.2F * (5F - swoopProgress) * 0.2F;
+
         progressRotationPrev(body, flyProgress, Maths.rad(40), 0, 0, 5F);
         progressRotationPrev(tail, flyProgress, Maths.rad(-20), 0, 0, 5F);
         progressRotationPrev(legL, flyFeetProgress, Maths.rad(30), 0, 0, 5F);
@@ -197,11 +201,21 @@ public class ModelBaldEagle extends AdvancedEntityModel<EntityBaldEagle> {
         progressPositionPrev(wingR, swoopProgress, 2, -2, 0, 5f);
         progressRotationPrev(head, swoopProgress, Maths.rad(-10), 0, 0, 5F);
         progressRotationPrev(head, biteProgress, Maths.rad(70), 0, 0, 2.5F);
+
+        // Procedural Avian Breathing (Chest expansion in flight / perch)
+        float breath = Maths.cos(ageInTicks * 0.12F);
+        body.rotationPointY += breath * 0.25F;
+
         if(flyProgress > 0){
             this.bob(body, flapSpeed * 0.5F, flapDegree * 4, true, ageInTicks, 1);
             this.swing(wingL, flapSpeed, flapDegree * 3, true, 0F, 0F, ageInTicks, flapAmount);
             this.swing(wingR, flapSpeed, flapDegree * 3, false, 0F, 0F, ageInTicks, flapAmount);
             this.bob(body, flapSpeed * 0.5F, flapDegree * 4, true, ageInTicks, flapAmount);
+
+            // Wingtip secondary motion / flexibility during flight flapping
+            float wingTipLag = Maths.sin(ageInTicks * flapSpeed) * 0.35F * flyProgress;
+            tipL.rotateAngleZ += wingTipLag;
+            tipR.rotateAngleZ -= wingTipLag;
         }else{
             float walk = Math.min(limbSwingAmount, 1F);
             progressRotationPrev(body, walk, Maths.rad(15), 0, 0, 1);
@@ -219,15 +233,18 @@ public class ModelBaldEagle extends AdvancedEntityModel<EntityBaldEagle> {
             this.flap(tail, walkSpeed, walkDegree * 0.2F, false, 1F, 0F, limbSwing, limbSwingAmount);
             this.flap(body, walkSpeed, walkDegree * 0.2F, false, 0F, 0F, limbSwing, limbSwingAmount);
         }
+
+        // Natural perching idle head and tail stabilization
         this.walk(head, idleSpeed * 0.7F, idleDegree, false, -1F, 0.05F, ageInTicks, 1);
         this.walk(tail, idleSpeed * 0.7F, idleDegree, false, 1F, 0.05F, ageInTicks, 1);
+
         if(!entity.isVehicle()){
-            head.rotateAngleY += netHeadYaw / 57.295776F;
-            head.rotateAngleZ += headPitch / 57.295776F;
+            head.rotateAngleY += netHeadYaw * 0.5F * Mth.DEG_TO_RAD;
+            head.rotateAngleZ += headPitch * 0.5F * Mth.DEG_TO_RAD;
         }
+
         float birdPitch = entity.prevBirdPitch + (entity.birdPitch - entity.prevBirdPitch) * partialTicks;
         this.body.rotateAngleX += birdPitch * flyProgress * 0.2F * Mth.DEG_TO_RAD;
-
     }
 
     @Override
