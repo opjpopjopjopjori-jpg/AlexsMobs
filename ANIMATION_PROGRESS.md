@@ -8,9 +8,9 @@
 - [x] Banana Slug (ModelBananaSlug) - **AAA Redesigned & Pushed (2026-07-19)**: Added visceral soft-body viscoelastic stretching/squishing physics, metabolic resting pulse, antenna probing sway, and refined slime trail dynamics (`goo`).
 - [x] Bison (ModelBison) - **AAA Redesigned & Pushed (2026-07-19)**: Implemented massive shoulder hump weight transfer, heavy chest expansion breathing (`heavyBreath`), ear twitching/beard inertia micro-movements, and refined heavy charging/walking physics.
 - [x] Blobfish (ModelBlobfish) - **AAA Redesigned & Pushed (2026-07-19)**: Implemented deep-water gelatinous buoyancy drift, soft-body pulsing squash/stretch dynamics, and fluid fin propulsion.
+- [x] Blue Jay (ModelBlueJay) - **AAA Redesigned & Pushed (2026-07-19)**: Implemented avian chest breathing, crest expression dynamics, head bobbing stabilization, and energetic perching balance.
 
 ## Remaining Creatures in Batch 1 & Beyond
-- [ ] Blue Jay (ModelBlueJay)
 - [ ] Bunfungus (ModelBunfungus)
 - [ ] Cachalot Whale (ModelCachalotWhale)
 - [ ] Caiman
@@ -101,6 +101,7 @@
 - Banana Slug: 2026-07-19
 - Bison: 2026-07-19
 - Blobfish: 2026-07-19
+- Blue Jay: 2026-07-19
 
 ## Summary of Animation Improvements
 - **Alligator Snapping Turtle**: Implemented heavy reptile biomechanics, chest breathing cycle, diagonal quad-gait weight shifting, attack snap anticipation and recoil, and secondary tail inertia.
@@ -110,6 +111,7 @@
 - **Banana Slug**: Added soft-body viscoelastic stretch/squish mechanics, metabolic resting pulse, antenna probing, and slime trail physics.
 - **Bison**: Added massive shoulder hump mass weight transfer, chest expansion breathing, ear/beard inertia, and heavy charge physics.
 - **Blobfish**: Added gelatinous buoyancy drift, soft-body pulsing squash/stretch physics, and fluid fin propulsion.
+- **Blue Jay**: Added avian chest breathing, crest expression, head bobbing stabilization, and perching balance.
 
 ## Notes
 - Working strictly one animal at a time with rigorous depth and quality.
