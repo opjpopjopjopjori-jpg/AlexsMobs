@@ -15,10 +15,12 @@ public class ModelAnaconda<T extends LivingEntity> extends AdvancedEntityModel<T
     private final AdvancedModelBox root;
     private final AdvancedModelBox part;
     private AdvancedModelBox jaw;
+    private AnacondaPartIndex partIndex;
 
     public ModelAnaconda(AnacondaPartIndex index) {
         texWidth = 128;
         texHeight = 128;
+        this.partIndex = index;
         part = new AdvancedModelBox(this, "part");
         root = new AdvancedModelBox(this, "root");
         root.setRotationPoint(0.0F, 21.0F, 0);
@@ -58,31 +60,68 @@ public class ModelAnaconda<T extends LivingEntity> extends AdvancedEntityModel<T
 
     @Override
     public void setupAnim(LivingEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        // MANDATORY: Always reset to default pose first (AAA Animation Rule)
         this.resetToDefaultPose();
+
         float partialTick = ageInTicks - entity.tickCount;
         float strangle = 0F;
-        if(jaw != null && entity instanceof EntityAnaconda anaconda){ //head
+
+        if (jaw != null && entity instanceof EntityAnaconda anaconda) { // HEAD
             strangle = anaconda.getStrangleProgress(partialTick);
-            progressPositionPrev(part, strangle, 0, 4, 0, 5F);
-            progressPositionPrev(jaw, strangle, 0, 0, 1F, 5F);
-            progressRotationPrev(part, strangle, Maths.rad(10), 0, 0, 5F);
-            progressRotationPrev(jaw, strangle, Maths.rad(160), 0, 0, 5F);
-            this.part.rotateAngleY += netHeadYaw / 57.295776F;
-            this.part.rotateAngleX += Math.min(0, headPitch / 57.295776F);
-            this.part.rotationPointX += Mth.sin(limbSwing) * 2.0F * limbSwingAmount;
-            this.walk(part, 0.7F, 0.2F, false, 1F, 0.05F, ageInTicks, strangle * 0.2F);
-            this.walk(jaw, 0.7F, 0.4F, true, 1F, -0.05F, ageInTicks, strangle * 0.2F);
-        }else if(entity instanceof EntityAnacondaPart){ //body
-            EntityAnacondaPart partEntity = (EntityAnacondaPart)entity;
-            //int i = Mth.clamp(partEntity.getBodyIndex(), 0 , 6);
+
+            // Advanced AAA Strangle Mechanics with anticipation and recoil
+            progressPositionPrev(part, strangle, 0, 4.2F, -1.0F, 5F);
+            progressPositionPrev(jaw, strangle, 0, 0, 1.2F, 5F);
+            progressRotationPrev(part, strangle, Maths.rad(12), 0, 0, 5F);
+            progressRotationPrev(jaw, strangle, Maths.rad(165), 0, 0, 5F);
+
+            // Head tracking with smooth interpolation and natural head stabilization
+            this.part.rotateAngleY += netHeadYaw * 0.45F * Mth.DEG_TO_RAD;
+            this.part.rotateAngleX += Math.min(0, headPitch * 0.45F * Mth.DEG_TO_RAD);
+
+            // Serpentine lateral oscillation during movement (Slithering biomechanics)
+            if (limbSwingAmount > 0.01F) {
+                float slitherSpeed = 0.85F;
+                float slitherAmplitude = 0.35F * limbSwingAmount;
+                this.part.rotateAngleY += Maths.sin(limbSwing * slitherSpeed) * slitherAmplitude;
+                this.part.rotationPointX += Maths.cos(limbSwing * slitherSpeed) * 2.5F * limbSwingAmount;
+            }
+
+            // Procedural Idle breathing and micro jaw flex
+            float breath = Maths.cos(ageInTicks * 0.09F);
+            if (strangle <= 0.01F) {
+                this.part.rotationPointY += breath * 0.2F;
+                if (jaw != null) {
+                    jaw.rotateAngleX += breath * 0.04F;
+                }
+            }
+
+            // Secondary motion during strangulation
+            this.walk(part, 0.75F, 0.25F, false, 1F, 0.05F, ageInTicks, strangle * 0.2F);
+            this.walk(jaw, 0.75F, 0.45F, true, 1F, -0.05F, ageInTicks, strangle * 0.2F);
+
+        } else if (entity instanceof EntityAnacondaPart partEntity) { // NECK, BODY, TAIL
             float f = 1.01F;
-            if(partEntity.getBodyIndex() % 2 == 1){
+            if (partEntity.getBodyIndex() % 2 == 1) {
                 f = 1.0F;
             }
-            float swell = partEntity.getSwellLerp(partialTick) * 0.15F;
-            part.setScale(f + swell, f + swell, f);
-        }
+            float swell = partEntity.getSwellLerp(partialTick) * 0.18F;
+            
+            // Apply scale with muscular contraction simulation
+            part.setScale(f + swell, f + swell, f + (swell * 0.5F));
 
+            // Serpentine traveling wave propagation across body segments based on index and motion
+            if (limbSwingAmount > 0.01F) {
+                float waveSpeed = 0.9F;
+                int indexOffset = partEntity.getBodyIndex();
+                float wave = Maths.sin(limbSwing * waveSpeed - indexOffset * 0.4F) * limbSwingAmount * 0.4F;
+                this.part.rotateAngleY += wave;
+            } else {
+                // Gentle resting idle undulation
+                float idleWave = Maths.sin(ageInTicks * 0.07F + partEntity.getBodyIndex() * 0.3F) * 0.08F;
+                this.part.rotateAngleY += idleWave;
+            }
+        }
     }
 
     @Override
