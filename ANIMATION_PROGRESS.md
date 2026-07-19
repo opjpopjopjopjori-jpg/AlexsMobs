@@ -2,9 +2,9 @@
 
 ## Completed Creatures
 - [x] Alligator Snapping Turtle (ModelAlligatorSnappingTurtle) - **AAA Redesigned & Pushed (2026-07-19)**: Added heavy-shell weight transfer, procedural breathing, precise diagonal quad gait phase synchronization, jaw snap anticipation/recoil, and tail inertia.
+- [x] Anaconda (ModelAnaconda) - **AAA Redesigned & Pushed (2026-07-19)**: Implemented fluid serpentine traveling wave propagation across body segments, advanced strangle mechanics with anticipation/recoil, resting idle undulation, and muscular contraction swell physics.
 
 ## Remaining Creatures in Batch 1 & Beyond
-- [ ] Anaconda (ModelAnaconda)
 - [ ] Anteater (ModelAnteater)
 - [ ] Bald Eagle (ModelBaldEagle)
 - [ ] Banana Slug (ModelBananaSlug)
@@ -95,11 +95,13 @@
 
 ## Date Completed
 - Alligator Snapping Turtle: 2026-07-19
+- Anaconda: 2026-07-19
 
 ## Summary of Animation Improvements
 - **Alligator Snapping Turtle**: Implemented heavy reptile biomechanics, chest breathing cycle, diagonal quad-gait weight shifting, attack snap anticipation and recoil, and secondary tail inertia.
+- **Anaconda**: Implemented fluid serpentine wave propagation across body segments, advanced strangle mechanics, resting idle undulation, and muscular swelling physics.
 
 ## Notes
-- Working strictly one animal at a time with rigorous depth and quality, following user feedback.
-- All changes strictly adhere to Citadel / Forge 1.20.1 constraints without altering model hierarchies or textures.
+- Working strictly one animal at a time with rigorous depth and quality.
+- All changes strictly adhere to Citadel / Forge 1.20.1 constraints without altering model hierarchies, bones, or textures.
 EOF
