@@ -1,114 +1,105 @@
 # ANIMATION_PROGRESS.md
 
-## Completed Creatures (Batch 1 - 10 Creatures)
-- [x] Alligator Snapping Turtle (ModelAlligatorSnappingTurtle)
-- [x] Anaconda (ModelAnaconda)
-- [x] Anteater (ModelAnteater)
-- [x] Bald Eagle (ModelBaldEagle)
-- [x] Banana Slug (ModelBananaSlug)
-- [x] Bison (ModelBison)
-- [x] Blobfish (ModelBlobfish)
-- [x] Blue Jay (ModelBlueJay)
-- [x] Bunfungus (ModelBunfungus)
-- [x] Cachalot Whale (ModelCachalotWhale)
+## Completed Creatures
+- [x] Alligator Snapping Turtle (ModelAlligatorSnappingTurtle) - **AAA Redesigned & Pushed (2026-07-19)**: Added heavy-shell weight transfer, procedural breathing, precise diagonal quad gait phase synchronization, jaw snap anticipation/recoil, and tail inertia.
 
-## Remaining Creatures
-- Caiman
-- Capuchin Monkey
-- Catfish
-- Cave Centipede
-- Cockroach
-- Comb Jelly
-- Cosmaw
-- Cosmic Cod
-- Crimson Mosquito
-- Crocodile
-- Crow
-- Devils Hole Pupfish
-- Drop Bear
-- Elephant
-- Emu
-- Endergrade
-- Enderiophage
-- Farseer
-- Flutter
-- Fly
-- Flying Fish
-- Frilled Shark
-- Froststalker
-- Gazelle
-- Gelada Monkey
-- Giant Squid
-- Gorilla
-- Grizzly Bear
-- Guster
-- Hammerhead Shark
-- Hummingbird
-- Jerboa
-- Kangaroo
-- Komodo Dragon
-- Laviathan
-- Leafcutter Ant
-- Lobster
-- Maned Wolf
-- Mantis Shrimp
-- Mimic Octopus
-- Mimicube
-- Moose
-- Mudskipper
-- Mungus
-- Murmur
-- Orca
-- Platypus
-- Potoo
-- Raccoon
-- Rain Frog
-- Rattlesnake
-- Rhinoceros
-- Roadrunner
-- Rocky Roller
-- Sea Bear
-- Seagull
-- Seal
-- Shoebill
-- Skelewag
-- Skreecher
-- Skunk
-- Snow Leopard
-- Soul Vulture
-- Spectre
-- Straddler
-- Stradpole
-- Sugar Glider
-- Sunbird
-- Tarantula Hawk
-- Tasmanian Devil
-- Terrapin
-- Tiger
-- Toucan
-- Triops
-- Tusklin
-- Underminer
-- Void Worm
-- Warped Mosco
-- Warped Toad
+## Remaining Creatures in Batch 1 & Beyond
+- [ ] Anaconda (ModelAnaconda)
+- [ ] Anteater (ModelAnteater)
+- [ ] Bald Eagle (ModelBaldEagle)
+- [ ] Banana Slug (ModelBananaSlug)
+- [ ] Bison (ModelBison)
+- [ ] Blobfish (ModelBlobfish)
+- [ ] Blue Jay (ModelBlueJay)
+- [ ] Bunfungus (ModelBunfungus)
+- [ ] Cachalot Whale (ModelCachalotWhale)
+- [ ] Caiman
+- [ ] Capuchin Monkey
+- [ ] Catfish
+- [ ] Cave Centipede
+- [ ] Cockroach
+- [ ] Comb Jelly
+- [ ] Cosmaw
+- [ ] Cosmic Cod
+- [ ] Crimson Mosquito
+- [ ] Crocodile
+- [ ] Crow
+- [ ] Devils Hole Pupfish
+- [ ] Drop Bear
+- [ ] Elephant
+- [ ] Emu
+- [ ] Endergrade
+- [ ] Enderiophage
+- [ ] Farseer
+- [ ] Flutter
+- [ ] Fly
+- [ ] Flying Fish
+- [ ] Frilled Shark
+- [ ] Froststalker
+- [ ] Gazelle
+- [ ] Gelada Monkey
+- [ ] Giant Squid
+- [ ] Gorilla
+- [ ] Grizzly Bear
+- [ ] Guster
+- [ ] Hammerhead Shark
+- [ ] Hummingbird
+- [ ] Jerboa
+- [ ] Kangaroo
+- [ ] Komodo Dragon
+- [ ] Laviathan
+- [ ] Leafcutter Ant
+- [ ] Lobster
+- [ ] Maned Wolf
+- [ ] Mantis Shrimp
+- [ ] Mimic Octopus
+- [ ] Mimicube
+- [ ] Moose
+- [ ] Mudskipper
+- [ ] Mungus
+- [ ] Murmur
+- [ ] Orca
+- [ ] Platypus
+- [ ] Potoo
+- [ ] Raccoon
+- [ ] Rain Frog
+- [ ] Rattlesnake
+- [ ] Rhinoceros
+- [ ] Roadrunner
+- [ ] Rocky Roller
+- [ ] Sea Bear
+- [ ] Seagull
+- [ ] Seal
+- [ ] Shoebill
+- [ ] Skelewag
+- [ ] Skreecher
+- [ ] Skunk
+- [ ] Snow Leopard
+- [ ] Soul Vulture
+- [ ] Spectre
+- [ ] Straddler
+- [ ] Stradpole
+- [ ] Sugar Glider
+- [ ] Sunbird
+- [ ] Tarantula Hawk
+- [ ] Tasmanian Devil
+- [ ] Terrapin
+- [ ] Tiger
+- [ ] Toucan
+- [ ] Triops
+- [ ] Tusklin
+- [ ] Underminer
+- [ ] Void Worm
+- [ ] Warped Mosco
+- [ ] Warped Toad
 
 ## Date Completed
-- Batch 1: 2026-07-19
+- Alligator Snapping Turtle: 2026-07-19
 
 ## Summary of Animation Improvements
-- **Alligator Snapping Turtle**: Added heavy-shell weight transfer, neck extension anticipation, slow calculated foot movement, and natural head bobbing.
-- **Anaconda**: Implemented fluid serpentine spine undulation (`MathHelper.sin`), lateral body compression, and smooth slithering mechanics.
-- **Anteater**: Refined snout swing, quadrupedal gait with shoulder rotation, tail counterbalance, and foraging follow-through.
-- **Bald Eagle**: Designed realistic avian flight take-off push, wingtip flexibility, banking/gliding tilt, and head stabilization.
-- **Banana Slug**: Applied soft visceral stretch and contraction cycles, slow slug slime physics, and tentacle micro-movement.
-- **Bison**: Added massive shoulder mass weight transfer, chest expansion breathing, heavy hoof impact, and spine compression.
-- **Blobfish**: Simulated deep-water gelatinous buoyancy drift, micro-pulsing squish physics, and depressurized form transitions.
-- **Blue Jay**: Implemented energetic perch balancing, rapid wing flutter interpolation, head bobbing, and tail steering.
-- **Bunfungus**: Added amphibious bipedal hopping anticipation, body compression before jump, and soft landing impact absorption.
-- **Cachalot Whale**: Engineered massive hydrodynamic tail flukes sweep, breaching spinal arc, and deep-sea slow majestic glide mechanics.
+- **Alligator Snapping Turtle**: Implemented heavy reptile biomechanics, chest breathing cycle, diagonal quad-gait weight shifting, attack snap anticipation and recoil, and secondary tail inertia.
 
 ## Notes
-- All animations adhere strictly to Minecraft Forge 1.20.1 and Citadel ModelRenderer constraints.
-- No model hierarchies, new bones, or textures were altered.
-- All classes call `resetToDefaultPose()` first and use `limbSwing`, `limbSwingAmount`, and state interpolation.
+- Working strictly one animal at a time with rigorous depth and quality, following user feedback.
+- All changes strictly adhere to Citadel / Forge 1.20.1 constraints without altering model hierarchies or textures.
+EOF
