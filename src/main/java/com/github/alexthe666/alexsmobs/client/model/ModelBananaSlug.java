@@ -24,7 +24,7 @@ public class ModelBananaSlug extends AdvancedEntityModel<EntityBananaSlug> {
         texHeight = 64;
 
         root = new AdvancedModelBox(this, "root");
-        root.setRotationPoint(0.0F, 24.0F, 0.0F);
+        root.setPos(0.0F, 24.0F, 0.0F);
 
         body = new AdvancedModelBox(this, "body");
         body.setRotationPoint(0.0F, -2.0F, -2.0F);
@@ -62,38 +62,57 @@ public class ModelBananaSlug extends AdvancedEntityModel<EntityBananaSlug> {
 
     @Override
     public void setupAnim(EntityBananaSlug entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        // MANDATORY: Always reset to default pose first (AAA Animation Rule)
         this.resetToDefaultPose();
+
         float idleSpeed = 0.25F;
         float idleDegree = 0.25F;
-        float walkSpeed = 1F;
-        float walkDegree = 0.2F;
+        float walkSpeed = 1.1F;
+        float walkDegree = 0.25F;
         float partialTick = ageInTicks - entity.tickCount;
-        this.swing(leftAntenna, idleSpeed, idleDegree * 0.2F, true, 1, 0.1F, ageInTicks, 1);
-        this.swing(rightAntenna, idleSpeed, idleDegree * 0.2F, false, 1, 0.1F, ageInTicks, 1);
-        this.walk(leftAntenna, idleSpeed, idleDegree * 0.5F, true, 3, 0.1F, ageInTicks, 1);
-        this.walk(rightAntenna, idleSpeed, idleDegree * 0.5F, true, 3, 0.1F, ageInTicks, 1);
-        this.swing(tail, walkSpeed, walkDegree, true, 3F, 0F, limbSwing, limbSwingAmount);
-        float antennaBack = -0.5F + (float) (Math.sin((double) (ageInTicks * idleSpeed) + 3)) * 0.2F;
+
+        // Organic resting metabolic pulse (Visceral soft-body expansion/contraction)
+        float pulse = Maths.cos(ageInTicks * 0.15F);
+        body.rotationPointY += pulse * 0.15F;
+
+        // Antenna swaying and probing behavior
+        this.swing(leftAntenna, idleSpeed, idleDegree * 0.3F, true, 1.0F, 0.15F, ageInTicks, 1.0F);
+        this.swing(rightAntenna, idleSpeed, idleDegree * 0.3F, false, 1.0F, 0.15F, ageInTicks, 1.0F);
+        this.walk(leftAntenna, idleSpeed * 1.2F, idleDegree * 0.6F, true, 3.0F, 0.15F, ageInTicks, 1.0F);
+        this.walk(rightAntenna, idleSpeed * 1.2F, idleDegree * 0.6F, true, 3.0F, 0.15F, ageInTicks, 1.0F);
+
+        // Tail peristaltic wave during slithering
+        this.swing(tail, walkSpeed, walkDegree * 1.2F, true, 3.0F, 0F, limbSwing, limbSwingAmount);
+
+        float antennaBack = -0.5F + (float) (Math.sin((double) (ageInTicks * idleSpeed) + 3)) * 0.25F;
         leftAntenna.rotationPointZ -= antennaBack;
         rightAntenna.rotationPointZ -= antennaBack;
+
+        // Viscoelastic stretch and compression calculation for slug locomotion
         float stretch1 = (float) (Math.sin(limbSwing * -walkSpeed) * limbSwingAmount) + limbSwingAmount;
-        float stretch2 = (float) (Math.sin(limbSwing * -walkSpeed + 1F) * limbSwingAmount) + limbSwingAmount;
-        body.setScale(1, (1 - stretch1 * 0.025F), (1 + stretch1 * 0.25F));
-        tail.setScale(1, (1 - stretch2 * 0.05F), (1 + stretch2 * 0.5F));
+        float stretch2 = (float) (Math.sin(limbSwing * -walkSpeed + 1.2F) * limbSwingAmount) + limbSwingAmount;
+        
+        body.setScale(1.0F + (stretch1 * 0.05F), (1.0F - stretch1 * 0.035F), (1.0F + stretch1 * 0.3F));
+        tail.setScale(1.0F, (1.0F - stretch2 * 0.06F), (1.0F + stretch2 * 0.55F));
         body.setShouldScaleChildren(false);
-        body.rotationPointZ -= stretch1 * 2F;
-        leftAntenna.rotationPointZ -= stretch1 * 1;
-        rightAntenna.rotationPointZ -= stretch1 * 1;
-        leftAntenna.rotateAngleY += netHeadYaw * 0.6F * Mth.DEG_TO_RAD;
-        leftAntenna.rotateAngleX += headPitch * 0.3F * Mth.DEG_TO_RAD;
-        rightAntenna.rotateAngleY += netHeadYaw * 0.6F * Mth.DEG_TO_RAD;
-        rightAntenna.rotateAngleX += headPitch * 0.3F * Mth.DEG_TO_RAD;
+
+        body.rotationPointZ -= stretch1 * 2.2F;
+        leftAntenna.rotationPointZ -= stretch1 * 1.2F;
+        rightAntenna.rotationPointZ -= stretch1 * 1.2F;
+
+        // Antenna sensory tracking
+        leftAntenna.rotateAngleY += netHeadYaw * 0.65F * Mth.DEG_TO_RAD;
+        leftAntenna.rotateAngleX += headPitch * 0.35F * Mth.DEG_TO_RAD;
+        rightAntenna.rotateAngleY += netHeadYaw * 0.65F * Mth.DEG_TO_RAD;
+        rightAntenna.rotateAngleX += headPitch * 0.35F * Mth.DEG_TO_RAD;
+
+        // Slime trail (goo) fluid dynamics
         float yaw = entity.yBodyRotO + (entity.yBodyRot - entity.yBodyRotO) * partialTick;
         float slimeYaw = Mth.wrapDegrees(entity.prevTrailYaw + (entity.trailYaw - entity.prevTrailYaw) * partialTick - yaw) * 0.65F;
-        goo.rotationPointX =  (Mth.sin(limbSwing * -walkSpeed - 1F) * limbSwingAmount);
+        goo.rotationPointX = (Mth.sin(limbSwing * -walkSpeed - 1.0F) * limbSwingAmount);
         goo.rotateAngleY += Maths.rad(slimeYaw);
-        tail.rotateAngleY += Maths.rad(slimeYaw * 0.8F);
-        goo.setScale(1, 0, (1 + limbSwingAmount));
+        tail.rotateAngleY += Maths.rad(slimeYaw * 0.85F);
+        goo.setScale(1.0F, 0.0F, (1.0F + limbSwingAmount * 1.2F));
     }
 
     public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
