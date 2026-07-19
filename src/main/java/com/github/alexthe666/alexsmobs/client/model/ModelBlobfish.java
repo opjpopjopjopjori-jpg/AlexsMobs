@@ -70,15 +70,23 @@ public class ModelBlobfish extends AdvancedEntityModel<EntityBlobfish> {
 
     @Override
     public void setupAnim(EntityBlobfish entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
+        // MANDATORY: Always reset to default pose first (AAA Animation Rule)
         this.resetToDefaultPose();
+
         this.body.rotateAngleX = headPitch * Mth.DEG_TO_RAD;
+
         float swimSpeed = 1.5F;
         float swimDegree = 0.85F;
+
+        // Gelatinous deep-water buoyancy drift and micro-pulsing squish physics
+        float drift = Mth.sin(ageInTicks * 0.08F);
+        body.rotationPointY += drift * 0.4F;
+        body.setScale(1.0F + drift * 0.03F, 1.0F - drift * 0.03F, 1.0F);
+
         this.swing(tail, swimSpeed, swimDegree, false, 0, 0, limbSwing, limbSwingAmount);
         this.swing(tail_fin, swimSpeed, swimDegree * 0.3F, false, 0, 0, limbSwing, limbSwingAmount);
         this.swing(fin_left, swimSpeed, swimDegree, false, 3F, -0.3F, limbSwing, limbSwingAmount);
         this.swing(fin_right, swimSpeed, swimDegree, true, 3F, -0.3F, limbSwing, limbSwingAmount);
-
     }
 
     public void setRotationAngle(AdvancedModelBox AdvancedModelBox, float x, float y, float z) {
