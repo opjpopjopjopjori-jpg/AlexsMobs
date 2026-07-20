@@ -170,7 +170,6 @@ public class ModelCrocodile extends AdvancedEntityModel<EntityCrocodile> {
 
     @Override
     public void setupAnim(EntityCrocodile entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        this.resetToDefaultPose();
         animate(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
 
         boolean swimAnimate = entityIn.isInWater();
@@ -281,7 +280,7 @@ public class ModelCrocodile extends AdvancedEntityModel<EntityCrocodile> {
         }
         if (baskProgress > 0) {
             this.walk(head, 0.1F, 0.1F, false, 1F, 0.1F, ageInTicks, 1);
-            this.jaw.rotateAngleX = -head.rotateAngleX;
+            this.jaw.rotateAngleX += -head.rotateAngleX;
         }
     }
 

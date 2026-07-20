@@ -214,8 +214,9 @@ public class ModelAnteater extends AdvancedEntityModel<EntityAnteater> {
 
         // Tongue darting mechanics during feeding
         double tongueM = Math.min(Math.sin(ageInTicks * 0.15F), 0);
-        float toungeF = 12F + 12F * (float) tongueM * (feedProgress * 0.2F);
-        float toungeMinus = (float) -tongueM * (feedProgress * 0.2F);
+        float feedFactor = feedProgress * 0.2F;
+        float toungeF = 12F * feedFactor + 12F * (float) tongueM * feedFactor;
+        float toungeMinus = (float) -tongueM * feedFactor;
         this.walk(tongue1, tongueSpeed * 2F, tongueDegree, false, 0F, 0F, ageInTicks,  toungeMinus);
         this.walk(tongue2, tongueSpeed * 2F, tongueDegree, false, 0F, 0F, ageInTicks,  toungeMinus);
         this.tongue1.rotationPointZ += toungeF;

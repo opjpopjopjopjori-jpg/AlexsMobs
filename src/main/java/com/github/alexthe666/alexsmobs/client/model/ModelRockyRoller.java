@@ -131,7 +131,7 @@ public class ModelRockyRoller extends AdvancedEntityModel<EntityRockyRoller> {
         // All 4 limbs walk. Ball rocks gently when idle while rolled.
         // UNIQUE vs CaveCentipede (many-legged wave), Lobster (claws).
 
-        float partialTick = ageInTicks - entity.tickCount;
+        float partialTick = net.minecraft.client.Minecraft.getInstance().getFrameTime();
         float rollProgress = entity.prevRollProgress + (entity.rollProgress - entity.prevRollProgress) * partialTick;
         float walkProgress = 5F - rollProgress;
         float walkSpeed = 1.2F;

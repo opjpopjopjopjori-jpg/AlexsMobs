@@ -35,7 +35,7 @@ public class ModelKangaroo extends AdvancedEntityModel<EntityKangaroo> {
 	public final AdvancedModelBox ear_left;
 	public final AdvancedModelBox ear_right;
 	public final AdvancedModelBox snout;
-	public static boolean renderOnlyHead = false;
+	public boolean renderOnlyHead = false;
 	private ModelAnimator animator;
 
 	public ModelKangaroo() {

@@ -267,7 +267,7 @@ public class ModelEmu extends AdvancedEntityModel<EntityEmu> {
         this.walk(head, idleSpeed, idleDegree, false, 1F, 0.25F, ageInTicks, 1);
         this.walk(tail, idleSpeed, idleDegree, false, 2F, -0.05F, ageInTicks, 1);
 
-        boolean running = true;
+        boolean running = limbSwingAmount > 0.5F;
         if (running) {
             this.walk(leg_right, walkSpeed, walkDegree * 2F, false, 0F, 0F, limbSwing, limbSwingAmount);
             this.walk(leg_left, walkSpeed, walkDegree * 2F, true, 0F, 0F, limbSwing, limbSwingAmount);

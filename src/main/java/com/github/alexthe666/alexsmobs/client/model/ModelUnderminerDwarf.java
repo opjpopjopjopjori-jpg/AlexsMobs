@@ -25,6 +25,8 @@ public class ModelUnderminerDwarf extends AdvancedEntityModel<EntityUnderminer> 
     public HumanoidModel.ArmPose rightArmPose = HumanoidModel.ArmPose.EMPTY;
     public boolean crouching;
     public float swimAmount;
+    public boolean riding;
+    public float attackTime;
 
     public ModelUnderminerDwarf() {
         texWidth = 128;

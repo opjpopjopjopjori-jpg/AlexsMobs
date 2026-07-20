@@ -66,7 +66,7 @@ public class ModelMoose extends AdvancedEntityModel<EntityMoose> {
 
     @Override
     public void setupAnim(EntityMoose entityIn,float limbSwing,float limbSwingAmount,float ageInTicks,float netHeadYaw,float headPitch){
-        this.resetToDefaultPose();animate(entityIn,limbSwing,limbSwingAmount,ageInTicks,netHeadYaw,headPitch);
+        animate(entityIn,limbSwing,limbSwingAmount,ageInTicks,netHeadYaw,headPitch);
         float walkSpeed=0.6F,walkDegree=0.65F,idleSpeed=0.09F,idleDegree=0.12F,runProgress=5F*limbSwingAmount;
         float partialTick=Minecraft.getInstance().getFrameTime();
         float jostleProgress=entityIn.prevJostleProgress+(entityIn.jostleProgress-entityIn.prevJostleProgress)*partialTick;
@@ -121,7 +121,7 @@ public class ModelMoose extends AdvancedEntityModel<EntityMoose> {
         progressRotationPrev(neck,jostleProgress,Maths.rad(7),0,0,5F);
         progressRotationPrev(head,jostleProgress,Maths.rad(80),0,0,5F);
         progressPositionPrev(neck,jostleProgress,0,0,1,5F);progressPositionPrev(head,jostleProgress,0,0,-1,5F);
-        if(jostleProgress>0){float ya=jostleAngle/57.295776F*0.5F*jostleProgress*0.2F;neck.rotateAngleY+=ya;head.rotateAngleY+=ya;head.rotateAngleZ+=ya;}
+        if(jostleProgress>0){float ya=jostleAngle*Mth.DEG_TO_RAD*0.5F*jostleProgress*0.2F;neck.rotateAngleY+=ya;head.rotateAngleY+=ya;}
         else{this.faceTarget(netHeadYaw,headPitch,2,neck,head);}
     }
 

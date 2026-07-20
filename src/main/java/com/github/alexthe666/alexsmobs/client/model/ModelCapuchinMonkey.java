@@ -211,7 +211,7 @@ public class ModelCapuchinMonkey extends AdvancedEntityModel<EntityCapuchinMonke
 		float stillProgress=5F*(1F-limbSwingAmount);
 		float partialTick=Minecraft.getInstance().getFrameTime();
 		float sitProgress=entity.isPassenger()?0:entity.prevSitProgress+(entity.sitProgress-entity.prevSitProgress)*partialTick;
-		float rideProgress=entity.isPassenger()&&entity.getVehicle()instanceof LivingEntity&&entity.isOwnedBy((LivingEntity)entity.getVehicle())?10:0;
+		float rideProgress=entity.isPassenger()&&entity.getVehicle()instanceof LivingEntity&&entity.isOwnedBy((LivingEntity)entity.getVehicle())?1F:0;
 
 		//══════ 🐒 CAPUCHIN — ACROBATIC PREHENSILE-TAIL SWINGER ══════
 		// IDENTITY: Fast fidgety quadruped. Tail is 5th limb — curls, grips, counterbalances.
@@ -269,11 +269,11 @@ public class ModelCapuchinMonkey extends AdvancedEntityModel<EntityCapuchinMonke
 		progressRotationPrev(arm_right,sitProgress,Maths.rad(-85),Maths.rad(15),0,10F);
 		progressRotationPrev(leg_left,sitProgress,Maths.rad(85),Maths.rad(-15),0,10F);
 		progressRotationPrev(leg_right,sitProgress,Maths.rad(85),Maths.rad(-15),0,10F);
-		progressPositionPrev(body,rideProgress,3,12F,0,10F);
-		progressRotationPrev(body,rideProgress,0,Maths.rad(90),0,10F);
-		progressRotationPrev(head,rideProgress,0,Maths.rad(-90),0,10F);
-		progressRotationPrev(leg_right,rideProgress,0,0,Maths.rad(-15),10F);
-		progressRotationPrev(arm_right,rideProgress,0,0,Maths.rad(-15),10F);
+		progressPositionPrev(body,rideProgress,3,12F,0,1F);
+		progressRotationPrev(body,rideProgress,0,Maths.rad(90),0,1F);
+		progressRotationPrev(head,rideProgress,0,Maths.rad(-90),0,1F);
+		progressRotationPrev(leg_right,rideProgress,0,0,Maths.rad(-15),1F);
+		progressRotationPrev(arm_right,rideProgress,0,0,Maths.rad(-15),1F);
 	}
 
 	public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {

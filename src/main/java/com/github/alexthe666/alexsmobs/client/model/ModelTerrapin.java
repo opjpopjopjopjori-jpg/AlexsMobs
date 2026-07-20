@@ -274,9 +274,9 @@ public class ModelTerrapin extends AdvancedEntityModel<EntityTerrapin> {
                 p_228292_8_.render(matrixStackIn, buffer, packedLight, packedOverlay, red, green, blue, alpha);
             });
             matrixStackIn.popPose();
-            this.head.setScale(0.9F, 0.9F, 0.9F);
+            this.head.setScale(1.0F, 1.0F, 1.0F);
         } else {
-            this.head.setScale(0.9F, 0.9F, 0.9F);
+            this.head.setScale(1.0F, 1.0F, 1.0F);
             matrixStackIn.pushPose();
             parts().forEach((p_228290_8_) -> {
                 p_228290_8_.render(matrixStackIn, buffer, packedLight, packedOverlay, red, green, blue, alpha);

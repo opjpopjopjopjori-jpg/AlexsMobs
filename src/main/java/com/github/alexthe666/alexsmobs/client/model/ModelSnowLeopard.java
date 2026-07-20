@@ -122,7 +122,6 @@ public class ModelSnowLeopard extends AdvancedEntityModel<EntitySnowLeopard> {
     public void animate(IAnimatedEntity entity, float f, float f1, float f2, float f3, float f4) {
         this.resetToDefaultPose();
         animator.update(entity);
-        animator.update(entity);
         animator.setAnimation(EntitySnowLeopard.ANIMATION_ATTACK_R);
         animator.startKeyframe(3);
         animator.rotate(body, 0, Maths.rad(-10F), 0);

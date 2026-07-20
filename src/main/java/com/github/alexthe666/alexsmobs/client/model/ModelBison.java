@@ -100,7 +100,7 @@ public class ModelBison extends AdvancedEntityModel<EntityBison> {
 
     @Override
     public void setupAnim(EntityBison entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        this.resetToDefaultPose();this.animate(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+        this.animate(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
         float walkSpeed=0.55F,walkDegree=0.65F,idleSpeed=0.08F,idleDegree=0.12F;
         float partialTick=ageInTicks-entity.tickCount;
         float runProgress=entity.prevChargeProgress+(entity.chargeProgress-entity.prevChargeProgress)*partialTick;

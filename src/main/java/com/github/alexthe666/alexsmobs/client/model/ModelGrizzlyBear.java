@@ -130,7 +130,6 @@ public class ModelGrizzlyBear extends AdvancedEntityModel<EntityGrizzlyBear> {
         animator.rotate(right_arm, Maths.rad(70F), 0, 0);
         animator.endKeyframe();
         animator.resetKeyframe(4);
-        animator.endKeyframe();
         animator.setAnimation(EntityGrizzlyBear.ANIMATION_SWIPE_R);
         animator.startKeyframe(7);
         animator.rotate(body, 0, Maths.rad(20F), 0);
@@ -175,7 +174,6 @@ public class ModelGrizzlyBear extends AdvancedEntityModel<EntityGrizzlyBear> {
         animator.rotate(head, Maths.rad(20), Maths.rad(-3), 0);
         animator.endKeyframe();
         animator.resetKeyframe(3);
-        animator.endKeyframe();
     }
 
     public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
@@ -203,7 +201,6 @@ public class ModelGrizzlyBear extends AdvancedEntityModel<EntityGrizzlyBear> {
 
     @Override
     public void setupAnim(EntityGrizzlyBear entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        this.resetToDefaultPose();
         this.head.setShouldScaleChildren(true);
         animate(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
         float walkSpeed = 0.7F;
@@ -265,7 +262,7 @@ public class ModelGrizzlyBear extends AdvancedEntityModel<EntityGrizzlyBear> {
         this.walk(left_leg, walkSpeed, walkDegree, false, 0F, 0F, limbSwing, limbSwingAmount);
         this.bob(left_leg, walkSpeed, walkDegree, false, limbSwing, limbSwingAmount);
         this.walk(right_leg, walkSpeed, walkDegree, true, 0F, 0F, limbSwing, limbSwingAmount);
-        this.bob(left_leg, walkSpeed, walkDegree, false, limbSwing, limbSwingAmount);
+        this.bob(right_leg, walkSpeed, walkDegree, false, limbSwing, limbSwingAmount);
         if(standProgress == 0 && sitProgress == 0){
             //══════ AAA BIOMECHANICS: BEAR PLANTIGRADE GAIT ══════
             // Real bears: plantigrade (whole foot on ground), heavy rolling gait

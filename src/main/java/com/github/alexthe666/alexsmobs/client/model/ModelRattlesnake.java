@@ -109,7 +109,6 @@ public class ModelRattlesnake extends AdvancedEntityModel<EntityRattlesnake> {
 
     @Override
     public void setupAnim(EntityRattlesnake entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        this.resetToDefaultPose();
         animate(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
         //══════ 🐍 RATTLESNAKE — RATTLE-WARNING VENOM STRIKER ══════
         // IDENTITY: Coiled S-curve ready to strike. Tail RATTLES as warning.

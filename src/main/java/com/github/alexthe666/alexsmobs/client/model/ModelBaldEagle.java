@@ -273,7 +273,7 @@ public class ModelBaldEagle extends AdvancedEntityModel<EntityBaldEagle> {
 
         if(!entity.isVehicle()){
             head.rotateAngleY+=netHeadYaw*0.5F*Mth.DEG_TO_RAD;
-            head.rotateAngleZ+=headPitch*0.5F*Mth.DEG_TO_RAD;
+            head.rotateAngleX+=headPitch*0.5F*Mth.DEG_TO_RAD;
         }
 
         float birdPitch=entity.prevBirdPitch+(entity.birdPitch-entity.prevBirdPitch)*partialTicks;
