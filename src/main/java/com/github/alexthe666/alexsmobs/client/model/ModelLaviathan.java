@@ -190,7 +190,7 @@ public class ModelLaviathan extends AdvancedEntityModel<EntityLaviathan> {
         float idleSpeed = 0.04f;
         float idleDegree = 0.3f;
         float walkSpeed = 0.9F;
-        if(entity.swimProgress >= 5F){
+        if(swimProgress >= 4.99F){
             walkSpeed = 0.3F;
         }
         float walkDegree = 0.5F + swimProgress * 0.05F;

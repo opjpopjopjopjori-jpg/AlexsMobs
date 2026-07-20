@@ -168,7 +168,6 @@ public class ModelBunfungus extends AdvancedEntityModel<EntityBunfungus> {
         animator.move(left_arm, -1, 2, 0);
         animator.endKeyframe();
         animator.resetKeyframe(4);
-        animator.endKeyframe();
         animator.setAnimation(EntityBunfungus.ANIMATION_BELLY);
         animator.startKeyframe(5);
         animator.rotate(head, Maths.rad(20), 0, 0);

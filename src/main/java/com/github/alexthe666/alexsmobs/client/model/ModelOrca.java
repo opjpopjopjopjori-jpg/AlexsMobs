@@ -135,7 +135,6 @@ public class ModelOrca extends AdvancedEntityModel<EntityOrca> {
 
     @Override
     public void setupAnim(EntityOrca entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        this.resetToDefaultPose();
         animate(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
         float swimSpeed = 0.35F;
         float swimDegree = 0.45F;

@@ -58,7 +58,6 @@ public class ModelTendonClaw extends AdvancedEntityModel<EntityTendonSegment> {
 
     public void setAttributes(float rotX, float rotY, float open){
         this.resetToDefaultPose();
-        this.resetToDefaultPose();
         this.root.rotateAngleX = Maths.rad(rotX);
         this.root.rotateAngleY = Maths.rad(rotY);
         progressRotationPrev(claw1, open, Maths.rad(45F), 0, 0, 1);

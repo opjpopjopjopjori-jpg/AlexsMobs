@@ -164,8 +164,8 @@ public class ModelCrow extends AdvancedEntityModel<EntityCrow> {
         progressRotationPrev(leg_right,sit,Maths.rad(25),0,0,5F);
         progressRotationPrev(head,sit,Maths.rad(25),0,0,5F);
 
-        head.rotateAngleY+=netHeadYaw/57.295776F;
-        head.rotateAngleZ+=headPitch/57.295776F;
+        head.rotateAngleY+=netHeadYaw*Mth.DEG_TO_RAD;
+        head.rotateAngleX+=headPitch*Mth.DEG_TO_RAD;
     }
 
     @Override
@@ -181,9 +181,9 @@ public class ModelCrow extends AdvancedEntityModel<EntityCrow> {
                 p_228292_8_.render(matrixStackIn, buffer, packedLight, packedOverlay, red, green, blue, alpha);
             });
             matrixStackIn.popPose();
-            this.head.setScale(0.9F, 0.9F, 0.9F);
+            this.head.setScale(1.0F, 1.0F, 1.0F);
         } else {
-            this.head.setScale(0.9F, 0.9F, 0.9F);
+            this.head.setScale(1.0F, 1.0F, 1.0F);
             matrixStackIn.pushPose();
             parts().forEach((p_228290_8_) -> {
                 p_228290_8_.render(matrixStackIn, buffer, packedLight, packedOverlay, red, green, blue, alpha);

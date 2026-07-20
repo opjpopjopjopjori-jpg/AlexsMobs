@@ -132,7 +132,7 @@ public class ModelEnderiophage extends AdvancedEntityModel<EntityEnderiophage> {
         this.body.rotationPointY+=8F;
 
         //══════ FLYING STATE (preserved) ══════
-        if(fly!=5){limbSwingAmount*=1-(fly*0.2F);
+        if(fly < 4.99F){limbSwingAmount*=1-(fly*0.2F);
             this.walk(sheath,wkSp,wkDg*0.2F,true,1,0.05F,limbSwing,limbSwingAmount);
             this.swing(tailfront_right,wkSp,wkDg*-1.2F,false,0,-0.3F,limbSwing,limbSwingAmount);
             this.swing(tailfront_left,wkSp,wkDg*-1.2F,false,0,0.3F,limbSwing,limbSwingAmount);

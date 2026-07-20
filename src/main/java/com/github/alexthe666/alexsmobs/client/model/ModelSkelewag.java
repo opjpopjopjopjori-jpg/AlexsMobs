@@ -55,7 +55,7 @@ public class ModelSkelewag extends AdvancedEntityModel<EntitySkelewag> {
         // periodically at idle. Fin asymmetry + visible breathing.
         // Flag ripples in water current. Unnatural undead motion.
         float idleSpeed=0.2F,idleDegree=0.3F,swimSpeed=0.55F,swimDegree=0.5F;
-        float partialTick=ageInTicks-entity.tickCount;
+        float partialTick=net.minecraft.client.Minecraft.getInstance().getFrameTime();
         float landProgress=entity.prevOnLandProgress+(entity.onLandProgress-entity.prevOnLandProgress)*partialTick;
         float fallApartProgress=entity.deathTime>0?(entity.deathTime+partialTick)/20F:0;
 

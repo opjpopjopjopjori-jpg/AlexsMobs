@@ -179,7 +179,7 @@ public class ModelCaiman extends AdvancedEntityModel<EntityCaiman> {
         }
 
         // ── VIBRATE ──
-        this.bob(body,20,0.5F,false,ageInTicks,vibrateProgress);
+        this.bob(body,2.0F,0.5F,false,ageInTicks,vibrateProgress);
         this.swing(body,20,0.04F,false,3F,0F,ageInTicks,vibrateProgress);
         this.swing(head,0.5F,0.4F,true,2,0F,ageInTicks,grabProgress*0.2F);
         this.swing(body,0.5F,0.4F,false,2,0F,ageInTicks,grabProgress*0.2F);

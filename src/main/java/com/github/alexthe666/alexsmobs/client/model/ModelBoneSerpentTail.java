@@ -33,7 +33,7 @@ public class ModelBoneSerpentTail extends AdvancedEntityModel<EntityBoneSerpentP
         float walkDegree = 3F;
         float idleDegree = 0.7F;
         float idleSpeed = 0.2F;
-        double walkOffset = entityIn.getBodyIndex() + 1;
+        double walkOffset = (entityIn.getBodyIndex() + 1) * Math.PI * 0.5F;
         this.tail.rotationPointY += (float)(Math.sin( (double)(limbSwing * walkSpeed) - walkOffset) * (double)limbSwingAmount * (double)walkDegree - (double)(limbSwingAmount * walkDegree) );
         this.tail.rotationPointY += (float)(Math.sin( (double)(ageInTicks * idleSpeed) - walkOffset) * (double)1 * (double)idleDegree - (double)(1 * idleDegree) );
 

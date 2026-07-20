@@ -175,6 +175,8 @@ public class ModelJerboa extends AdvancedEntityModel<EntityJerboa> {
     public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
         if (this.young) {
             float f = 1.75F;
+            head.setScale(f, f, f);
+            head.setShouldScaleChildren(true);
             matrixStackIn.pushPose();
             matrixStackIn.scale(0.65F, 0.65F, 0.65F);
             matrixStackIn.translate(0.0D, 0.815D, 0.125D);
@@ -182,6 +184,7 @@ public class ModelJerboa extends AdvancedEntityModel<EntityJerboa> {
                 p_228292_8_.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
             });
             matrixStackIn.popPose();
+            head.setScale(1F, 1F, 1F);
         } else {
             matrixStackIn.pushPose();
             parts().forEach((p_228290_8_) -> {

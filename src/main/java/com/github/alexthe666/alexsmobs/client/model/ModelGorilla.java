@@ -191,7 +191,6 @@ public class ModelGorilla extends AdvancedEntityModel<EntityGorilla> {
 
 	@Override
 	public void setupAnim(EntityGorilla entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-		this.resetToDefaultPose();
 		animate(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
 		float walkSpeed=0.7F,walkDegree=0.5F,eatSpeed=0.8F,eatDegree=0.3F;
 		float partialTick=Minecraft.getInstance().getFrameTime();
