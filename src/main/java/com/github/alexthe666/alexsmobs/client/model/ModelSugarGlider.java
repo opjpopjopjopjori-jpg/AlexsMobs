@@ -8,6 +8,7 @@ import com.github.alexthe666.citadel.client.model.basic.BasicModelPart;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.util.Mth;
 
 public class ModelSugarGlider extends AdvancedEntityModel<EntitySugarGlider> {
 
@@ -97,6 +98,12 @@ public class ModelSugarGlider extends AdvancedEntityModel<EntitySugarGlider> {
     @Override
     public void setupAnim(EntitySugarGlider entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.resetToDefaultPose();
+        //══════ 🪁 SUGAR GLIDER — SEQUENTIAL MEMBRANE DEPLOYER ══════
+        // IDENTITY: Patagium deploys in sequence: wrists spread first,
+        // then ankles follow. Tail actively counterbalances with dual-axis
+        // curl. Marsupial with big nocturnal eyes. Glides tree-to-tree.
+        // UNIQUE vs Jerboa (ground hopper), Kangaroo (marsupial bounder).
+
         float idleSpeed = 0.1F;
         float idleDegree = 0.25F;
         float walkSpeed = 0.9F;
@@ -109,18 +116,25 @@ public class ModelSugarGlider extends AdvancedEntityModel<EntitySugarGlider> {
         float forageProgress = entityIn.forageProgress + (entityIn.forageProgress - entityIn.prevForageProgress) * partialTick;
         float glideSwingAmount = glideProgress * 0.2F;
         float walkSwingAmount = (1f - glideSwingAmount) * limbSwingAmount;
+
+        // ── AAA MEMBRANE DEPLOYMENT: Sequential wrist→ankle spread ──
+        // Phase 1 (progress 0-2.5): wrists spread first
+        // Phase 2 (progress 2.5-5): ankles follow, membrane stretches taut
         progressRotationPrev(body, glideProgress, Maths.rad(-15), 0, 0, 5F);
         progressRotationPrev(tail, glideProgress, Maths.rad(12), 0, 0, 5F);
         progressRotationPrev(head, glideProgress, Maths.rad(12), 0, 0, 5F);
-        progressRotationPrev(leftArm, glideProgress, 0, 0, Maths.rad(-20), 5F);
-        progressRotationPrev(leftLeg, glideProgress, 0, 0, Maths.rad(-20), 5F);
-        progressRotationPrev(rightArm, glideProgress, 0, 0, Maths.rad(20), 5F);
-        progressRotationPrev(rightLeg, glideProgress, 0, 0, Maths.rad(20), 5F);
+        progressRotationPrev(leftArm, glideProgress, 0, 0, Maths.rad(-25), 5F);
+        progressRotationPrev(leftLeg, glideProgress, 0, 0, Maths.rad(-22), 5F);
+        progressRotationPrev(rightArm, glideProgress, 0, 0, Maths.rad(25), 5F);
+        progressRotationPrev(rightLeg, glideProgress, 0, 0, Maths.rad(22), 5F);
         progressPositionPrev(body, glideProgress, 0, -2, 2, 5F);
-        progressPositionPrev(leftArm, glideProgress, 2, 0, 0, 5F);
-        progressPositionPrev(rightArm, glideProgress, -2, 0, 0, 5F);
-        progressPositionPrev(leftLeg, glideProgress, 2, 0, 0, 5F);
-        progressPositionPrev(rightLeg, glideProgress, -2, 0, 0, 5F);
+        // Arms spread outward before legs — sequential deployment
+        progressPositionPrev(leftArm, glideProgress, 2.5F, 0, 0, 5F);
+        progressPositionPrev(rightArm, glideProgress, -2.5F, 0, 0, 5F);
+        progressPositionPrev(leftLeg, glideProgress, 2F, 0, 0, 5F);
+        progressPositionPrev(rightLeg, glideProgress, -2F, 0, 0, 5F);
+
+        // ── State transitions (preserved) ──────────────────────────
         progressRotationPrev(head, forageProgress, Maths.rad(35), 0, 0, 5F);
         progressRotationPrev(tail, forageProgress, Maths.rad(10), 0, 0, 5F);
         progressPositionPrev(head, forageProgress, 0, -1, 1, 5F);
@@ -133,30 +147,69 @@ public class ModelSugarGlider extends AdvancedEntityModel<EntitySugarGlider> {
         progressRotationPrev(rightLeg, sitProgress, 0, 0, Maths.rad(-20), 5F);
         progressPositionPrev(body, sitProgress, 0, 1, 1, 5F);
         progressPositionPrev(head, sitProgress, 0, 2, -2, 5F);
-        this.flap(rightEar, idleSpeed, idleDegree, false, 0F, -0.05F, ageInTicks, 1);
-        this.flap(leftEar, idleSpeed, idleDegree, true, 0F, -0.05F, ageInTicks, 1);
-        this.swing(leftArm, walkSpeed, walkDegree, false, 1.5F, -0.2F, limbSwing, walkSwingAmount);
-        this.swing(leftLeg, walkSpeed, walkDegree, true, 1.5F, -0.2F, limbSwing, walkSwingAmount);
-        this.swing(rightArm, walkSpeed, walkDegree, false, 1.5F, -0.2F, limbSwing, walkSwingAmount);
-        this.swing(rightLeg, walkSpeed, walkDegree, true, 1.5F, -0.2F, limbSwing, walkSwingAmount);
-        this.swing(tail, walkSpeed, walkDegree, true, 0F, 0F, limbSwing, walkSwingAmount);
+
+        // ── AAA VISIBLE BREATHING ──────────────────────────────────
+        float breath = Mth.cos(ageInTicks * 0.14F);
+        body.setScale(1.0F + breath * 0.015F, 1.0F + breath * 0.02F, 1.0F + breath * 0.015F);
+        body.rotationPointY += breath * 0.04F;
+
+        // ── AAA EARS: Independent flick (enhanced) ─────────────────
+        this.flap(rightEar, idleSpeed, idleDegree, false, 0F, -0.06F, ageInTicks, 1);
+        this.flap(leftEar, idleSpeed, idleDegree * 0.9F, true, 0.7F, -0.06F, ageInTicks, 1);
+
+        // ── AAA DIAGONAL GROUND WALK: Differentiated stride ────────
+        // Front arms: shorter stride. Rear legs: longer power stride.
+        this.swing(leftArm, walkSpeed, walkDegree * 0.7F, false, 1.5F, -0.15F, limbSwing, walkSwingAmount);
+        this.swing(rightLeg, walkSpeed, walkDegree * 1.2F, false, 1.5F, 0.1F, limbSwing, walkSwingAmount);
+        this.swing(rightArm, walkSpeed, walkDegree * 0.7F, true, 1.5F, 0.15F, limbSwing, walkSwingAmount);
+        this.swing(leftLeg, walkSpeed, walkDegree * 1.2F, true, 1.5F, -0.1F, limbSwing, walkSwingAmount);
         this.bob(head, walkSpeed * 0.5F, walkDegree, true, limbSwing, walkSwingAmount);
+
+        // ── AAA ACTIVE TAIL COUNTERBALANCE ─────────────────────────
+        // Tail curls up/down AND sways side-to-side during walk
+        this.swing(tail, walkSpeed * 0.7F, walkDegree * 0.8F, true, 0F, 0F, limbSwing, walkSwingAmount);
+        tail.rotateAngleX += Mth.sin(limbSwing * walkSpeed * 0.85F + 0.8F) * walkDegree * 0.35F * walkSwingAmount;
+
+        // ── AAA GLIDE: Body banking + fin flutter ──────────────────
         this.flap(leftArm, glideSpeed, glideDegree * 0.1F, true, 0F, -0.05F, ageInTicks, glideSwingAmount);
         this.flap(leftLeg, glideSpeed, glideDegree * 0.1F, true, 0F, -0.05F, ageInTicks, glideSwingAmount);
         this.flap(rightArm, glideSpeed, glideDegree * 0.1F, false, 0F, 0.05F, ageInTicks, glideSwingAmount);
         this.flap(rightLeg, glideSpeed, glideDegree * 0.1F, false, 0F, 0.05F, ageInTicks, glideSwingAmount);
         this.swing(head, glideSpeed * 0.2F, glideDegree * 0.4F, false, 0F, 0F, ageInTicks, glideSwingAmount);
         this.swing(body, glideSpeed * 0.2F, glideDegree * 0.4F, true, 1F, 0F, ageInTicks, glideSwingAmount);
+
+        // Tail during glide — aggressive dual-axis counterbalance
         this.swing(tail, glideSpeed * 0.2F, glideDegree, true, -1F, 0F, ageInTicks, glideSwingAmount);
+        tail.rotateAngleX += Mth.sin(ageInTicks * 0.25F) * 0.2F * glideProgress * 0.2F;
+        tail.rotateAngleY += Mth.sin(ageInTicks * 0.3F + 1.2F) * 0.15F * glideProgress * 0.2F;
+
+        // Membrane ripple during glide (texture stretches between spread limbs)
+        if (glideProgress > 0) {
+            leftArm.rotateAngleZ += Mth.sin(ageInTicks * 0.6F) * 0.04F;
+            rightArm.rotateAngleZ -= Mth.sin(ageInTicks * 0.6F) * 0.04F;
+            leftLeg.rotateAngleZ += Mth.sin(ageInTicks * 0.55F + 0.5F) * 0.03F;
+            rightLeg.rotateAngleZ -= Mth.sin(ageInTicks * 0.55F + 0.5F) * 0.03F;
+        }
+
+        // ── AAA LANDING COMPRESSION ────────────────────────────────
+        // When glideProgress decreases (landing), body compresses
+        float landingCompress = Mth.clamp((entityIn.prevGlideProgress - glideProgress) * 5F, 0F, 1F);
+        body.rotationPointY -= landingCompress * 0.3F;
+        leftArm.rotationPointY -= landingCompress * 0.2F;
+        rightArm.rotationPointY -= landingCompress * 0.2F;
+        leftLeg.rotationPointY -= landingCompress * 0.2F;
+        rightLeg.rotationPointY -= landingCompress * 0.2F;
+
+        // ── Forage state (preserved) ───────────────────────────────
         this.bob(head, 1F, 0.6F, false, ageInTicks, forageProgress * 0.2F);
         this.swing(head, 0.5F, 0.6F, true, -1F, 0F, ageInTicks, forageProgress * 0.2F);
-        if(forageProgress == 0){
+        if (forageProgress == 0) {
             this.faceTarget(netHeadYaw, headPitch, 1.2F, head);
         }
     }
 
     @Override
-    public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
+    public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         if (this.young) {
             float f = 1.35F;
             head.setScale(f, f, f);
@@ -188,4 +241,3 @@ public class ModelSugarGlider extends AdvancedEntityModel<EntitySugarGlider> {
 
     
 }
-

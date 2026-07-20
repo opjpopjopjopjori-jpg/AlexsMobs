@@ -30,73 +30,58 @@ public class ModelDropBear extends AdvancedEntityModel<EntityDropBear> {
     public ModelDropBear() {
         texWidth = 128;
         texHeight = 128;
-
         root = new AdvancedModelBox(this, "root");
         root.setPos(0.0F, 24.0F, 0.0F);
-
-
         body = new AdvancedModelBox(this, "body");
         body.setPos(0.0F, -13.0F, 8.0F);
         root.addChild(body);
         body.setTextureOffset(0, 31).addBox(-6.0F, -8.0F, -7.0F, 12.0F, 13.0F, 13.0F, 0.0F, false);
-
         leg_left = new AdvancedModelBox(this, "leg_left");
         leg_left.setPos(3.4F, 5.0F, 2.5F);
         body.addChild(leg_left);
         leg_left.setTextureOffset(0, 58).addBox(-2.5F, 0.0F, -2.5F, 5.0F, 8.0F, 5.0F, 0.0F, false);
-
         leg_right = new AdvancedModelBox(this, "leg_right");
         leg_right.setPos(-3.4F, 5.0F, 2.5F);
         body.addChild(leg_right);
         leg_right.setTextureOffset(0, 58).addBox(-2.5F, 0.0F, -2.5F, 5.0F, 8.0F, 5.0F, 0.0F, true);
-
         front_body = new AdvancedModelBox(this, "front_body");
         front_body.setPos(0.0F, -2.0F, -7.0F);
         body.addChild(front_body);
         front_body.setTextureOffset(0, 0).addBox(-8.0F, -8.0F, -14.0F, 16.0F, 16.0F, 14.0F, 0.0F, false);
-
         head = new AdvancedModelBox(this, "head");
         head.setPos(0.0F, -1.0F, -14.0F);
         front_body.addChild(head);
         head.setTextureOffset(42, 49).addBox(-5.0F, -5.0F, -9.0F, 10.0F, 8.0F, 9.0F, 0.0F, false);
-
         nose = new AdvancedModelBox(this, "nose");
         nose.setPos(0.0F, -0.5F, -9.5F);
         head.addChild(nose);
         nose.setTextureOffset(0, 7).addBox(-1.0F, -1.5F, -0.5F, 2.0F, 3.0F, 1.0F, 0.0F, false);
-
         ear_left = new AdvancedModelBox(this, "ear_left");
         ear_left.setPos(2.75F, -2.75F, -3.5F);
         head.addChild(ear_left);
         ear_left.setTextureOffset(21, 58).addBox(-0.75F, -5.25F, -1.5F, 6.0F, 6.0F, 3.0F, 0.0F, false);
         ear_left.setTextureOffset(0, 0).addBox(2.25F, 0.75F, -1.5F, 3.0F, 3.0F, 3.0F, 0.0F, false);
-
         ear_right = new AdvancedModelBox(this, "ear_right");
         ear_right.setPos(-2.75F, -2.75F, -3.5F);
         head.addChild(ear_right);
         ear_right.setTextureOffset(21, 58).addBox(-5.25F, -5.25F, -1.5F, 6.0F, 6.0F, 3.0F, 0.0F, true);
         ear_right.setTextureOffset(0, 0).addBox(-5.25F, 0.75F, -1.5F, 3.0F, 3.0F, 3.0F, 0.0F, true);
-
         jaw = new AdvancedModelBox(this, "jaw");
         jaw.setPos(0.0F, 1.0F, 0.0F);
         head.addChild(jaw);
         jaw.setTextureOffset(47, 0).addBox(-5.0F, 0.0F, -9.0F, 10.0F, 4.0F, 9.0F, 0.0F, false);
-
         arm_left = new AdvancedModelBox(this, "arm_left");
         arm_left.setPos(6.75F, 3.0F, -8.75F);
         front_body.addChild(arm_left);
         arm_left.setTextureOffset(56, 26).addBox(-1.75F, -3.0F, -2.25F, 5.0F, 14.0F, 5.0F, 0.0F, false);
-
         claws_left = new AdvancedModelBox(this, "claws_left");
         claws_left.setPos(0.25F, 11.0F, -2.25F);
         arm_left.addChild(claws_left);
         claws_left.setTextureOffset(61, 14).addBox(-3.0F, 0.0F, -2.0F, 6.0F, 2.0F, 5.0F, 0.0F, false);
-
         arm_right = new AdvancedModelBox(this, "arm_right");
         arm_right.setPos(-6.75F, 3.0F, -8.75F);
         front_body.addChild(arm_right);
         arm_right.setTextureOffset(56, 26).addBox(-3.25F, -3.0F, -2.25F, 5.0F, 14.0F, 5.0F, 0.0F, true);
-
         claws_right = new AdvancedModelBox(this, "claws_right");
         claws_right.setPos(-0.25F, 11.0F, -2.25F);
         arm_right.addChild(claws_right);
@@ -160,7 +145,6 @@ public class ModelDropBear extends AdvancedEntityModel<EntityDropBear> {
         animator.endKeyframe();
         animator.setStaticKeyframe(5);
         animator.resetKeyframe(5);
-
     }
 
     @Override
@@ -172,8 +156,22 @@ public class ModelDropBear extends AdvancedEntityModel<EntityDropBear> {
         float idleSpeed = 0.2F;
         float idleDegree = 0.1F;
         float invert = upsideDownProgress > 0 ? -1F : 1F;
+
+        //══════ 🐨 DROP BEAR — UPSIDE-DOWN TREE-CLIMBER ══════
+        // IDENTITY: Marsupial tree-climber. Hangs upside-down from branches.
+        // Chews eucalyptus slowly. Big fluffy ears. Claws grip bark.
+        // UNIQUE vs SeaBear (aquatic swimmer), GrizzlyBear (forest walker).
+
+        // ── BREATHING: slow eucalyptus-muncher ──
+        float breath = Mth.cos(ageInTicks * 0.08F);
+        body.setScale(1.0F, 1.0F + breath * 0.015F, 1.0F);
+        nose.rotationPointY += breath * 0.04F;
+        jaw.rotateAngleX += breath * 0.03F; // subtle chewing
+
         progressPositionPrev(body, upsideDownProgress, 0, 1, 0, 5f);
         progressRotationPrev(body, upsideDownProgress, 0, 0, Maths.rad(180) * (entityIn.fallRotation ? -1F : 1F), 5f);
+
+        // ── AAA QUADRUPEDAL WALKING ─────────────────────────────────
         this.walk(leg_left, walkSpeed, walkDegree, false, 0F, 0F, limbSwing, limbSwingAmount);
         this.bob(leg_left, walkSpeed, walkDegree, false, limbSwing, limbSwingAmount);
         this.walk(leg_right, walkSpeed, walkDegree, true, 0F, 0F, limbSwing, limbSwingAmount);
@@ -182,17 +180,25 @@ public class ModelDropBear extends AdvancedEntityModel<EntityDropBear> {
         this.walk(arm_left, walkSpeed, walkDegree, true, 0F, 0F, limbSwing, limbSwingAmount);
         this.bob(arm_left, walkSpeed, walkDegree, false, limbSwing, limbSwingAmount);
         this.bob(arm_right, walkSpeed, walkDegree, false, limbSwing, limbSwingAmount);
+        // Body sway during walking
         this.flap(front_body, walkSpeed, walkDegree * 0.2F, false, -2F, 0, limbSwing, limbSwingAmount);
         this.flap(head, walkSpeed, walkDegree * 0.2F, true, -2F, 0, limbSwing, limbSwingAmount);
         this.bob(body, walkSpeed, walkDegree, false, limbSwing, limbSwingAmount);
+
+        // ── AAA EAR TWITCHING ───────────────────────────────────────
         this.flap(ear_right, walkSpeed, walkDegree * 0.2F, false, -1F, 0, limbSwing, limbSwingAmount);
         this.flap(ear_left, walkSpeed, walkDegree * 0.2F, true, -1F, 0, limbSwing, limbSwingAmount);
         this.flap(ear_right, idleSpeed, idleDegree, false, -1F, 0, ageInTicks, 1);
         this.flap(ear_left, idleSpeed, idleDegree, true, -1F, 0, ageInTicks, 1);
-        this.flap(nose, idleSpeed * 0.5F, idleDegree, false, 0F, 0F, ageInTicks, 1);
-        this.head.rotateAngleY += netHeadYaw * 0.9F * invert * Mth.DEG_TO_RAD;
-        this.head.rotateAngleX += headPitch * 0.9F *invert * Mth.DEG_TO_RAD;
 
+        // ── AAA NOSE TWITCHING ──────────────────────────────────────
+        this.flap(nose, idleSpeed * 0.5F, idleDegree, false, 0F, 0F, ageInTicks, 1);
+        // Scent sampling - nose micro-wiggle
+        nose.rotationPointX += Mth.sin(ageInTicks * 0.35F + 1.5F) * 0.04F;
+
+        // ── AAA HEAD TRACKING ──────────────────────────────────────
+        this.head.rotateAngleY += netHeadYaw * 0.9F * invert * Mth.DEG_TO_RAD;
+        this.head.rotateAngleX += headPitch * 0.9F * invert * Mth.DEG_TO_RAD;
     }
 
     @Override

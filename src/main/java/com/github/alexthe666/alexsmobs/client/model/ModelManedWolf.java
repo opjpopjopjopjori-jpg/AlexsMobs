@@ -162,15 +162,42 @@ public class ModelManedWolf extends AdvancedEntityModel<EntityManedWolf> {
         float shakeProgress = entity.prevShakeProgress + (entity.shakeProgress - entity.prevShakeProgress) * partialTick;
         float earPitch = entity.prevEarPitch + (entity.getEarPitch() - entity.prevEarPitch) * partialTick;
         float earYaw = entity.prevEarYaw + (entity.getEarYaw() - entity.prevEarYaw) * partialTick;
-        this.left_ear_pivot.rotateAngleX += earPitch * Mth.DEG_TO_RAD;
-        this.left_ear_pivot.rotateAngleY += earYaw * Mth.DEG_TO_RAD;
-        this.right_ear_pivot.rotateAngleX += earPitch * Mth.DEG_TO_RAD;
-        this.right_ear_pivot.rotateAngleY -= earYaw * Mth.DEG_TO_RAD;
-        this.head.rotateAngleY += netHeadYaw * 0.5F * Mth.DEG_TO_RAD;
+        //══════ 🦊 MANED WOLF — STILT-LEGGED SOLITARY FOX ══════
+        // IDENTITY: "Fox on stilts" — tallest wild canid. LONG legs lift high
+        // each step (stilt-walk). Gentle fruit-picker (not a fierce hunter).
+        // Ears rotate like radar dishes independently. Tail hangs low.
+        // Solitary — moves with quiet elegance. UNIQUE vs all other canids.
 
-        progressRotationPrev(tail, runProgress, Maths.rad(35), 0, 0, 5f);
-        progressRotationPrev(neck, runProgress, Maths.rad(40), 0, 0, 5f);
-        progressRotationPrev(head, runProgress, Maths.rad(-40), 0, 0, 5f);
+        // ── BREATHING: elegant lanky canid ──
+        float breath=Mth.cos(ageInTicks*0.09F);
+        body.setScale(1.0F,1.0F+breath*0.015F,1.0F);body.rotationPointY+=breath*0.15F;
+
+        // ── RADAR EARS: independently rotating (maned wolf signature) ──
+        left_ear_pivot.rotateAngleX+=earPitch*Mth.DEG_TO_RAD;
+        left_ear_pivot.rotateAngleY+=earYaw*Mth.DEG_TO_RAD;
+        right_ear_pivot.rotateAngleX+=earPitch*Mth.DEG_TO_RAD;
+        right_ear_pivot.rotateAngleY-=earYaw*Mth.DEG_TO_RAD;
+        this.flap(left_ear,0.3F,0.15F,false,1F,0,ageInTicks,1);
+        this.flap(right_ear,0.3F,0.15F,true,1.3F,0,ageInTicks,1);
+
+        // ── STILT-LEGGED WALK: high knee lift each step ──
+        float lfKnee=Mth.abs(Mth.sin(limbSwing*walkSpeed))*walkDegree*0.8F*limbSwingAmount;
+        float rtKnee=Mth.abs(Mth.cos(limbSwing*walkSpeed))*walkDegree*0.8F*limbSwingAmount;
+        left_leg.rotationPointY+=lfKnee*2F;right_leg.rotationPointY+=rtKnee*2F;
+        left_arm.rotationPointY+=lfKnee*1.5F;right_arm.rotationPointY+=rtKnee*1.5F;
+
+        // ── TAIL: hangs low, gentle sway ──
+        this.flap(tail,idleSpeed,idleDegree*0.2F,false,1F,0,ageInTicks,1);
+        this.swing(tail,walkSpeed,walkDegree*0.3F,true,1F,0.05F,limbSwing,limbSwingAmount);
+
+        // ── HEAD: gentle bob ──
+        this.walk(head,idleSpeed,idleDegree*0.2F,true,2F,0,ageInTicks,1);
+        this.walk(neck,idleSpeed,idleDegree*0.2F,false,2F,0,ageInTicks,1);
+        this.head.rotateAngleY+=netHeadYaw*0.5F*Mth.DEG_TO_RAD;
+
+        progressRotationPrev(tail,runProgress,Maths.rad(35),0,0,5f);
+        progressRotationPrev(neck,runProgress,Maths.rad(40),0,0,5f);
+        progressRotationPrev(head,runProgress,Maths.rad(-40),0,0,5f);
 
         progressRotationPrev(body, danceProgress, Maths.rad(-40), 0, 0, 5f);
         progressRotationPrev(left_arm, danceProgress, Maths.rad(20), 0, 0, 5f);
@@ -232,6 +259,11 @@ public class ModelManedWolf extends AdvancedEntityModel<EntityManedWolf> {
         this.flap(right_leg, shakeSpeed, shakeDegree, true, 0F, 0F, ageInTicks, shakeProgress * 0.2F);
         this.flap(left_arm, shakeSpeed, shakeDegree, true, 0F, 0F, ageInTicks, shakeProgress * 0.2F);
         this.flap(right_arm, shakeSpeed, shakeDegree, true, 0F, 0F, ageInTicks, shakeProgress * 0.2F);
+        // AAA Ear twitch (large ears)
+        this.flap(left_ear, 0.25F, 0.12F, false, 1F, 0, ageInTicks, 1);
+        this.flap(right_ear, 0.25F, 0.12F, true, 1.3F, 0, ageInTicks, 1);
+        // AAA Tail sway balance during walk
+        this.swing(tail, walkSpeed, walkDegree * 0.3F, true, 1F, 0.05F, limbSwing, limbSwingAmount);
 
     }
 

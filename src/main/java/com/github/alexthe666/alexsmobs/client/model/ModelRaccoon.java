@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector4f;
 
@@ -145,23 +146,33 @@ public class ModelRaccoon extends AdvancedEntityModel<EntityRaccoon> {
         progressRotationPrev(leg_right, standProgress, Maths.rad(70), 0, 0, 5f);
         progressRotationPrev(head, standProgress, Maths.rad(70), 0, 0, 5f);
 
-        progressRotationPrev(body, sitProgress, Maths.rad(-10), 0, 0, 5f);
-        progressRotationPrev(head, sitProgress, Maths.rad(10), 0, 0, 5f);
-        progressRotationPrev(tail, sitProgress, Maths.rad(10), 0, 0, 5f);
-        progressRotationPrev(arm_left, sitProgress, Maths.rad(-75), 0, 0, 5f);
-        progressRotationPrev(arm_right, sitProgress, Maths.rad(-75), 0, 0, 5f);
-        progressRotationPrev(leg_left, sitProgress, Maths.rad(-80), Maths.rad(-20), 0, 5f);
-        progressRotationPrev(leg_right, sitProgress, Maths.rad(-80), Maths.rad(20), 0, 5f);
-        progressPositionPrev(body, sitProgress, 0, 4, 0, 5f);
-        progressPositionPrev(leg_left, sitProgress, 1.5F, 1, 0, 5f);
-        progressPositionPrev(leg_right, sitProgress, -1.5F, 1, 0, 5f);
-        progressPositionPrev(arm_left, sitProgress, 0, 2.5F, 1, 5f);
-        progressPositionPrev(arm_right, sitProgress, 0, 2.5F, 1, 5f);
+		//═══ AAA TRANSITIONS: Overlapping Action ═══
+		float legLead = Math.min(sitProgress, sitProgress*1.25F);
+		float armTrail = Math.max(0, sitProgress-0.6F);
+		float headTrail = Math.max(0, sitProgress-1.2F);
+		progressRotationPrev(body, sitProgress, Maths.rad(-10), 0, 0, 5f);
+		progressPositionPrev(body, sitProgress, 0, 4, 0, 5f);
+		progressRotationPrev(arm_left, armTrail, Maths.rad(-75), 0, 0, 5f);
+		progressRotationPrev(arm_right, armTrail, Maths.rad(-75), 0, 0, 5f);
+		progressRotationPrev(leg_left, legLead, Maths.rad(-80), Maths.rad(-20), 0, 5f);
+		progressRotationPrev(leg_right, legLead, Maths.rad(-80), Maths.rad(20), 0, 5f);
+		progressPositionPrev(leg_left, legLead, 1.5F, 1, 0, 5f);
+		progressPositionPrev(leg_right, legLead, -1.5F, 1, 0, 5f);
+		progressPositionPrev(arm_left, armTrail, 0, 2.5F, 1, 5f);
+		progressPositionPrev(arm_right, armTrail, 0, 2.5F, 1, 5f);
+		progressRotationPrev(head, headTrail, Maths.rad(10), 0, 0, 5f);
+		progressRotationPrev(tail, headTrail, Maths.rad(10), 0, 0, 5f);
 
         progressPositionPrev(head, standProgress, 0, -2F, 0, 5f);
         progressPositionPrev(body, standProgress, 0, -3F, 0, 5f);
         progressPositionPrev(leg_left, standProgress, 0, -2F, 0, 5f);
         progressPositionPrev(leg_right, standProgress, 0, -2F, 0, 5f);
+
+        //══════ 🦝 RACCOON — TACTILE HAND-WASHING BANDIT ══════
+        // IDENTITY: Curious tactile investigator. Washes food with hands.
+        // Ringed tail sways with S-curve. Bandit-mask face.
+        // Paws CONSTANTLY touching, investigating, washing.
+        // UNIQUE vs Skunk (spray defender), TasmanianDevil (bite-shaker).
         progressPositionPrev(arm_left, standProgress, 0, 1F, 0, 5f);
         progressPositionPrev(arm_right, standProgress, 0, 1F, 0, 5f);
         progressRotationPrev(tail, standProgress, Maths.rad(80), 0, 0, 5f);
@@ -225,6 +236,14 @@ public class ModelRaccoon extends AdvancedEntityModel<EntityRaccoon> {
         this.swing(tail, walkSpeed, walkDegree * 1, false, 4F, 0F, limbSwing, limbSwingAmount);
         this.walk(leg_right, walkSpeed, walkDegree * 1.1F, false, 0F, 0F, limbSwing, limbSwingAmount);
         this.walk(leg_left, walkSpeed, walkDegree * 1.1F, true, 0F, 0F, limbSwing, limbSwingAmount);
+        // AAA PROCYONID BREATHING + TAIL BALANCE + EAR TWITCH
+        float breath = Mth.cos(ageInTicks * 0.1F);
+        body.rotationPointY += breath * 0.08F;
+        body.setScale(1.0F, 1.0F + breath * 0.01F, 1.0F);
+        this.flap(ear_left, 0.2F, 0.08F, false, 1F, 0, ageInTicks, 1);
+        this.flap(ear_right, 0.2F, 0.08F, true, 1.3F, 0, ageInTicks, 1);
+        // Tail S-curve balance during walk
+        this.swing(tail, walkSpeed, walkDegree * 0.8F, false, 4F, 0.05F, limbSwing, limbSwingAmount);
 
     }
 

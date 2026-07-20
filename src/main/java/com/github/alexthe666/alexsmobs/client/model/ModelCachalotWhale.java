@@ -119,10 +119,28 @@ public class ModelCachalotWhale extends AdvancedEntityModel<EntityCachalotWhale>
 		float beachedSpeed = 0.05F;
 		float beachedIdle = 0.4F;
 
-		// Majestic deep-sea hydrodynamic idle drifting (Whale breathing/buoyancy rhythm)
-		float idleDrift = Maths.cos(ageInTicks * 0.05F);
-		body.rotationPointY += idleDrift * 1.5F;
-		this.chainWave(tailBoxes, 0.05F, 0.15F, -2.0F, ageInTicks, 1.0F);
+        //══════ 🐳 CACHALOT WHALE — DEEP-SEA LEVIATHAN ══════
+        // IDENTITY: Massive, slow, deliberate. Deep-diving specialist.
+        // Vertical descent posture for squid hunting. Lumbering tail strokes.
+        // Giant head (spermaceti organ) stays stable. Sings in the deep.
+        // UNIQUE from Orca: Cachalot = slow massive depths. Orca = fast surface hunter.
+
+        // ── BREATHING: massive slow cetacean (~4 breaths/min at surface) ──
+        float deepBreath=Mth.cos(ageInTicks*0.04F);
+        body.setScale(1.0F+deepBreath*0.008F,1.0F+deepBreath*0.025F,1.0F+deepBreath*0.01F);
+        body.rotationPointY+=deepBreath*2.0F;
+
+        // ── DEEP DRIFT: slow majestic idle buoyancy ──
+        this.chainWave(tailBoxes,0.05F,0.15F,-2.0F,ageInTicks,1.0F);
+        // Giant head stays remarkably stable (spermaceti buoyancy control)
+        head.rotateAngleX-=deepBreath*0.01F; // minimal pitch — head is stabilized
+
+        // ── VERTICAL DIVING POSTURE: body naturally angles downward ──
+        // Cachalots descend nearly vertically for squid hunting
+        if(limbSwingAmount<0.05F&&beachedProgress<0.1F){
+            // Subtle head-down idle (preparing for deep dive)
+            body.rotateAngleX+=Mth.sin(ageInTicks*0.03F)*0.03F;
+        }
 
 		progressRotationPrev(jaw, Math.max(chargeProgress, grabProgress * 0.8F), Maths.rad(30), 0, 0, 10F);
 		progressRotationPrev(jaw, beachedProgress, Maths.rad(20), Maths.rad(5), 0, 10F);
@@ -145,20 +163,28 @@ public class ModelCachalotWhale extends AdvancedEntityModel<EntityCachalotWhale>
 			this.walk(jaw, beachedSpeed, beachedIdle * 0.2F, true, 2F, 0.06F, ageInTicks, 1);
 			this.walk(tail1, beachedSpeed, beachedIdle * 0.2F, false, 4F, 0.06F, ageInTicks, 1);
 			this.walk(tail2, beachedSpeed, beachedIdle * 0.2F, false, 4F, 0.06F, ageInTicks, 1);
-		}else{
-			this.walk(jaw, swimSpeed * 0.4F, swimDegree * 0.15F, true, 1F, -0.01F, ageInTicks, 1);
-			this.flap(arm_left, swimSpeed * 0.4F, swimDegree * 0.5F, true, 2.5F, -0.4F, ageInTicks, 1);
-			this.flap(arm_right, swimSpeed * 0.4F, swimDegree * 0.5F, false, 2.5F, -0.4F, ageInTicks, 1);
-			this.swing(arm_left, swimSpeed, swimDegree * 0.2F, true, 0F, 0F, limbSwing, limbSwingAmount);
-			this.swing(arm_right, swimSpeed, swimDegree * 0.2F, true, 0F, 0F, limbSwing, limbSwingAmount);
-			this.flap(arm_left, swimSpeed, swimDegree * 1.4F, true, 2.5F, 0F, limbSwing, limbSwingAmount);
-			this.flap(arm_right, swimSpeed, swimDegree * 1.4F, false, 2.5F, 0F, limbSwing, limbSwingAmount);
-			this.bob(body, swimSpeed, swimDegree * 20, false, limbSwing, limbSwingAmount);
-			this.chainWave(tailBoxes, swimSpeed, swimDegree * 0.85F, -2F, limbSwing, limbSwingAmount);
-			this.walk(head, swimSpeed, swimDegree * 0.1F, false, 2F, 0, limbSwing, limbSwingAmount);
-			this.tail1.rotationPointZ -= 4 * limbSwingAmount;
-			this.tail2.rotationPointZ -= 2 * limbSwingAmount;
-		}
+        }else{
+            // ── SLOW LUMBERING SWIM: massive deliberate strokes ──
+            // Unlike orca (fast agile), cachalot moves with gravity
+            float slowSpeed=swimSpeed*0.6F;
+            float slowDegree=swimDegree*0.9F;
+            this.walk(jaw,slowSpeed*0.4F,slowDegree*0.15F,true,1F,-0.01F,ageInTicks,1);
+            this.flap(arm_left,slowSpeed*0.3F,slowDegree*0.5F,true,2.5F,-0.4F,ageInTicks,1);
+            this.flap(arm_right,slowSpeed*0.3F,slowDegree*0.5F,false,2.5F,-0.4F,ageInTicks,1);
+            this.swing(arm_left,slowSpeed,slowDegree*0.15F,true,0F,0F,limbSwing,limbSwingAmount);
+            this.swing(arm_right,slowSpeed,slowDegree*0.15F,true,0F,0F,limbSwing,limbSwingAmount);
+            this.flap(arm_left,slowSpeed,slowDegree*1.0F,true,2.5F,0F,limbSwing,limbSwingAmount);
+            this.flap(arm_right,slowSpeed,slowDegree*1.0F,false,2.5F,0F,limbSwing,limbSwingAmount);
+            // Massive body bob — the whole whale moves with each stroke
+            this.bob(body,slowSpeed,slowDegree*25,false,limbSwing,limbSwingAmount);
+            // Slow, wide tail strokes
+            this.chainWave(tailBoxes,slowSpeed,slowDegree*0.6F,-2F,limbSwing,limbSwingAmount);
+            this.walk(head,slowSpeed,slowDegree*0.06F,false,2F,0,limbSwing,limbSwingAmount);
+            // Body oscillates with each lumbering stroke
+            body.rotateAngleX+=Mth.sin(limbSwing*slowSpeed)*0.03F*limbSwingAmount;
+            this.tail1.rotationPointZ-=4*limbSwingAmount;
+            this.tail2.rotationPointZ-=2*limbSwingAmount;
+        }
 	}
 
 	@Override

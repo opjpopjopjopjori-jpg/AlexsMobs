@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.Mth;
 
 public class ModelSeagull extends AdvancedEntityModel<EntitySeagull> {
 	public final AdvancedModelBox root;
@@ -157,7 +158,13 @@ public class ModelSeagull extends AdvancedEntityModel<EntitySeagull> {
 		head.rotateAngleY += Math.toRadians(entity.getFlightLookYaw()) * flyProgress * 0.2F;
 		head.rotateAngleY += netHeadYaw / 57.295776F * groundProgress * 0.2F;
 		head.rotateAngleX += headPitch / 57.295776F * groundProgress * 0.2F;
-
+		//══════ 🕊️ SEAGULL — PROUD WADDLING SCAVENGER ══════
+		// IDENTITY: Chest puffed, waddles, stands on ONE LEG.
+		// COMPLETELY DIFFERENT from Crow (crow hops, seagull struts).
+		float breath=Mth.cos(ageInTicks*0.14F); body.rotationPointY+=breath*0.06F;
+		if(flyProgress>0){left_wingtip.rotateAngleX+=Mth.sin(ageInTicks*0.5F)*0.06F;right_wingtip.rotateAngleX+=Mth.sin(ageInTicks*0.5F)*0.06F;tail.rotateAngleZ+=Mth.sin(ageInTicks*0.3F)*0.05F;}
+		if(limbSwingAmount<0.05F){body.rotateAngleX-=0.08F;head.rotateAngleX-=0.06F;} // puffed chest
+		if(limbSwingAmount<0.03F&&flyProgress<0.1F){right_leg.rotationPointY+=Mth.abs(Mth.sin(ageInTicks*0.08F))*2.5F;} // one-leg stand
 	}
 
 	@Override

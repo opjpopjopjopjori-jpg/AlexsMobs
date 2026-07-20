@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.Mth;
 
 public class ModelSnowLeopard extends AdvancedEntityModel<EntitySnowLeopard> {
     private final AdvancedModelBox root;
@@ -149,96 +150,115 @@ public class ModelSnowLeopard extends AdvancedEntityModel<EntitySnowLeopard> {
     @Override
     public void setupAnim(EntitySnowLeopard entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         animate(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-        float walkSpeed = 0.7F;
-        float walkDegree = 0.6F;
-        float idleSpeed = 0.1F;
-        float idleDegree = 0.1F;
-        float runProgress = 5F * limbSwingAmount;
-        float partialTick = Minecraft.getInstance().getFrameTime();
-        float stalkProgress = entity.prevSneakProgress + (entity.sneakProgress - entity.prevSneakProgress) * partialTick;
-        float tackleProgress = entity.prevTackleProgress + (entity.tackleProgress - entity.prevTackleProgress) * partialTick;
-        float sitProgress = entity.prevSitProgress + (entity.sitProgress - entity.prevSitProgress) * partialTick;
-        float sleepProgress = entity.prevSleepProgress + (entity.sleepProgress - entity.prevSleepProgress) * partialTick;
-        float sitSleepProgress = Math.max(sitProgress, sleepProgress);
-        this.swing(tail1, idleSpeed, idleDegree * 2F, false, 2F, 0F, ageInTicks, 1 - limbSwingAmount);
-        this.swing(tail2, idleSpeed, idleDegree * 1.5F, false, 2F, 0F, ageInTicks, 1 - limbSwingAmount);
-        this.flap(tail3, idleSpeed * 1.2F, idleDegree * 1.5F, false, 2F, 0F, ageInTicks, 1 - limbSwingAmount);
-        this.swing(tail3, idleSpeed * 1.2F, idleDegree * 1.5F, false, 2F, 0F, ageInTicks, 1 - limbSwingAmount);
-        this.walk(head, idleSpeed * 0.3F, idleDegree, false, 0F, 0F, ageInTicks, 1);
-        this.walk(head, idleSpeed * 0.3F, -idleDegree, false, 0.5F, 0F, ageInTicks, 1);
-        this.walk(armRight, walkSpeed, walkDegree * 1.1F, true, 0F, 0F, limbSwing, limbSwingAmount);
-        this.bob(armRight, walkSpeed, walkDegree, false, limbSwing, limbSwingAmount);
-        this.walk(armLeft, walkSpeed, walkDegree * 1.1F, false, 0F, 0F, limbSwing, limbSwingAmount);
-        this.bob(armLeft, walkSpeed, walkDegree, false, limbSwing, limbSwingAmount);
-        this.walk(legRight, walkSpeed, walkDegree * 1.1F, false, 0F, 0F, limbSwing, limbSwingAmount);
-        this.bob(legRight, walkSpeed, walkDegree, false, limbSwing, limbSwingAmount);
-        this.walk(legLeft, walkSpeed, walkDegree * 1.1F, true, 0F, 0F, limbSwing, limbSwingAmount);
-        this.bob(legLeft, walkSpeed, walkDegree, false, limbSwing, limbSwingAmount);
-        this.bob(body, walkSpeed, walkDegree, false, limbSwing, limbSwingAmount);
-        AdvancedModelBox[] tailBoxes = new AdvancedModelBox[]{tail1, tail2, tail3};
-        this.chainSwing(tailBoxes, walkSpeed, walkDegree * 0.5F, -2.5F, limbSwing, limbSwingAmount);
-        progressRotationPrev(tail1, runProgress, Maths.rad(40), 0, 0, 5F);
-        progressRotationPrev(tail2, runProgress, Maths.rad(-20), 0, 0, 5F);
-        progressRotationPrev(tail3, runProgress, Maths.rad(-20), 0, 0, 5F);
-        progressRotationPrev(body, stalkProgress, Maths.rad(10), 0, 0, 5F);
-        progressRotationPrev(legLeft, stalkProgress, Maths.rad(-10), 0, 0, 5F);
-        progressRotationPrev(legRight, stalkProgress, Maths.rad(-10), 0, 0, 5F);
-        progressRotationPrev(armLeft, stalkProgress, Maths.rad(-15), 0, 0, 5F);
-        progressRotationPrev(armRight, stalkProgress, Maths.rad(-15), 0, 0, 5F);
-        progressRotationPrev(head, stalkProgress, Maths.rad(5), 0, 0, 5F);
-        progressRotationPrev(head, stalkProgress, Maths.rad(-20), 0, 0, 5F);
-        progressRotationPrev(tail1, stalkProgress, Maths.rad(-20), 0, 0, 5F);
-        progressPositionPrev(body, stalkProgress, 0, -0.5F, 4, 5F);
-        progressPositionPrev(legLeft, stalkProgress, 0, 1.6F, -2, 5F);
-        progressPositionPrev(legRight, stalkProgress, 0, 1.6F, -2, 5F);
-        progressPositionPrev(armLeft, stalkProgress, 0, -0.4F, 0, 5F);
-        progressPositionPrev(armRight, stalkProgress, 0, -0.4F, 0, 5F);
-        progressRotationPrev(body, tackleProgress, Maths.rad(-45), 0, 0, 3F);
-        progressRotationPrev(head, tackleProgress, Maths.rad(45), 0, 0, 3F);
-        progressRotationPrev(tail1, tackleProgress, Maths.rad(60), 0, 0, 3F);
-        progressRotationPrev(armRight, tackleProgress, Maths.rad(-25), 0, Maths.rad(45), 3F);
-        progressRotationPrev(armLeft, tackleProgress, Maths.rad(-25), 0, Maths.rad(-45), 3F);
-        progressRotationPrev(legLeft, tackleProgress, Maths.rad(-15), 0, Maths.rad(-25), 3F);
-        progressRotationPrev(legRight, tackleProgress, Maths.rad(-15), 0, Maths.rad(25), 3F);
-        progressPositionPrev(body, tackleProgress, 0, -5F, 0, 3F);
-        progressPositionPrev(head, tackleProgress, 0, 2, 0, 3F);
-        progressPositionPrev(armLeft, tackleProgress, 1F, 2F, 0, 3F);
-        progressPositionPrev(armRight, tackleProgress, -1F, 2F, 0, 3F);
-        progressPositionPrev(tail1, tackleProgress, 0, 0F, -1F, 3F);
-        float tailAngle = entity.getId() % 2 == 0 ? 1 : -1;
-        progressRotationPrev(legLeft, sitSleepProgress, Maths.rad(-90), Maths.rad(-20), 0, 5F);
-        progressRotationPrev(legRight, sitSleepProgress, Maths.rad(-90), Maths.rad(20), 0, 5F);
-        progressRotationPrev(armLeft, sitSleepProgress, Maths.rad(-90), 0, 0, 5F);
-        progressRotationPrev(armRight, sitSleepProgress, Maths.rad(-90), 0, 0, 5F);
-        progressPositionPrev(body, sitSleepProgress, 0, 3, 0, 5F);
-        progressPositionPrev(armRight, sitSleepProgress, 0, 2F, 0, 5F);
-        progressPositionPrev(armLeft, sitSleepProgress, 0, 2F, 0, 5F);
-        progressPositionPrev(legRight, sitSleepProgress, 0, 2.8F, -0.5F, 5F);
-        progressPositionPrev(legLeft, sitSleepProgress, 0, 2.8F, -0.5F, 5F);
-        progressRotationPrev(tail1, sitProgress, Maths.rad(20), Maths.rad(tailAngle * 30), 0, 5F);
-        progressRotationPrev(tail2, sitProgress, Maths.rad(-5), Maths.rad(tailAngle * 50), 0, 5F);
-        progressRotationPrev(tail3, sitProgress, Maths.rad(10), Maths.rad(tailAngle * 20), Maths.rad(tailAngle * 20), 5F);
-        progressRotationPrev(tail1, sleepProgress, Maths.rad(20), Maths.rad(tailAngle * -60), 0, 5F);
-        progressRotationPrev(tail2, sleepProgress, Maths.rad(10), Maths.rad(tailAngle * -70), Maths.rad(tailAngle * -50), 5F);
-        progressRotationPrev(tail3, sleepProgress, Maths.rad(-30), Maths.rad(tailAngle * -50), Maths.rad(tailAngle * -30), 5F);
-        progressRotationPrev(body, sleepProgress, Maths.rad(10), 0, 0, 5F);
-        progressRotationPrev(armLeft, sleepProgress,  Maths.rad(-10), Maths.rad(-30), 0, 5F);
-        progressRotationPrev(armRight, sleepProgress,  Maths.rad(-10), Maths.rad(30), 0, 5F);
-        progressRotationPrev(legRight, sleepProgress,  Maths.rad(-10), 0, 0, 5F);
-        progressRotationPrev(legRight, sleepProgress,  Maths.rad(-10), 0, 0, 5F);
-        progressRotationPrev(tail1, sleepProgress,  Maths.rad(-10), 0, 0, 5F);
-        progressRotationPrev(head, sleepProgress,  Maths.rad(-10), 0, Maths.rad(-10), 5F);
-        progressPositionPrev(head, sleepProgress, 0, 5, -1, 5F);
-        if(sleepProgress >= 5F){
-            float f = (float) (sleepProgress * Math.max(Math.sin(ageInTicks * 0.05F), 0F) * 0.2F);
-            this.bubble.showModel = true;
-            this.bubble.setScale(f, f, f);
-        }else{
-            this.bubble.showModel = false;
+        float wkSp=0.7F, wkDg=0.5F, idSp=0.1F, idDg=0.1F, runP=5F*limbSwingAmount;
+        float pt=Minecraft.getInstance().getFrameTime();
+        float stalkP=entity.prevSneakProgress+(entity.sneakProgress-entity.prevSneakProgress)*pt;
+        float tackleP=entity.prevTackleProgress+(entity.tackleProgress-entity.prevTackleProgress)*pt;
+        float sitP=entity.prevSitProgress+(entity.sitProgress-entity.prevSitProgress)*pt;
+        float sleepP=entity.prevSleepProgress+(entity.sleepProgress-entity.prevSleepProgress)*pt;
+        float sitSleepP=Math.max(sitP,sleepP);
+
+        //══════ 🐆 SNOW LEOPARD — HIGH-ALTITUDE BOUNCING HUNTER ══════
+        // IDENTITY: Mountain ghost. TAIL CURLS OVER BACK (signature!).
+        // HIGH posture on rocky terrain. BOUNCY, light steps — never heavy.
+        // Pounces between rocks. Whiskers twitch sensing snow vibrations.
+        // Sleeps with bubble. MOST DISTINCT from Tiger in every dimension.
+        // Tiger = LOW heavy glide. Snow Leopard = HIGH bouncy spring.
+
+        // ── BREATHING: thin air at altitude, slightly faster ──
+        float thinAir=Mth.cos(ageInTicks*0.1F);
+        body.rotationPointY+=thinAir*0.06F; body.setScale(1.0F,1.0F+thinAir*0.008F,1.0F);
+
+        // ── HIGH BOUNCY WALK: light on feet, almost hopping between rocks ──
+        this.walk(armRight,wkSp,wkDg*1F,true,0F,0F,limbSwing,limbSwingAmount);
+        this.bob(armRight,wkSp,wkDg*0.8F,false,limbSwing,limbSwingAmount);
+        this.walk(armLeft,wkSp,wkDg*1F,false,0F,0F,limbSwing,limbSwingAmount);
+        this.bob(armLeft,wkSp,wkDg*0.8F,false,limbSwing,limbSwingAmount);
+        this.walk(legRight,wkSp,wkDg*1F,false,0F,0F,limbSwing,limbSwingAmount);
+        this.bob(legRight,wkSp,wkDg*0.8F,false,limbSwing,limbSwingAmount);
+        this.walk(legLeft,wkSp,wkDg*1F,true,0F,0F,limbSwing,limbSwingAmount);
+        this.bob(legLeft,wkSp,wkDg*0.8F,false,limbSwing,limbSwingAmount);
+
+        // ── SPRINGY BOUNCE: snow leopard ricochets lightly ──
+        float spring=Mth.sin(limbSwing*wkSp*1.3F)*wkDg*1.8F*limbSwingAmount;
+        body.rotationPointY+=spring;head.rotationPointY+=spring*0.3F;
+
+        // ── TAIL CURLS OVER BACK: THE signature snow leopard move! ──
+        // Unlike tiger (tail hangs down), snow leopard tail arches up and curves forward
+        // 3-segment tail creates elegant S-curve cascading over the spine
+        AdvancedModelBox[] tailCurve={tail1,tail2,tail3};
+        if(limbSwingAmount<0.05F){
+            // IDLE: tail curls forward over body — resting over-the-shoulder pose
+            tail1.rotateAngleX-=0.8F; // base curves up
+            tail2.rotateAngleX-=0.9F; // middle arcs forward  
+            tail3.rotateAngleX-=0.6F; // tip hangs down slightly
+            // Gentle rhythmic sway of the curled tail
+            float tailSway=Mth.sin(ageInTicks*0.4F+1F)*0.08F;
+            tail2.rotateAngleZ+=tailSway;tail3.rotateAngleZ+=tailSway*1.3F;
         }
-        if (sleepProgress <= 0.0F) {
-            this.faceTarget(netHeadYaw, headPitch, 1, head);
-        }
+        // During walk: tail streams behind as counterbalance, then flicks up at end
+        this.chainSwing(tailCurve,wkSp,wkDg*0.4F,-2.5F,limbSwing,limbSwingAmount);
+        // Tail tip has independent flutter even while base swings
+        this.flap(tail3,idSp*1.2F,idDg*1.5F,false,2F,0,ageInTicks,1-limbSwingAmount*0.6F);
+
+        // ── WHISKERS: LONG sensitive probing (snow vibration detection) ──
+        // Unlike tiger's snout (smell), snow leopard uses whiskers actively
+        this.flap(whiskersLeft,0.2F,0.08F,false,0F,0,ageInTicks,1);
+        this.flap(whiskersRight,0.2F,0.08F,true,1.5F,0,ageInTicks,1);
+        whiskersLeft.rotateAngleY+=Mth.sin(ageInTicks*0.5F)*0.2F;
+        whiskersRight.rotateAngleY+=Mth.sin(ageInTicks*0.5F+1F)*0.2F;
+
+        // ── STALK: ultra-low crouch, belly nearly touches ground ──
+        if(stalkP>0){body.rotationPointY-=stalkP*0.25F;body.rotationPointZ+=stalkP*0.3F;}
+        progressRotationPrev(body,stalkP,Maths.rad(10),0,0,5F);
+        progressRotationPrev(legLeft,stalkP,Maths.rad(-10),0,0,5F);
+        progressRotationPrev(legRight,stalkP,Maths.rad(-10),0,0,5F);
+        progressRotationPrev(armLeft,stalkP,Maths.rad(-15),0,0,5F);
+        progressRotationPrev(armRight,stalkP,Maths.rad(-15),0,0,5F);
+        progressRotationPrev(head,stalkP,Maths.rad(5),0,0,5F);
+        progressPositionPrev(body,stalkP,0,-0.5F,4,5F);
+        progressPositionPrev(legLeft,stalkP,0,1.6F,-2,5F);
+        progressPositionPrev(legRight,stalkP,0,1.6F,-2,5F);
+
+        // ── HEAD SCANNING: constantly surveys mountain terrain ──
+        this.walk(head,idSp*0.3F,idDg,false,0F,0F,ageInTicks,1);
+        this.walk(head,idSp*0.3F,-idDg,false,0.5F,0F,ageInTicks,1);
+        if(sleepP<=0)this.faceTarget(netHeadYaw,headPitch,1,head);
+
+        // ── TRANSITIONS ──
+        progressRotationPrev(tail1,runP,Maths.rad(40),0,0,5F);
+        progressRotationPrev(tail2,runP,Maths.rad(-20),0,0,5F);
+        progressRotationPrev(tail3,runP,Maths.rad(-20),0,0,5F);
+        progressRotationPrev(body,tackleP,Maths.rad(-45),0,0,3F);
+        progressRotationPrev(head,tackleP,Maths.rad(45),0,0,3F);
+        progressRotationPrev(tail1,tackleP,Maths.rad(60),0,0,3F);
+        progressRotationPrev(armRight,tackleP,Maths.rad(-25),0,Maths.rad(45),3F);
+        progressRotationPrev(armLeft,tackleP,Maths.rad(-25),0,Maths.rad(-45),3F);
+        progressRotationPrev(legLeft,tackleP,Maths.rad(-15),0,Maths.rad(-25),3F);
+        progressRotationPrev(legRight,tackleP,Maths.rad(-15),0,Maths.rad(25),3F);
+        progressPositionPrev(body,tackleP,0,-5F,0,3F);
+        progressPositionPrev(head,tackleP,0,2,0,3F);
+
+        float ta=entity.getId()%2==0?1:-1;
+        progressRotationPrev(legLeft,sitSleepP,Maths.rad(-90),Maths.rad(-20),0,5F);
+        progressRotationPrev(legRight,sitSleepP,Maths.rad(-90),Maths.rad(20),0,5F);
+        progressRotationPrev(armLeft,sitSleepP,Maths.rad(-90),0,0,5F);
+        progressRotationPrev(armRight,sitSleepP,Maths.rad(-90),0,0,5F);
+        progressPositionPrev(body,sitSleepP,0,3,0,5F);
+        progressPositionPrev(armRight,sitSleepP,0,2F,0,5F);
+        progressPositionPrev(armLeft,sitSleepP,0,2F,0,5F);
+        progressPositionPrev(legRight,sitSleepP,0,2.8F,-0.5F,5F);
+        progressPositionPrev(legLeft,sitSleepP,0,2.8F,-0.5F,5F);
+        progressRotationPrev(tail1,sitP,Maths.rad(20),Maths.rad(ta*30),0,5F);
+        progressRotationPrev(tail2,sitP,Maths.rad(-5),Maths.rad(ta*50),0,5F);
+        progressRotationPrev(tail3,sitP,Maths.rad(10),Maths.rad(ta*20),Maths.rad(ta*20),5F);
+        progressRotationPrev(tail1,sleepP,Maths.rad(20),Maths.rad(ta*-60),0,5F);
+        progressRotationPrev(tail2,sleepP,Maths.rad(10),Maths.rad(ta*-70),Maths.rad(ta*-50),5F);
+        progressRotationPrev(tail3,sleepP,Maths.rad(-30),Maths.rad(ta*-50),Maths.rad(ta*-30),5F);
+        progressRotationPrev(body,sleepP,Maths.rad(10),0,0,5F);
+        progressPositionPrev(head,sleepP,0,5,-1,5F);
+        if(sleepP>=5F){float f=(float)(sleepP*Math.max(Math.sin(ageInTicks*0.05F),0F)*0.2F);bubble.showModel=true;bubble.setScale(f,f,f);}
+        else{bubble.showModel=false;}
     }
 
     public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {

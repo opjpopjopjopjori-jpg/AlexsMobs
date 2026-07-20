@@ -137,22 +137,70 @@ public class ModelSunbird extends AdvancedEntityModel<EntitySunbird> {
     @Override
     public void setupAnim(EntitySunbird entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.resetToDefaultPose();
-        float flySpeed = 0.2F;
+        float flySpeed = 0.45F;
         float flyDegree = 0.6F;
-        this.flap(right_wing, flySpeed, flyDegree, false, 0F, 0F, ageInTicks, 1);
-        this.flap(left_wing, flySpeed, flyDegree, true, 0F, 0F, ageInTicks, 1);
-        this.flap(right_wing2, flySpeed, flyDegree, false, -1.2F, 0F, ageInTicks, 1);
-        this.flap(left_wing2, flySpeed, flyDegree, true, -1.2F, 0F, ageInTicks, 1);
-        this.swing(tail1, flySpeed, flyDegree * 0.1F, false, 1F, 0F, ageInTicks, 1);
-        this.walk(tail1, flySpeed, flyDegree * 0.2F, false, 1F, 0F, limbSwing, limbSwingAmount);
-        this.walk(left_leg, flySpeed, flyDegree * 0.2F, false, 3F, 0F, limbSwing, limbSwingAmount);
-        this.walk(right_leg, flySpeed, flyDegree * 0.2F, false, 3F, 0F, limbSwing, limbSwingAmount);
-        this.bob(body, flySpeed, flyDegree * 6F, false, limbSwing, limbSwingAmount);
-        this.faceTarget(netHeadYaw, headPitch, 1, neck, head);
+        float hoverSpeed = 0.8F;
+        float hoverDegree = 0.25F;
+        float tailFanSpeed = 0.15F;
+        float tailFanDegree = 0.3F;
+
+        //══════ 🔥 SUNBIRD — HOVERING PHOENIX ══════
+        // IDENTITY: Hovers like a hummingbird with RAPID wing beats.
+        // Tail fans dramatically (like peacock). Fire-bird energy.
+        // Head darts quickly. Can hover in place.
+        // UNIQUE from Bald Eagle: Eagle = slow soaring. Sunbird = rapid hovering.
+        // Eagle = wide majestic. Sunbird = compact energetic fire.
+
         float partialTick = Minecraft.getInstance().getFrameTime();
         float birdPitch = entityIn.prevBirdPitch + (entityIn.birdPitch - entityIn.prevBirdPitch) * partialTick;
-        this.body.rotateAngleX = birdPitch * Mth.DEG_TO_RAD;
 
+        // ── BREATHING: fast metabolic fire-bird ──
+        float breath=Mth.cos(ageInTicks*0.22F);
+        body.setScale(1.0F,1.0F+breath*0.02F,1.0F);
+        body.rotationPointY+=breath*0.08F;
+
+        // ── HOVERING WINGS: figure-8 pattern, ultra-fast ──
+        // Unlike eagle (wide slow flaps), sunbird wings beat in tight figure-8
+        this.flap(right_wing, hoverSpeed, hoverDegree, false, 0F, 0F, ageInTicks, 1);
+        this.flap(left_wing, hoverSpeed, hoverDegree, true, 0F, 0F, ageInTicks, 1);
+        // Wing tips have independent flutter (feather ripple at tips)
+        this.flap(right_wing2, hoverSpeed*1.3F, hoverDegree*0.6F, false, -1.2F, 0F, ageInTicks, 1);
+        this.flap(left_wing2, hoverSpeed*1.3F, hoverDegree*0.6F, true, -1.2F, 0F, ageInTicks, 1);
+        // Secondary wingtip micro-flutter (fire flicker effect)
+        this.flap(left_wing2, 0.45F, 0.04F, true, 0.5F, 0, ageInTicks, 1);
+        this.flap(right_wing2, 0.45F, 0.04F, false, 0.5F, 0, ageInTicks, 1);
+
+        // ── TAIL: dramatic fan display (peacock-like) ──
+        // Tail fans open and close in slow dramatic rhythm
+        this.swing(tail1, tailFanSpeed, tailFanDegree, false, 1F, 0F, ageInTicks, 1);
+        this.swing(tail2, tailFanSpeed*1.3F, tailFanDegree*1.2F, false, 0.5F, 0F, ageInTicks, 1);
+        // Tail ripples during flight
+        this.walk(tail1, flySpeed*0.5F, flyDegree*0.15F, false, 1F, 0F, limbSwing, limbSwingAmount);
+        this.flap(tail2, 0.2F, 0.06F, false, 1F, 0, ageInTicks, 1);
+
+        // ── HEAD: quick darting (investigates flowers/prey) ──
+        // Unlike eagle (slow scanning), sunbird darts head quickly
+        head.rotateAngleX+=Mth.sin(ageInTicks*0.5F)*0.1F;
+        head.rotateAngleZ+=Mth.sin(ageInTicks*0.6F+1F)*0.08F;
+
+        // ── HAIR/CREST: fire-like flicker ──
+        if(hair!=null){
+            this.flap(hair, 0.35F, 0.06F, false, 0F, 0, ageInTicks, 1);
+            hair.rotateAngleX+=Mth.sin(ageInTicks*0.4F)*0.08F;
+        }
+
+        // ── BODY: gentle hover bob ──
+        this.bob(body, hoverSpeed*0.3F, hoverDegree*2F, false, ageInTicks, 1);
+
+        // ── LEGS: tuck during flight, extend for landing ──
+        this.walk(left_leg, flySpeed*0.5F, flyDegree*0.15F, false, 3F, 0F, limbSwing, limbSwingAmount);
+        this.walk(right_leg, flySpeed*0.5F, flyDegree*0.15F, false, 3F, 0F, limbSwing, limbSwingAmount);
+        // Feet dangle slightly during hover
+        left_foot.rotateAngleX+=Mth.sin(ageInTicks*0.3F)*0.05F;
+        right_foot.rotateAngleX+=Mth.sin(ageInTicks*0.3F+1F)*0.05F;
+
+        this.body.rotateAngleX += birdPitch * Mth.DEG_TO_RAD;
+        this.faceTarget(netHeadYaw, headPitch, 1, neck, head);
     }
 
     public void setRotationAngle(AdvancedModelBox AdvancedModelBox, float x, float y, float z) {

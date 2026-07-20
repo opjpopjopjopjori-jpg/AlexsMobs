@@ -60,7 +60,11 @@ public class ModelAnaconda<T extends LivingEntity> extends AdvancedEntityModel<T
 
     @Override
     public void setupAnim(LivingEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        // MANDATORY: Always reset to default pose first (AAA Animation Rule)
+        //══════ 🐍 ANACONDA — MASSIVE CONSTRICTOR ══════
+        // IDENTITY: Heaviest snake on Earth. Slow undulating slither.
+        // Jaw UNHINGES to swallow prey whole. Body segments ripple
+        // in traveling wave. Crushing coil constriction.
+        // UNIQUE vs Rattlesnake (rattle warning), FrilledShark (eel-like).
         this.resetToDefaultPose();
 
         float partialTick = ageInTicks - entity.tickCount;

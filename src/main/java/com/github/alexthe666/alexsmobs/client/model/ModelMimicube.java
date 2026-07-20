@@ -66,15 +66,49 @@ public class ModelMimicube extends AdvancedEntityModel<EntityMimicube> {
 	@Override
 	public void setupAnim(EntityMimicube entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
 		this.resetToDefaultPose();
-		float idleSpeed = 0.1F;
-		float idleDegree = 1F;
-		this.bob(innerbody, idleDegree, idleSpeed, false, limbSwing, limbSwingAmount);
-		this.flap(innerbody, idleSpeed * 1.3F, idleDegree * 0.05F, false, 2F, 0F, ageInTicks, 1);
+        //══════ 🟨 MIMICUBE — GELATINOUS SHAPE-SHIFTER ══════
+        // IDENTITY: Gelatinous cube. Micro-jiggle wobble. Mouth pulses.
+        // Eyes wander independently. Body squishes and bounces.
+        // UNIQUE vs Blobfish (fish blob), BananaSlug (mollusk).
+		//═══ AAA BIOMECHANICS: GELATINOUS CUBE-LIKE ═══
+		// Mimicubes are semi-solid shapeshifters — constant micro-jiggle,
+		// breathing through surface undulation, eyes track independently
 		float lvt_6_1_ = Mth.lerp(Minecraft.getInstance().getFrameTime(), entity.prevSquishFactor, entity.squishFactor);
 		float lvt_7_1_ = 1.0F / (lvt_6_1_ + 1.0F);
 		float squishScale = 1.0F / lvt_7_1_;
+
+		// ── BREATHING: outer body slow pulse, inner body faster jiggle ──
+		float breath = Mth.cos(ageInTicks * 0.1F);
+		body.setScale(1.0F + breath * 0.02F, squishScale + breath * 0.015F, 1.0F + breath * 0.02F);
+		innerbody.rotationPointY += breath * 0.1F;
+
+		// ── MICRO-JIGGLE: gelatinous creatures never stop wobbling ──
+		this.bob(innerbody, 0.15F, 0.4F, false, ageInTicks, 1);
+		this.flap(innerbody, 0.12F, 0.08F, false, 2F, 0, ageInTicks, 1);
+		this.swing(innerbody, 0.08F, 0.04F, false, 3F, 0, ageInTicks, 1);
+
+		// ── SQUISH MECHANIC (preserved) ──
 		this.innerbody.rotationPointY += lvt_6_1_ * -5F;
-		this.body.setScale(1F, squishScale, 1F);
+
+		// ── MOUTH PULSE ──
+		mouth.setScale(1.0F + breath * 0.1F, 1.0F + breath * 0.08F, 1.0F);
+
+		// ── EYE TRACKING ──
+		this.eye_left.rotateAngleY += netHeadYaw * Mth.DEG_TO_RAD * 0.5F;
+		this.eye_left.rotateAngleX += headPitch * Mth.DEG_TO_RAD * 0.4F;
+		this.eye_right.rotateAngleY += netHeadYaw * Mth.DEG_TO_RAD * 0.5F;
+		this.eye_right.rotateAngleX += headPitch * Mth.DEG_TO_RAD * 0.4F;
+
+		// ── EYEBALL WANDER (independent micro-stare) ──
+		eye_left.rotationPointX += Mth.sin(ageInTicks * 0.3F + 1F) * 0.08F;
+		eye_left.rotationPointY += Mth.cos(ageInTicks * 0.35F) * 0.06F;
+		eye_right.rotationPointX += Mth.sin(ageInTicks * 0.3F + 2F) * 0.08F;
+		eye_right.rotationPointY += Mth.cos(ageInTicks * 0.35F + 1F) * 0.06F;
+
+		// ── BODY BOUNCE (always present, scale with movement) ──
+		float bounce = Mth.abs(Mth.sin(limbSwing * 0.6F)) * limbSwingAmount * 0.4F;
+		body.rotationPointY += bounce;
+		innerbody.rotationPointY += bounce * 0.6F;
 	}
 
 

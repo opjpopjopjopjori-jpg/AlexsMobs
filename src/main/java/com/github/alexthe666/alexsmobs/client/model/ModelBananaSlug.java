@@ -64,6 +64,10 @@ public class ModelBananaSlug extends AdvancedEntityModel<EntityBananaSlug> {
     public void setupAnim(EntityBananaSlug entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         // MANDATORY: Always reset to default pose first (AAA Animation Rule)
         this.resetToDefaultPose();
+        //══════ 🐌 BANANA SLUG — SLOW FOREST DECOMPOSER ══════
+        // IDENTITY: Bright yellow. Glides on muscular foot. Antennae probe.
+        // Leaves slime trail. No shell — pure mollusk body.
+        // UNIQUE vs Blobfish (deep-sea blob), Mudskipper (amphibious).
 
         float idleSpeed = 0.25F;
         float idleDegree = 0.25F;

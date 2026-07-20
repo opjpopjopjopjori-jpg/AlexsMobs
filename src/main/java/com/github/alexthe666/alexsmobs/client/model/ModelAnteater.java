@@ -159,6 +159,9 @@ public class ModelAnteater extends AdvancedEntityModel<EntityAnteater> {
     public void setupAnim(EntityAnteater entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
         // MANDATORY: Always reset to default pose first (AAA Animation Rule)
         this.resetToDefaultPose();
+        //══════ 🐜 ANTEATER — LONG-TONGUED TERMITE VACUUM ══════
+        // IDENTITY: Massive claws tear mounds. 60cm tongue flicks 150x/min.
+        // UNIQUE vs Platypus (aquatic forager), Jerboa (desert hopper).
 
         animate(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
 

@@ -8,6 +8,7 @@ import com.github.alexthe666.citadel.client.model.basic.BasicModelPart;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.util.Mth;
 
 public class ModelMudskipper extends AdvancedEntityModel<EntityMudskipper> {
     private final AdvancedModelBox root;
@@ -79,7 +80,13 @@ public class ModelMudskipper extends AdvancedEntityModel<EntityMudskipper> {
     @Override
     public void setupAnim(EntityMudskipper entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.resetToDefaultPose();
-        float blinkAmount = Math.max(0, ((float)Math.sin(ageInTicks * 0.1F) - 0.5F) * 2F);
+        //══════ 🐟 MUDSKIPPER — FIN-CRUTCH PERISCOPE WALKER ══════
+        // IDENTITY: Pectoral fins used as CRUTCHES on land — plant, push,
+        // lift, repeat. Periscope eyes scan independently. Dorsal fin
+        // flares for threat display. Mud-skip tail flick for fast escape.
+        // UNIQUE vs all other fish: only creature that crutch-walks on land.
+
+        float blinkAmount = Math.max(0, ((float) Math.sin(ageInTicks * 0.1F) - 0.5F) * 2F);
         float partialTick = ageInTicks - entity.tickCount;
         float displayProgress = entity.prevDisplayProgress + (entity.displayProgress - entity.prevDisplayProgress) * partialTick;
         float swimProgress = entity.prevSwimProgress + (entity.swimProgress - entity.prevSwimProgress) * partialTick;
@@ -90,7 +97,8 @@ public class ModelMudskipper extends AdvancedEntityModel<EntityMudskipper> {
         float swimDegree = 0.5f;
         float displaySpeed = 0.3f;
         float displayDegree = 0.4f;
-        //so the model does not sink in mud
+
+        // ── State transitions (preserved) ──────────────────────────
         progressPositionPrev(head, entity.prevMudProgress + (entity.mudProgress - entity.prevMudProgress) * partialTick, 0, -2F, 0F, 1f);
         progressPositionPrev(eyes, blinkAmount, 0F, 1.5F, 0F, 1f);
         progressPositionPrev(dorsalFin, 5f - displayProgress, 0F, 2F, 0F, 5f);
@@ -110,18 +118,38 @@ public class ModelMudskipper extends AdvancedEntityModel<EntityMudskipper> {
         progressRotationPrev(rightFin, sitProgress, 0F, Maths.rad(-20F), 0F, 5f);
         progressPositionPrev(rightFin, sitProgress, 0.5F, 0F, 0F, 5f);
         progressPositionPrev(leftFin, sitProgress, 0F, 0F, 1F, 5f);
+
         float walkSwingAmount = limbSwingAmount * (1F - 0.2F * swimProgress);
         float swimSwingAmount = limbSwingAmount * 0.2F * swimProgress;
+
+        // ── AAA PERISCOPE EYE SCANNING ─────────────────────────────
+        eyes.rotateAngleY += Mth.sin(ageInTicks * 0.15F) * 0.2F * (1F - limbSwingAmount * 0.5F);
+        eyes.rotateAngleX += Mth.sin(ageInTicks * 0.1F + 0.8F) * 0.08F;
+
+        // ── AAA SWIMMING ───────────────────────────────────────────
         this.swing(head, swimSpeed, 0.4F * swimDegree, true, 1F, 0F, limbSwing, swimSwingAmount);
         this.swing(tail, swimSpeed, swimDegree, false, 0, 0F, limbSwing, swimSwingAmount);
         this.swing(tailFin, swimSpeed, swimDegree, false, -1F, 0F, limbSwing, swimSwingAmount);
         this.flap(rightFin, swimSpeed, swimDegree, false, 2f, 0.1F, limbSwing, swimSwingAmount);
         this.flap(leftFin, swimSpeed, swimDegree, true, 2f, 0.1F, limbSwing, swimSwingAmount);
         this.bob(head, swimSpeed, swimDegree, false, limbSwing, swimSwingAmount);
+        AdvancedModelBox[] swimChain = new AdvancedModelBox[]{head, tail, tailFin};
+        this.chainSwing(swimChain, swimSpeed, swimDegree * 0.6F, -2F, limbSwing, swimSwingAmount);
+
+        // ── AAA DISPLAY ────────────────────────────────────────────
         this.swing(head, displaySpeed, displayDegree * 0.3F, false, 0F, 0F, ageInTicks, displayProgress * 0.2F);
         this.swing(tail, displaySpeed, displayDegree, true, 0, 0F, ageInTicks, displayProgress * 0.2F);
         this.swing(tailFin, displaySpeed, displayDegree, true, 0, 0F, ageInTicks, displayProgress * 0.2F);
         this.flap(dorsalFin, displaySpeed, displayDegree, true, 0, 0F, ageInTicks, displayProgress * 0.2F);
+
+        // ── AAA CRUTCH WALK: Fin plant→push→lift cycle ────────────
+        float crutchSin = Mth.sin(limbSwing * walkSpeed);
+        float pushPhase = Mth.clamp(crutchSin, 0F, 1F);
+        float liftPhase = Mth.clamp(-crutchSin, 0F, 1F);
+        // Fins plant forward and push body up/forward
+        leftFin.rotateAngleX += -0.7F * pushPhase + 0.25F * liftPhase;
+        rightFin.rotateAngleX += -0.7F * pushPhase + 0.25F * liftPhase;
+        // Body lifts during push, settles during lift
         float f = walkSpeed;
         float f1 = walkDegree * 0.15F;
         float headUp = 1.6F * Math.min(0, (float) (Math.sin(limbSwing * f) * (double) walkSwingAmount * (double) f1 * 9D - (walkSwingAmount * f1 * 9D)));
@@ -129,19 +157,36 @@ public class ModelMudskipper extends AdvancedEntityModel<EntityMudskipper> {
         this.head.rotationPointZ += (float) (Math.sin(limbSwing * f - 1.5F) * (double) walkSwingAmount * (double) f1 * 9D - (walkSwingAmount * f1 * 9D));
         this.rightFin.rotationPointY += headUp;
         this.leftFin.rotationPointY += headUp;
+
+        // ── AAA MUD-SKIP: Tail flick for fast land movement ────────
+        float mudSkip = Mth.clamp((limbSwingAmount - 0.5F) * 2F, 0F, 1F) * (1F - swimProgress);
+        tail.rotateAngleY += Mth.sin(limbSwing * 2.5F) * 0.25F * mudSkip;
+        tailFin.rotateAngleY += Mth.sin(limbSwing * 2.5F + 0.3F) * 0.3F * mudSkip;
+
+        // ── Tail walk (preserved) ──────────────────────────────────
         this.walk(tail, walkSpeed, walkDegree * 0.5F, true, 1F, 0.04F, limbSwing, walkSwingAmount);
         this.walk(tailFin, walkSpeed, walkDegree * 0.65F, false, 2F, -0.04F, limbSwing, walkSwingAmount);
         this.walk(head, walkSpeed, walkDegree * 0.5F, false, 0F, 0.04F, limbSwing, walkSwingAmount);
-        this.flap(rightFin, walkSpeed, walkDegree, true, 3F, -0.3F, limbSwing, walkSwingAmount);
-        this.flap(leftFin, walkSpeed, walkDegree, false, 3F, -0.3F, limbSwing, walkSwingAmount);
-        this.swing(rightFin, walkSpeed, walkDegree, false, 2F, -0.3F, limbSwing, walkSwingAmount);
-        this.swing(leftFin, walkSpeed, walkDegree, true, 2F, -0.3F, limbSwing, walkSwingAmount);
+        this.flap(rightFin, walkSpeed, walkDegree * 0.6F, true, 3F, -0.3F, limbSwing, walkSwingAmount);
+        this.flap(leftFin, walkSpeed, walkDegree * 0.6F, false, 3F, -0.3F, limbSwing, walkSwingAmount);
+        this.swing(rightFin, walkSpeed, walkDegree * 0.5F, false, 2F, -0.3F, limbSwing, walkSwingAmount);
+        this.swing(leftFin, walkSpeed, walkDegree * 0.5F, true, 2F, -0.3F, limbSwing, walkSwingAmount);
 
+        // ── AAA BREATHING + FIN-PUSH PITCH ────────────────────────
+        float breath = Mth.cos(ageInTicks * 0.12F);
+        head.rotationPointY += breath * 0.05F;
+        head.setScale(1.0F + breath * 0.015F, 1.0F, 1.0F);
+        float landPush = Mth.sin(limbSwing * walkSpeed) * walkDegree * 0.18F * walkSwingAmount;
+        head.rotateAngleX += landPush;
+        tail.rotateAngleX -= landPush * 0.15F;
+
+        // ── AAA DORSAL FIN RIPPLE ─────────────────────────────────
+        this.flap(dorsalFin, 0.18F, 0.04F, false, 1, 0.05F, ageInTicks, 1);
     }
 
 
     @Override
-    public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha){
+    public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
         if (this.young) {
             float f = 1.45F;
             head.setScale(f, f, f);

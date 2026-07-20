@@ -136,6 +136,10 @@ public class ModelWarpedToad extends AdvancedEntityModel<EntityWarpedToad> {
     @Override
     public void setupAnim(EntityWarpedToad entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.resetToDefaultPose();
+        //══════ 🐸 WARPED TOAD — BOUNCY TONGUE-SHOOTING HOPPER ══════
+        // IDENTITY: Powerful back legs propel BOUNCY hops. Throat SAC
+        // inflates when croaking. Tongue SHOOTS out to catch insects.
+        // Glands pulse with warped energy. UNIQUE vs all other amphibians.
         float partialTick = Minecraft.getInstance().getFrameTime();
         float attackProgress = entity.prevAttackProgress + (entity.attackProgress - entity.prevAttackProgress) * partialTick;
         float walkSpeed = 1.2f;
@@ -245,6 +249,10 @@ public class ModelWarpedToad extends AdvancedEntityModel<EntityWarpedToad> {
         progressPositionPrev(right_leg, jumpProgress, 0, 1, 2, 5f);
         progressPositionPrev(left_arm, jumpProgress, 0, 1, 0, 5f);
         progressPositionPrev(right_arm, jumpProgress, 0, 1, 0, 5f);
+        // AAA AMPHIBIAN BREATHING — throat sac pulse + gland glow
+        float breath = Mth.cos(ageInTicks * 0.1F);
+        body.rotationPointY += breath * 0.06F; sac.rotationPointZ += breath * 0.15F;
+        body.setScale(1.0F + breath * 0.02F, 1.0F, 1.0F);
 
     }
 

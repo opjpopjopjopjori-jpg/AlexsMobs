@@ -79,6 +79,9 @@ public class ModelGuster extends AdvancedEntityModel<EntityGuster> {
     @Override
     public void setupAnim(EntityGuster entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
         this.resetToDefaultPose();
+        //══════ 💨 GUSTER — WIND ELEMENTAL ══════
+        // IDENTITY: Living gust of wind. Invisible except for particle trail.
+        // Body rotates. Air currents swirl around.
         AdvancedModelBox[] tornadoBoxes = new AdvancedModelBox[]{tornado, tornado2, tornado3, tornado4};
         float idleSpeed = 0.1F;
         float idleDegree = 1F;
@@ -87,6 +90,12 @@ public class ModelGuster extends AdvancedEntityModel<EntityGuster> {
         this.bob(root, walkSpeed, walkDegree * 3, false, limbSwing, limbSwingAmount);
         this.chainFlap(tornadoBoxes, walkSpeed, walkDegree * 0.1F, -2, limbSwing, limbSwingAmount);
         this.bob(root, idleSpeed, idleDegree * 3, false, ageInTicks, 1);
+
+        // AAA WIND ELEMENTAL PULSING — tornado intensity breathing
+        float windPulse = Mth.cos(ageInTicks * 0.05F + 1.2F) * 0.06F;
+        tornado.setScale(1.0F + windPulse, 1.0F + windPulse * 0.5F, 1.0F + windPulse);
+        tornado2.setScale(1.0F + windPulse * 0.8F, 1.0F + windPulse * 0.4F, 1.0F + windPulse * 0.8F);
+
         if(entity.isGooglyEyes()){
             this.eye_left.rotationPointY += (float)(Math.sin( (double)(ageInTicks * 0.7) - 2) * (double)1.9);
             this.eye_right.rotationPointY += (float)(Math.sin( (double)(ageInTicks * 0.7) + 2) * (double)1.9);
@@ -100,8 +109,8 @@ public class ModelGuster extends AdvancedEntityModel<EntityGuster> {
 
         tornado.rotationPointX += Math.cos(ageInTicks * 0.7F) * 4F;
         tornado.rotationPointZ += Math.sin(ageInTicks * 0.7F) * 4F;
-        tornado.rotationPointX += Math.cos(ageInTicks * 0.3F) * 2F - tornado.rotationPointX;
-        tornado.rotationPointZ += Math.sin(ageInTicks * 0.3F) * 2F - tornado.rotationPointZ;
+        tornado.rotationPointX += Math.cos(ageInTicks * 0.3F) * 2F;
+        tornado.rotationPointZ += Math.sin(ageInTicks * 0.3F) * 2F;
         tornadomid.rotateAngleZ += Math.sin(ageInTicks * 0.2F) * 0.1;
         tornado.rotateAngleY -= ageInTicks * 1F;
         tornado2.rotateAngleY -= tornado.rotateAngleY + ageInTicks * 0.3F;
@@ -124,8 +133,8 @@ public class ModelGuster extends AdvancedEntityModel<EntityGuster> {
         this.bob(eyes, idleSpeed, idleDegree * -3.2F, false, ageInTicks, 1);
         tornado.rotationPointX += Math.cos(ageInTicks * 0.7F) * 4F;
         tornado.rotationPointZ += Math.sin(ageInTicks * 0.7F) * 4F;
-        tornado.rotationPointX += Math.cos(ageInTicks * 0.3F) * 2F - tornado.rotationPointX;
-        tornado.rotationPointZ += Math.sin(ageInTicks * 0.3F) * 2F - tornado.rotationPointZ;
+        tornado.rotationPointX += Math.cos(ageInTicks * 0.3F) * 2F;
+        tornado.rotationPointZ += Math.sin(ageInTicks * 0.3F) * 2F;
         tornadomid.rotateAngleZ += Math.sin(ageInTicks * 0.2F) * 0.1;
         tornado.rotateAngleY -= ageInTicks * 1F;
         tornado2.rotateAngleY -= tornado.rotateAngleY + ageInTicks * 0.3F;

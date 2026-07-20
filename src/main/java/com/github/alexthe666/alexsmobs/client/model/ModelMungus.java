@@ -72,6 +72,9 @@ public class ModelMungus extends AdvancedEntityModel<EntityMungus> {
 	@Override
 	public void setupAnim(EntityMungus entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.resetToDefaultPose();
+        //══════ 🍄 MUNGUS — SOFT FUNGAL BLOB ══════
+        // IDENTITY: Squishy mushroom creature. Body squashes with each bounce.
+        // Spores puff. Soft body deforms on landing.
 		float walkSpeed = 0.7F;
 		float walkDegree = 0.6F;
 		float idleSpeed = 0.1F;
@@ -126,6 +129,16 @@ public class ModelMungus extends AdvancedEntityModel<EntityMungus> {
 		this.flap(body, walkSpeed, walkDegree * 0.4F, false, 0.5F, 0, limbSwing, limbSwingAmount);
 		this.flap(nose, walkSpeed, walkDegree * 0.2F, false, 1F, 0, limbSwing, limbSwingAmount);
 		this.bob(body, walkSpeed, walkDegree * 3F, true, limbSwing, limbSwingAmount);
+		// AAA FUNGAL BREATHING + SOFT-BODY SQUASH/STRETCH
+		float breath = Mth.cos(ageInTicks * 0.08F);
+		body.rotationPointY += breath * 0.08F;
+		sack.rotationPointY += breath * 0.1F;
+		// AAA SOFT-BODY SQUASH WITH STEPS — fungal creature compresses with each step
+		float squash = Mth.abs(Mth.sin(limbSwing * walkSpeed)) * limbSwingAmount;
+		body.setScale(1.0F + squash * 0.03F, 1.0F - squash * 0.06F, 1.0F + squash * 0.03F);
+		body.rotationPointY += squash * 0.4F;
+		// AAA NOSE WIGGLE
+		nose.rotationPointX += Mth.sin(ageInTicks * 0.3F) * 0.03F;
 
 	}
 

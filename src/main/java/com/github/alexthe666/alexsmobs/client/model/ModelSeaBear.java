@@ -8,6 +8,7 @@ import com.github.alexthe666.citadel.client.model.AdvancedModelBox;
 import com.github.alexthe666.citadel.client.model.ModelAnimator;
 import com.github.alexthe666.citadel.client.model.basic.BasicModelPart;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.util.Mth;
 
 public class ModelSeaBear extends AdvancedEntityModel<EntitySeaBear> {
 	private final AdvancedModelBox root;
@@ -159,11 +160,20 @@ public class ModelSeaBear extends AdvancedEntityModel<EntitySeaBear> {
 		float swimSpeed = 0.8F;
 		float swimDegree = 0.75F;
 		float landProgress = entity.prevOnLandProgress + (entity.onLandProgress - entity.prevOnLandProgress) * (ageInTicks - entity.tickCount);
-		progressRotationPrev(body, landProgress, 0, 0, Maths.rad(-90), 5F);
-		progressPositionPrev(body, landProgress, 0, 8, 0, 5F);
+        //══════ 🦭 SEA BEAR — AQUATIC PADDLE-SWIMMER ══════
+        // IDENTITY: Bear-seal hybrid. Paddles through water with all 4 flippers.
+        // Tail acts as rudder. On land: clumsy belly-slide. Smooth undulation.
+        // UNIQUE vs DropBear (tree-climber), GrizzlyBear (plantigrade walker).
 
-		this.flap(this.left_arm, idleSpeed, idleDegree, true, 1F, 0.1F, ageInTicks, 1);
-		this.flap(this.right_arm, idleSpeed, idleDegree, false, 1F, 0.1F, ageInTicks, 1);
+        // ── BREATHING: marine mammal ──
+        float breath=Mth.cos(ageInTicks*0.06F);
+        body.setScale(1.0F,1.0F+breath*0.02F,1.0F);body.rotationPointY+=breath*0.15F;
+
+        progressRotationPrev(body, landProgress, 0, 0, Maths.rad(-90), 5F);
+        progressPositionPrev(body, landProgress, 0, 8, 0, 5F);
+
+        this.flap(this.left_arm, idleSpeed, idleDegree, true, 1F, 0.1F, ageInTicks, 1);
+        this.flap(this.right_arm, idleSpeed, idleDegree, false, 1F, 0.1F, ageInTicks, 1);
 		this.flap(this.left_leg, idleSpeed, idleDegree, true, 3F, 0.1F, ageInTicks, 1);
 		this.flap(this.right_leg, idleSpeed, idleDegree, false, 3F, 0.1F, ageInTicks, 1);
 		this.swing(this.tail, idleSpeed, idleDegree, true, 5F, 0.0F, ageInTicks, 1);
@@ -178,7 +188,12 @@ public class ModelSeaBear extends AdvancedEntityModel<EntitySeaBear> {
 		this.flap(this.left_leg, swimSpeed, swimDegree, true, 2F, 0.2F, limbSwing, limbSwingAmount);
 		this.flap(this.right_leg, swimSpeed, swimDegree, false, 2F, 0.2F, limbSwing, limbSwingAmount);
 		this.swing(this.tail, swimSpeed, swimDegree * 1.2F, true, 4F, 0F, limbSwing, limbSwingAmount);
-		this.faceTarget(netHeadYaw, headPitch, 1.0F, head);
+        this.faceTarget(netHeadYaw, headPitch, 1.0F, head);
+        // Ear twitch (seals have small ears)
+        this.flap(left_ear, 0.2F, 0.05F, true, 1F, 0, ageInTicks, 1);
+        this.flap(right_ear, 0.2F, 0.05F, false, 1F, 0, ageInTicks, 1);
+        // Tail flipper steering
+        this.swing(tail, swimSpeed, swimDegree * 1.2F, true, 4F, 0F, limbSwing, limbSwingAmount);
 	}
 
 	@Override
