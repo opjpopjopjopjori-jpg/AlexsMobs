@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.Mth;
 
 public class ModelKomodoDragon extends AdvancedEntityModel<EntityKomodoDragon> {
 	private final AdvancedModelBox root;
@@ -150,34 +151,47 @@ public class ModelKomodoDragon extends AdvancedEntityModel<EntityKomodoDragon> {
 		progressRotationPrev(left_arm, jostleProgress, Maths.rad(-10), Maths.rad(-90), 0, 5F);
 
 
-		this.flap(body, walkSpeed, walkDegree * 0.5F, false, 0F, 0F, limbSwing, limbSwingAmount);
-		this.swing(body, walkSpeed, walkDegree * 0.5F, false, 1F, 0F, limbSwing, limbSwingAmount);
-		this.flap(neck, walkSpeed, walkDegree * -0.25F, false, 0F, 0F, limbSwing, limbSwingAmount);
-		this.swing(neck, walkSpeed, walkDegree * -0.25F, false, 1F, 0F, limbSwing, limbSwingAmount);
-		this.flap(head, walkSpeed, walkDegree * -0.25F, false, 0F, 0F, limbSwing, limbSwingAmount);
-		this.swing(head, walkSpeed, walkDegree * -0.25F, false, 1F, 0F, limbSwing, limbSwingAmount);
-		this.flap(tail1, walkSpeed, walkDegree * -0.5F, false, 0F, 0F, limbSwing, limbSwingAmount);
-		this.swing(tail1, walkSpeed, walkDegree * 0.5F, false, 2F, 0F, limbSwing, limbSwingAmount);
-		this.swing(tail2, walkSpeed, walkDegree * 0.5F, false, 2F, 0F, limbSwing, limbSwingAmount);
-		this.walk(left_arm, walkSpeed, walkDegree * 1.2F, false, -2.5F, -0.25F, limbSwing, limbSwingAmount);
-		this.walk(right_arm, walkSpeed, walkDegree * 1.2F, true, -2.5F, 0.25F, limbSwing, limbSwingAmount);
-		this.walk(right_leg, walkSpeed, walkDegree * 1.2F, false, -2.5F, 0.25F, limbSwing, limbSwingAmount);
-		this.walk(left_leg, walkSpeed, walkDegree * 1.2F, true, -2.5F, -0.25F, limbSwing, limbSwingAmount);
+		//══════ 🦎 KOMODO DRAGON — PROUD MONITOR LIZARD ══════
+		// IDENTITY: STANDS TALL on sprawled legs, head HIGH surveying territory.
+		// Tongue flicks CONSTANTLY (Jacobson's organ scenting). Slow confident walk.
+		// UNIQUE from Crocodile: Croc is FLAT belly-dragger. Komodo STANDS PROUD.
+		// Tongue never stops — the defining komodo feature.
 
-		this.flap(left_arm, walkSpeed, walkDegree, false, -2.5F, -0.25F, limbSwing, limbSwingAmount);
-		this.flap(right_arm, walkSpeed, walkDegree, false, -2.5F, 0.25F, limbSwing, limbSwingAmount);
-		this.flap(right_leg, walkSpeed, walkDegree, false, -2.5F, 0.25F, limbSwing, limbSwingAmount);
-		this.flap(left_leg, walkSpeed, walkDegree, false, -2.5F, -0.25F, limbSwing, limbSwingAmount);
+		// ── BREATHING: slow reptile metabolism ──
+		float breath=Mth.cos(ageInTicks*0.07F);
+		body.setScale(1.0F,1.0F+breath*0.015F,1.0F);body.rotationPointY+=breath*0.1F;
 
-		this.left_arm.rotationPointY += 1.5F * (float) (Math.sin((double) (limbSwing * walkSpeed) - 2.5F) * (double) limbSwingAmount * (double) walkDegree - (double) (limbSwingAmount * walkDegree));
-		this.right_arm.rotationPointY += 1.5F * (float) (Math.sin(-(double) (limbSwing * walkSpeed) + 2.5F) * (double) limbSwingAmount * (double) walkDegree - (double) (limbSwingAmount * walkDegree));
-		this.left_leg.rotationPointY += 1.5F * (float) (Math.sin((double) (limbSwing * walkSpeed) - 2.5F) * (double) limbSwingAmount * (double) walkDegree - (double) (limbSwingAmount * walkDegree));
-		this.right_leg.rotationPointY += 1.5F * (float) (Math.sin(-(double) (limbSwing * walkSpeed) + 2.5F) * (double) limbSwingAmount * (double) walkDegree - (double) (limbSwingAmount * walkDegree));
+		// ── HEAD HIGH: komodo surveys territory with raised head ──
+		if(limbSwingAmount<0.05F){neck.rotateAngleX-=0.15F;head.rotateAngleX-=0.1F;}
 
-		this.walk(tongue, idleSpeed * 2F, idleDegree, false, 0F, 0F, ageInTicks,  toungeMinus);
-		this.walk(neck, idleSpeed  * 0.1F, idleDegree * 0.1F, false, 2F, 0F, ageInTicks,  1F);
-		this.walk(head, idleSpeed * 0.1F, idleDegree * 0.1F, false, 4F, 0F, ageInTicks,  1F);
-		this.tongue.rotationPointZ -= toungeF;
+		// ── SPRAWL GAIT: legs splay outward, body rocks side-to-side ──
+		this.walk(left_arm,walkSpeed,walkDegree*1.2F,false,-2.5F,-0.25F,limbSwing,limbSwingAmount);
+		this.walk(right_arm,walkSpeed,walkDegree*1.2F,true,-2.5F,0.25F,limbSwing,limbSwingAmount);
+		this.walk(right_leg,walkSpeed,walkDegree*1.2F,false,-2.5F,0.25F,limbSwing,limbSwingAmount);
+		this.walk(left_leg,walkSpeed,walkDegree*1.2F,true,-2.5F,-0.25F,limbSwing,limbSwingAmount);
+
+		// ── LEG LIFT per step (sprawl lift) ──
+		this.left_arm.rotationPointY+=1.5F*(float)(Math.sin((double)(limbSwing*walkSpeed)-2.5F)*(double)limbSwingAmount*(double)walkDegree-(double)(limbSwingAmount*walkDegree));
+		this.right_arm.rotationPointY+=1.5F*(float)(Math.sin(-(double)(limbSwing*walkSpeed)+2.5F)*(double)limbSwingAmount*(double)walkDegree-(double)(limbSwingAmount*walkDegree));
+		this.left_leg.rotationPointY+=1.5F*(float)(Math.sin((double)(limbSwing*walkSpeed)-2.5F)*(double)limbSwingAmount*(double)walkDegree-(double)(limbSwingAmount*walkDegree));
+		this.right_leg.rotationPointY+=1.5F*(float)(Math.sin(-(double)(limbSwing*walkSpeed)+2.5F)*(double)limbSwingAmount*(double)walkDegree-(double)(limbSwingAmount*walkDegree));
+
+		// ── LATERAL BODY ROCK: sprawl animals rock side-to-side ──
+		float lateralRock=Mth.sin(limbSwing*walkSpeed*0.7F)*walkDegree*0.4F*limbSwingAmount;
+		body.rotationPointX+=lateralRock;
+		body.rotateAngleZ+=Mth.sin(limbSwing*walkSpeed*0.7F+1.5F)*walkDegree*0.04F*limbSwingAmount;
+
+		// ── SPINE CHAINSWING: neck→body→tail1→tail2 in fluid wave ──
+		AdvancedModelBox[] spineChain=new AdvancedModelBox[]{neck,body,tail1,tail2};
+		this.chainSwing(spineChain,walkSpeed,walkDegree*0.5F,-3,limbSwing,limbSwingAmount);
+
+		// ── TONGUE: CONSTANT flicking — the defining komodo feature ──
+		this.walk(tongue,idleSpeed*2F,idleDegree,false,0F,0F,ageInTicks,toungeMinus);
+		this.tongue.rotationPointZ-=toungeF;
+
+		// ── HEAD: subtle idle scan ──
+		this.walk(neck,idleSpeed*0.1F,idleDegree*0.1F,false,2F,0F,ageInTicks,1F);
+		this.walk(head,idleSpeed*0.1F,idleDegree*0.1F,false,4F,0F,ageInTicks,1F);
 		progressPositionPrev(neck, jostleProgress, 0, 0, 1, 5F);
 		progressPositionPrev(head, jostleProgress, 0, 0, 1, 5F);
 		if (jostleProgress > 0) {

@@ -8,6 +8,7 @@ import com.github.alexthe666.citadel.client.model.AdvancedModelBox;
 import com.github.alexthe666.citadel.client.model.ModelAnimator;
 import com.github.alexthe666.citadel.client.model.basic.BasicModelPart;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.util.Mth;
 
 public class ModelBunfungus extends AdvancedEntityModel<EntityBunfungus> {
     public final AdvancedModelBox root;
@@ -167,7 +168,6 @@ public class ModelBunfungus extends AdvancedEntityModel<EntityBunfungus> {
         animator.move(left_arm, -1, 2, 0);
         animator.endKeyframe();
         animator.resetKeyframe(4);
-        animator.endKeyframe();
         animator.setAnimation(EntityBunfungus.ANIMATION_BELLY);
         animator.startKeyframe(5);
         animator.rotate(head, Maths.rad(20), 0, 0);
@@ -198,8 +198,12 @@ public class ModelBunfungus extends AdvancedEntityModel<EntityBunfungus> {
 
     @Override
     public void setupAnim(EntityBunfungus entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        // MANDATORY: Always reset to default pose first (AAA Animation Rule)
         this.resetToDefaultPose();
+        //══════ 🍄 BUNFUNGUS — CAP-WOBBLING SPORE PUFFER ══════
+        // IDENTITY: Mushroom cap wobbles independently from head with inertia.
+        // Belly puffs spores periodically. Ears drag behind head (follow-through).
+        // Bouncy fungal walk. Expressive eyebrows.
+        // UNIQUE vs Mungus (soft-body squash). Only creature with independent cap bone.
 
         animate(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
 
@@ -217,6 +221,7 @@ public class ModelBunfungus extends AdvancedEntityModel<EntityBunfungus> {
         float walkMod = 1F - (Math.max(jumpProgress, fallProgress) * 0.2F);
         float limbSwingMod = Math.min(limbSwingAmount, 0.38F) * walkMod;
 
+        // ── State transitions (all preserved) ──────────────────────
         progressRotationPrev(body, sleepProgress, Maths.rad(90), 0, 0, 5F);
         progressRotationPrev(tail, sleepProgress, Maths.rad(-70), 0, 0, 5F);
         progressRotationPrev(right_ear, sleepProgress, Maths.rad(50), Maths.rad(80), 0, 5F);
@@ -232,12 +237,10 @@ public class ModelBunfungus extends AdvancedEntityModel<EntityBunfungus> {
         progressPositionPrev(left_arm, sleepProgress, 0, -3, 2, 5F);
         progressPositionPrev(right_arm, sleepProgress, 0, -3, 2, 5F);
         progressPositionPrev(head, sleepProgress, 0, -3, -1, 5F);
-
         progressRotationPrev(left_foot, limbSwingMod, 0, Maths.rad(40), 0, 0.38F);
         progressRotationPrev(right_foot, limbSwingMod, 0, Maths.rad(-40), 0, 0.38F);
         progressRotationPrev(left_ear, limbSwingMod, Maths.rad(-30), Maths.rad(30), 0, 0.38F);
         progressRotationPrev(right_ear, limbSwingMod, Maths.rad(-30), Maths.rad(-30), 0, 0.38F);
-
         progressRotationPrev(body, jumpProgress, Maths.rad(20), 0, 0, 5F);
         progressRotationPrev(left_foot, jumpProgress, Maths.rad(70), Maths.rad(40), 0, 5F);
         progressRotationPrev(right_foot, jumpProgress, Maths.rad(70), Maths.rad(-40), 0, 5F);
@@ -245,7 +248,6 @@ public class ModelBunfungus extends AdvancedEntityModel<EntityBunfungus> {
         progressRotationPrev(left_arm, jumpProgress, Maths.rad(-70), Maths.rad(-40), 0, 5F);
         progressPositionPrev(body, jumpProgress, 0, -3, 0, 5F);
         progressPositionPrev(head, jumpProgress, 0, -1, 3, 5F);
-
         progressRotationPrev(body, fallProgress, Maths.rad(20), 0, 0, 5F);
         progressRotationPrev(left_foot, fallProgress, Maths.rad(-20), 0, 0, 5F);
         progressRotationPrev(right_foot, fallProgress, Maths.rad(-20), 0, 0, 5F);
@@ -256,34 +258,53 @@ public class ModelBunfungus extends AdvancedEntityModel<EntityBunfungus> {
         progressPositionPrev(body, fallProgress, 0, -1, 0, 5F);
         progressPositionPrev(left_foot, fallProgress, 0, 1, -1, 5F);
         progressPositionPrev(right_foot, fallProgress, 0, 1, -1, 5F);
-
         progressRotationPrev(head, interestedProgress, 0, Maths.rad(-20), Maths.rad(-10), 5F);
         progressRotationPrev(right_brow, interestedProgress, 0, 0, Maths.rad(10), 5F);
         progressPositionPrev(right_brow, interestedProgress, -0.5F, -0.75F, 0, 5F);
         progressPositionPrev(left_brow, interestedProgress, 0, 0.5F, 0, 5F);
 
-        // Procedural Heavy Amphibious Breathing (Belly and body expansion)
+        // ── AAA SPORE PUFF + BREATHING ─────────────────────────────
+        float sporePuff = Mth.abs(Mth.sin(ageInTicks * 0.06F));
         float heavyBreath = Maths.cos(ageInTicks * 0.08F);
         body.rotationPointY += heavyBreath * 0.3F;
-        belly.setScale(1.0F + heavyBreath * 0.04F, 1.0F + heavyBreath * 0.04F, 1.0F);
+        belly.setScale(1.0F + heavyBreath * 0.04F + sporePuff * 0.05F, 
+                       1.0F + heavyBreath * 0.04F + sporePuff * 0.05F, 
+                       1.0F + sporePuff * 0.03F);
 
-        if(sleepProgress == 0){
-            this.faceTarget(netHeadYaw, headPitch, 1.3F, head);
-        }
+        // ── AAA MUSHROOM CAP INERTIA WOBBLE ────────────────────────
+        // Cap wobbles with delayed phase from head movement
+        shroom_cap.rotateAngleX += Mth.sin(ageInTicks * 0.11F) * 0.05F;
+        shroom_cap.rotateAngleZ += Mth.sin(ageInTicks * 0.09F + 1.3F) * 0.04F;
+        // Walk-driven cap wobble — cap lags behind head
+        shroom_cap.rotateAngleX += Mth.sin(limbSwing * walkSpeed + 0.5F) * walkDegree * 0.08F * limbSwingMod;
 
-        this.flap(left_ear, idleSpeed, idleDegree * 1.2F, false, 1F, 0.2F, ageInTicks, 1.0F);
-        this.flap(right_ear, idleSpeed, idleDegree * 1.2F, true, 1F, 0.2F, ageInTicks, 1.0F);
-        this.swing(left_ear, idleSpeed, idleDegree * 1.2F, false, 2F, 0.2F, ageInTicks, 1.0F);
-        this.swing(right_ear, idleSpeed, idleDegree * 1.2F, true, 2F, 0.2F, ageInTicks, 1.0F);
+        // ── AAA EAR FOLLOW-THROUGH — delayed behind head ───────────
+        this.flap(left_ear, idleSpeed, idleDegree * 1.2F, false, 1.5F, 0.2F, ageInTicks, 1.0F);
+        this.flap(right_ear, idleSpeed, idleDegree * 1.2F, true, 1.8F, 0.2F, ageInTicks, 1.0F);
+        this.swing(left_ear, idleSpeed, idleDegree * 1.2F, false, 2.5F, 0.2F, ageInTicks, 1.0F);
+        this.swing(right_ear, idleSpeed, idleDegree * 1.2F, true, 2.8F, 0.2F, ageInTicks, 1.0F);
+
+        // ── AAA BROWS: Micro-expression ────────────────────────────
+        left_brow.rotationPointY += Mth.sin(ageInTicks * 0.13F) * 0.15F;
+        right_brow.rotationPointY += Mth.sin(ageInTicks * 0.13F + 0.7F) * 0.15F;
+
+        // ── Idle animations ────────────────────────────────────────
         this.walk(tail, idleSpeed, idleDegree, false, 2F, 0.2F, ageInTicks, 1.0F);
         this.walk(right_arm, idleSpeed, idleDegree, false, -2F, -0.1F, ageInTicks, 1.0F);
         this.walk(left_arm, idleSpeed, idleDegree, false, -2F, -0.1F, ageInTicks, 1.0F);
         this.flap(snout_r1, idleSpeed * 8, idleDegree, false, -2F, 0F, ageInTicks, 1.0F);
 
+        if (sleepProgress == 0) {
+            this.faceTarget(netHeadYaw, headPitch, 1.3F, head);
+        }
+
+        // ── AAA BOUNCY FUNGAL WALK ─────────────────────────────────
         this.flap(body, walkSpeed, walkDegree * 0.5F, false, 0F, 0F, limbSwing, limbSwingMod);
         this.swing(body, walkSpeed, walkDegree * 0.5F, false, 1F, 0F, limbSwing, limbSwingMod);
         this.swing(right_foot, walkSpeed, walkDegree * 0.5F, false, -2.5F, 0F, limbSwing, limbSwingMod);
         this.swing(left_foot, walkSpeed, walkDegree * 0.5F, false, -2.5F, 0F, limbSwing, limbSwingMod);
+        // Bouncier body — mushroom springs with each step
+        this.bob(body, walkSpeed, walkDegree * 3.5F, true, limbSwing, limbSwingMod);
 
         this.left_foot.rotateAngleX -= (left_leg.rotateAngleX + body.rotateAngleX);
         this.left_foot.rotateAngleZ -= body.rotateAngleZ;

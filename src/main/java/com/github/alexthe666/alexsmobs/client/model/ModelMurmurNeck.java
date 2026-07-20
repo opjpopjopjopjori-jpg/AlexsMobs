@@ -12,8 +12,8 @@ public class ModelMurmurNeck extends AdvancedEntityModel<LivingEntity> {
     private final AdvancedModelBox neckPivot;
     private final AdvancedModelBox neck;
     private float stretch;
-    public static boolean THIN = false;
-    public static boolean HIDE = false;
+    public boolean THIN = false;
+    public boolean HIDE = false;
 
     public ModelMurmurNeck() {
         texWidth = 128;

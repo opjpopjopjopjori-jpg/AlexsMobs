@@ -159,6 +159,9 @@ public class ModelAnteater extends AdvancedEntityModel<EntityAnteater> {
     public void setupAnim(EntityAnteater entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
         // MANDATORY: Always reset to default pose first (AAA Animation Rule)
         this.resetToDefaultPose();
+        //══════ 🐜 ANTEATER — LONG-TONGUED TERMITE VACUUM ══════
+        // IDENTITY: Massive claws tear mounds. 60cm tongue flicks 150x/min.
+        // UNIQUE vs Platypus (aquatic forager), Jerboa (desert hopper).
 
         animate(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
 
@@ -211,8 +214,9 @@ public class ModelAnteater extends AdvancedEntityModel<EntityAnteater> {
 
         // Tongue darting mechanics during feeding
         double tongueM = Math.min(Math.sin(ageInTicks * 0.15F), 0);
-        float toungeF = 12F + 12F * (float) tongueM * (feedProgress * 0.2F);
-        float toungeMinus = (float) -tongueM * (feedProgress * 0.2F);
+        float feedFactor = feedProgress * 0.2F;
+        float toungeF = 12F * feedFactor + 12F * (float) tongueM * feedFactor;
+        float toungeMinus = (float) -tongueM * feedFactor;
         this.walk(tongue1, tongueSpeed * 2F, tongueDegree, false, 0F, 0F, ageInTicks,  toungeMinus);
         this.walk(tongue2, tongueSpeed * 2F, tongueDegree, false, 0F, 0F, ageInTicks,  toungeMinus);
         this.tongue1.rotationPointZ += toungeF;

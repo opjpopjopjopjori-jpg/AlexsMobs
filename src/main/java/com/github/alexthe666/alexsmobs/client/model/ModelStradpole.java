@@ -50,6 +50,10 @@ public class ModelStradpole extends AdvancedEntityModel<EntityStradpole> {
 	@Override
 	public void setupAnim(EntityStradpole entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 		this.resetToDefaultPose();
+        //══════ 🐸 STRADPOLE — AQUATIC TADPOLE SWIMMER ══════
+        // IDENTITY: Undulating tail fin propels through water.
+        // Wiggles body in S-curve. Hair-like gills flutter.
+        // UNIQUE vs RainFrog (adult burrower), Triops (shrimp).
 		float walkSpeed = 1F;
 		float walkDegree = 0.4F;
 		float idleSpeed = 0.1F;
@@ -58,11 +62,16 @@ public class ModelStradpole extends AdvancedEntityModel<EntityStradpole> {
 		this.flap(hair_left, idleSpeed, idleDegree, false, 1, 0F, ageInTicks, 1);
 		this.flap(body, walkSpeed, walkDegree * 0.2F, true, 0, 0F, limbSwing, limbSwingAmount);
 		this.swing(body, walkSpeed, walkDegree * 0.4F, true, 2, 0F, limbSwing, limbSwingAmount);
-		this.swing(tail, walkSpeed * 1.4F, walkDegree * 2F, false, 2, 0F, limbSwing, limbSwingAmount);
+		this.swing(tail, walkSpeed * 1.4F, walkDegree * 3.0F, false, 2, 0F, limbSwing, limbSwingAmount);
 		this.faceTarget(netHeadYaw, headPitch, 1.2F, body);
 		float partialTick = Minecraft.getInstance().getFrameTime();
 		float birdPitch = entity.prevSwimPitch + (entity.swimPitch - entity.prevSwimPitch) * partialTick;
-		this.body.rotateAngleX += birdPitch * Mth.DEG_TO_RAD;
+        this.body.rotateAngleX += birdPitch * Mth.DEG_TO_RAD;
+        // AAA STRADPOLE BREATHING + HAIR RIPPLE
+        float breath = Mth.cos(ageInTicks * 0.12F);
+        body.rotationPointY += breath * 0.04F;
+        this.flap(hair_left, 0.15F, 0.05F, false, 2, 0.02F, ageInTicks, 1);
+        this.flap(hair_right, 0.15F, 0.05F, true, 2, 0.02F, ageInTicks, 1);
 
 	}
 

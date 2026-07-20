@@ -10,6 +10,7 @@ import com.github.alexthe666.citadel.client.model.basic.BasicModelPart;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.util.Mth;
 
 public class ModelFroststalker extends AdvancedEntityModel<EntityFroststalker> {
 
@@ -241,17 +242,32 @@ public class ModelFroststalker extends AdvancedEntityModel<EntityFroststalker> {
         float quadProgress = 5.0F - bipedProgress;
         float tackleProgress = entityIn.prevTackleProgress + (entityIn.tackleProgress - entityIn.prevTackleProgress) * partialTick;
         float spikeProgress = entityIn.prevSpikeShakeProgress + (entityIn.spikeShakeProgress - entityIn.prevSpikeShakeProgress) * partialTick;
-        AdvancedModelBox[] tailBoxes = new AdvancedModelBox[]{tail1, tail2};
-        this.chainSwing(tailBoxes, idleSpeed, idleDegree * 0.3F, -2F, ageInTicks, 1.0F);
-        this.walk(neck, idleSpeed * 0.4F, idleDegree * 0.2F, false, 1F, -0.01F, ageInTicks, 1);
-        this.walk(head, idleSpeed * 0.4F, idleDegree * 0.2F, true, 1F, -0.01F, ageInTicks, 1);
-        this.chainSwing(tailBoxes, walkSpeed, walkDegree, -3, limbSwing, limbSwingAmount);
-        this.walk(body, walkSpeed, walkDegree * 0.1F, false, -1F, 0F, limbSwing, limbSwingAmount * bipedProgress * 0.2F);
-        this.walk(legleft, walkSpeed, walkDegree * 1.85F, false, 3F, 0F, limbSwing, limbSwingAmount);
-        this.walk(legright, walkSpeed, walkDegree * 1.85F, true, 3F, 0F, limbSwing, limbSwingAmount);
-        this.walk(armleft, walkSpeed, walkDegree * 1.85F, true, 2F, 0F, limbSwing, limbSwingAmount * quadProgress * 0.2F);
-        this.walk(armright, walkSpeed, walkDegree * 1.85F, false, 2F, 0F, limbSwing, limbSwingAmount * quadProgress * 0.2F);
-        this.bob(body, walkSpeed * 0.5F, walkDegree * 4F, true, limbSwing, limbSwingAmount * bipedProgress * 0.2F);
+        //══════ ❄️ FROSTSTALKER — SILENT ICE WOLF ══════
+        // IDENTITY: Bipedal-to-quadrupedal ice predator. Switches between
+        // four-leg stalk and two-leg sprint. Ice spikes ripple on back.
+        // Horn pierces frozen prey. Jaw articulates for cold-air howl.
+        // UNIQUE vs ManedWolf (stilt-legged), Tiger (feline stalker).
+
+        // ── BREATHING: cold-air predator ──
+        float breath=Mth.cos(ageInTicks*0.07F);
+        body.rotationPointY+=breath*0.15F;neck.rotationPointY+=breath*0.06F;jaw.rotateAngleX+=breath*0.015F;
+
+        // ── ICE SPIKES: ripple with movement ──
+        icespikesleft.rotateAngleZ+=Mth.sin(limbSwing*walkSpeed)*walkDegree*0.05F*limbSwingAmount;
+        icespikesright.rotateAngleZ-=Mth.sin(limbSwing*walkSpeed)*walkDegree*0.05F*limbSwingAmount;
+
+        // ── TAIL: frozen stiff, minimal sway ──
+        AdvancedModelBox[] tailBoxes=new AdvancedModelBox[]{tail1,tail2};
+        this.chainSwing(tailBoxes,idleSpeed,idleDegree*0.2F,-2F,ageInTicks,1.0F);
+        this.chainSwing(tailBoxes,walkSpeed,walkDegree*0.3F,-3,limbSwing,limbSwingAmount);
+
+        // ── BIPEDAL/QUADRUPEDAL TRANSITION ──
+        this.walk(body,walkSpeed,walkDegree*0.1F,false,-1F,0F,limbSwing,limbSwingAmount*bipedProgress*0.2F);
+        this.walk(legleft,walkSpeed,walkDegree*1.85F,false,3F,0F,limbSwing,limbSwingAmount);
+        this.walk(legright,walkSpeed,walkDegree*1.85F,true,3F,0F,limbSwing,limbSwingAmount);
+        this.walk(armleft,walkSpeed,walkDegree*1.85F,true,2F,0F,limbSwing,limbSwingAmount*quadProgress*0.2F);
+        this.walk(armright,walkSpeed,walkDegree*1.85F,false,2F,0F,limbSwing,limbSwingAmount*quadProgress*0.2F);
+        this.bob(body,walkSpeed*0.5F,walkDegree*4F,true,limbSwing,limbSwingAmount*bipedProgress*0.2F);
         progressRotationPrev(armright, bipedProgress, Maths.rad(20), Maths.rad(10), 0, 5F);
         progressRotationPrev(armleft, bipedProgress, Maths.rad(20), Maths.rad(-10), 0, 5F);
         progressRotationPrev(neck, bipedProgress, Maths.rad(30), 0, 0, 5F);
@@ -293,6 +309,7 @@ public class ModelFroststalker extends AdvancedEntityModel<EntityFroststalker> {
         this.swing(body, spikeSpeed, spikeDegree * 0.5F, false, 1F, 0F, ageInTicks, spikeProgress * 0.2F);
         this.flap(legleft, spikeSpeed, spikeDegree, true, 0F, 0F, ageInTicks, spikeProgress * 0.2F);
         this.flap(legright, spikeSpeed, spikeDegree, true, 0F, 0F, ageInTicks, spikeProgress * 0.2F);
+
         this.faceTarget(netHeadYaw, headPitch, 1.0F, head, neck);
     }
 }

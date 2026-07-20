@@ -135,26 +135,62 @@ public class ModelOrca extends AdvancedEntityModel<EntityOrca> {
 
     @Override
     public void setupAnim(EntityOrca entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        this.resetToDefaultPose();
         animate(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-        float swimSpeed = 0.2F;
-        float swimDegree = 0.4F;
-        AdvancedModelBox[] tailBoxes = new AdvancedModelBox[]{tail1, tail2, tailend};
-        this.walk(body, swimSpeed, swimDegree * 0.2F, true, 0F, 0F, limbSwing, limbSwingAmount);
-        this.bob(body, swimSpeed, swimDegree * 5F, false, limbSwing, limbSwingAmount);
-        this.chainWave(tailBoxes, swimSpeed, swimDegree, 0.2F, limbSwing, limbSwingAmount);
-        this.swing(fin_left, swimSpeed, swimDegree * 0.2F, true, 0F, 0F, limbSwing, limbSwingAmount);
-        this.swing(fin_right, swimSpeed, swimDegree * 0.2F, true, 0F, 0F, limbSwing, limbSwingAmount);
-        this.flap(fin_left, swimSpeed, swimDegree * 1.4F, true, 3F, 0F, limbSwing, limbSwingAmount);
-        this.flap(fin_right, swimSpeed, swimDegree * 1.4F, false, 3F, 0F, limbSwing, limbSwingAmount);
-        this.body.rotateAngleX += headPitch * Mth.DEG_TO_RAD;
-        this.body.rotateAngleY += netHeadYaw * Mth.DEG_TO_RAD;
-        if (horizontalMag(entityIn.getDeltaMovement()) > 1.0E-7D) {
-            this.body.rotateAngleX += -0.05F + -0.05F * Mth.cos(ageInTicks * 0.3F);
-            this.tail1.rotateAngleX += -0.1F * Mth.cos(ageInTicks * 0.3F);
-            this.tailend.rotateAngleX += -0.2F * Mth.cos(ageInTicks * 0.3F);
+        float swimSpeed = 0.35F;
+        float swimDegree = 0.45F;
+        float breachSpeed = 0.6F;
+        float breachDegree = 0.7F;
+
+        //══════ 🐋 ORCA — FAST POD HUNTER ══════
+        // IDENTITY: Speed demon. Rapid powerful tail kicks. Breaches surface.
+        // Tight turns. Dorsal fin prominent. Pectoral fins active steering.
+        // UNIQUE from Cachalot: Orca = fast, agile, surface-active.
+        // Cachalot = slow, massive, deep-diving vertical descender.
+
+        // ── BREATHING: athletic cetacean ──
+        float breath=Mth.cos(ageInTicks*0.07F);
+        body.setScale(1.0F,1.0F+breath*0.025F,1.0F);
+        body.rotationPointY+=breath*0.2F;
+
+        // ── TAIL: rapid powerful kicks for speed ──
+        AdvancedModelBox[] tailBoxes=new AdvancedModelBox[]{tail1,tail2,tailend};
+        this.chainWave(tailBoxes,swimSpeed,swimDegree,0.2F,limbSwing,limbSwingAmount);
+        // Faster tail oscillation for orca speed
+        this.bob(body,swimSpeed,swimDegree*5F,false,limbSwing,limbSwingAmount);
+
+        // ── BREACHING: orca launches out of water ──
+        // When moving fast, body pitches up for surface breach
+        boolean movingFast=horizontalMag(entityIn.getDeltaMovement())>0.01D;
+        if(movingFast){
+            // Body undulates vertically for breach preparation
+            float breachCycle=Mth.cos(ageInTicks*breachSpeed);
+            body.rotateAngleX+=-0.05F+-0.05F*breachCycle;
+            tail1.rotateAngleX+=-0.1F*breachCycle;
+            tailend.rotateAngleX+=-0.2F*breachCycle;
+            // Dorsal fin cuts through water
+            fintop.rotateAngleX+=breachCycle*0.04F;
         }
 
+        // ── DORSAL FIN: prominent, sways side-to-side ──
+        this.swing(fintop,swimSpeed,swimDegree*0.15F,true,0F,0F,limbSwing,limbSwingAmount);
+
+        // ── PECTORAL FINS: active figure-8 rowing for tight turns ──
+        this.flap(fin_left,swimSpeed,swimDegree*1.5F,true,3F,0F,limbSwing,limbSwingAmount);
+        this.flap(fin_right,swimSpeed,swimDegree*1.5F,false,3F,0F,limbSwing,limbSwingAmount);
+        this.swing(fin_left,swimSpeed,swimDegree*0.2F,true,0F,0F,limbSwing,limbSwingAmount);
+        this.swing(fin_right,swimSpeed,swimDegree*0.2F,true,0F,0F,limbSwing,limbSwingAmount);
+        // Idle: pectoral fins gently row for stability
+        this.flap(fin_left,0.12F,0.08F,true,1F,0,ageInTicks,1-limbSwingAmount*0.5F);
+        this.flap(fin_right,0.12F,0.08F,false,1F,0,ageInTicks,1-limbSwingAmount*0.5F);
+
+        // ── BODY: subtle swim walk ──
+        this.walk(body,swimSpeed,swimDegree*0.2F,true,0F,0F,limbSwing,limbSwingAmount);
+
+        // ── JAW: occasionally opens slightly ──
+        jaw.rotateAngleX+=Mth.sin(ageInTicks*0.05F)*0.02F*(1-limbSwingAmount);
+
+        this.body.rotateAngleX+=headPitch*Mth.DEG_TO_RAD;
+        this.body.rotateAngleY+=netHeadYaw*Mth.DEG_TO_RAD;
     }
 
     @Override

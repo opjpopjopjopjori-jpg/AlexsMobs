@@ -5,6 +5,7 @@ import com.github.alexthe666.citadel.client.model.AdvancedEntityModel;
 import com.github.alexthe666.citadel.client.model.AdvancedModelBox;
 import com.github.alexthe666.citadel.client.model.basic.BasicModelPart;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.util.Mth;
 
 public class ModelCatfishMedium extends AdvancedEntityModel<EntityCatfish> {
     private final AdvancedModelBox root;
@@ -96,23 +97,132 @@ public class ModelCatfishMedium extends AdvancedEntityModel<EntityCatfish> {
     @Override
     public void setupAnim(EntityCatfish entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.resetToDefaultPose();
+        //══════ 🐟 CATFISH (MEDIUM) — WHISKERED BOTTOM-FEEDER ══════
+        // IDENTITY: Medium variant. Barbels drag and sense substrate.
+        // Subcarangiform swimming. Dorsal fin ripple.
+
+        // ── Core State ──────────────────────────────────────────────
+        boolean inWater = entity.isInWater();
+        float partialTick = ageInTicks - entity.tickCount;
+        float spitProgress = entity.getSpitTime() > 0 ? (entity.getSpitTime() - partialTick) / 10.0F : 0;
+
+        // ── Animation Parameters ────────────────────────────────────
+        float swimSpeed = 0.58F;
+        float swimDegree = 0.7F;
+
+        // ── AAA BREATHING: Operculum Pumping ────────────────────────
+        float breathCycle = Mth.cos(ageInTicks * 0.14F);
+        body.setScale(1.0F + breathCycle * 0.015F,
+                      1.0F + breathCycle * 0.012F,
+                      1.0F);
+        head.rotationPointY += breathCycle * 0.08F;
+        head.rotateAngleX += breathCycle * 0.012F;
+
+        // ── AAA SWIMMING: Subcarangiform Body Wave ──────────────────
+        if (inWater) {
+            this.swing(body, swimSpeed, swimDegree * 0.12F, false, 1.0F, 0F, limbSwing, limbSwingAmount);
+            this.swing(tail, swimSpeed, swimDegree * 0.6F, false, 0.3F, 0F, limbSwing, limbSwingAmount);
+            this.swing(tail_fin, swimSpeed, swimDegree * 1.15F, false, -1.0F, 0F, limbSwing, limbSwingAmount);
+            this.swing(head, swimSpeed, swimDegree * 0.07F, true, 2.0F, 0F, limbSwing, limbSwingAmount);
+            // Vertical undulation
+            float bodyBob = Mth.sin(limbSwing * swimSpeed * 0.8F + 1.5F) * swimDegree * 0.22F * limbSwingAmount;
+            body.rotationPointY += bodyBob;
+            head.rotationPointY -= bodyBob * 0.25F;
+            tail.rotationPointY -= bodyBob * 0.45F;
+            tail_fin.rotationPointY -= bodyBob * 0.65F;
+        }
+
+        // ── AAA PECTORAL FIN FIGURE-8 ROWING ────────────────────────
+        if (inWater) {
+            this.flap(left_fin, swimSpeed, swimDegree * 0.45F, false, 3.0F, -0.35F, limbSwing, limbSwingAmount);
+            this.flap(right_fin, swimSpeed, swimDegree * 0.45F, true, 3.0F, -0.35F, limbSwing, limbSwingAmount);
+            this.walk(left_fin, swimSpeed, swimDegree * 0.28F, false, 2.0F, 0.15F, limbSwing, limbSwingAmount);
+            this.walk(right_fin, swimSpeed, swimDegree * 0.28F, true, 2.0F, 0.15F, limbSwing, limbSwingAmount);
+        }
+
+        // ── AAA DORSAL FIN ADJUSTMENT ───────────────────────────────
+        if (inWater) {
+            float dorsalAdjust = Mth.abs(Mth.sin(limbSwing * swimSpeed)) * limbSwingAmount * 0.06F;
+            dorsal_fin.rotateAngleX += dorsalAdjust;
+        }
+
+        // ── AAA IDLE BEHAVIOR ───────────────────────────────────────
         float idleSpeed = 0.2F;
-        float idleDegree = 0.25F;
-        float swimSpeed = 0.55F;
-        float swimDegree = 0.75F;
-        AdvancedModelBox[] tailBoxes = new AdvancedModelBox[]{body, tail, tail_fin};
-        this.chainSwing(tailBoxes, swimSpeed, swimDegree * 0.9F, -2.5F, limbSwing, limbSwingAmount);
-        this.swing(head, swimSpeed, swimDegree * 0.2F, true, 2F, 0, limbSwing, limbSwingAmount);
-        this.flap(left_fin, swimSpeed, swimDegree, false, 4, -0.6F, limbSwing, limbSwingAmount);
-        this.flap(right_fin, swimSpeed, swimDegree, true, 4, -0.6F, limbSwing, limbSwingAmount);
-        this.bob(body, idleSpeed, idleDegree, false, ageInTicks, 1);
-        this.flap(left_fin, idleSpeed, idleDegree, false, 4, -0.1F, ageInTicks, 1);
-        this.flap(right_fin, idleSpeed, idleDegree, true, 4, -0.1F, ageInTicks, 1);
-        this.swing(left_BigWhisker, idleSpeed, idleDegree, false, 2, 0.1F, ageInTicks, 1);
-        this.swing(right_BigWhisker, idleSpeed, idleDegree, true, 2, 0.1F, ageInTicks, 1);
-        this.swing(left_SmallWhisker, idleSpeed, idleDegree, false, 3, 0.1F, ageInTicks, 1);
-        this.swing(right_SmallWhisker, idleSpeed, idleDegree, true, 3, 0.1F, ageInTicks, 1);
-        this.chainSwing(tailBoxes, idleSpeed, idleDegree * 0.1F, -2.5F, ageInTicks, 1);
+        float idleDegree = 0.22F;
+        float idleAmount = 1.0F - (inWater ? limbSwingAmount * 0.5F : 0F);
+
+        // Buoyancy drift
+        float hoverDrift = Mth.sin(ageInTicks * 0.08F + 1.1F) * 0.35F;
+        float hoverDrift2 = Mth.cos(ageInTicks * 0.1F + 0.7F) * 0.2F;
+        body.rotationPointY += hoverDrift * idleAmount;
+        body.rotationPointZ += hoverDrift2 * idleAmount * 0.25F;
+
+        // Gentle idle body sway
+        this.swing(body, idleSpeed * 0.6F, idleDegree * 0.25F, false, 0F, 0F, ageInTicks, idleAmount);
+        this.swing(tail, idleSpeed * 0.6F, idleDegree * 0.45F, false, -1.0F, 0F, ageInTicks, idleAmount);
+        this.swing(tail_fin, idleSpeed * 0.6F, idleDegree * 0.65F, false, -2.0F, 0F, ageInTicks, idleAmount);
+        this.swing(head, idleSpeed * 0.6F, idleDegree * 0.12F, true, 1.0F, 0F, ageInTicks, idleAmount);
+
+        // Idle pectoral fin rippling
+        this.flap(left_fin, idleSpeed, idleDegree * 0.35F, false, 3.5F, -0.08F, ageInTicks, idleAmount);
+        this.flap(right_fin, idleSpeed, idleDegree * 0.35F, true, 3.5F, -0.08F, ageInTicks, idleAmount);
+        this.flap(left_fin, idleSpeed * 1.3F, idleDegree * 0.12F, false, 5.0F, 0F, ageInTicks, idleAmount);
+        this.flap(right_fin, idleSpeed * 1.3F, idleDegree * 0.12F, true, 5.5F, 0F, ageInTicks, idleAmount);
+
+        // ── AAA BARBEL PHYSICS ──────────────────────────────────────
+        float swimDrag = inWater ? limbSwingAmount * 0.55F : 0F;
+        left_BigWhisker.rotateAngleY -= swimDrag * Mth.sin(limbSwing * swimSpeed + 0.5F) * 0.3F;
+        right_BigWhisker.rotateAngleY += swimDrag * Mth.sin(limbSwing * swimSpeed + 0.5F) * 0.3F;
+        left_BigWhisker.rotateAngleX += swimDrag * Mth.abs(Mth.cos(limbSwing * swimSpeed)) * 0.08F;
+        right_BigWhisker.rotateAngleX += swimDrag * Mth.abs(Mth.cos(limbSwing * swimSpeed)) * 0.08F;
+
+        this.swing(left_BigWhisker, idleSpeed, idleDegree * 0.85F, false, 2.0F, 0.12F, ageInTicks, idleAmount);
+        this.swing(right_BigWhisker, idleSpeed, idleDegree * 0.85F, true, 2.2F, 0.12F, ageInTicks, idleAmount);
+        this.flap(left_BigWhisker, idleSpeed * 0.7F, idleDegree * 0.45F, false, 3.0F, 0.08F, ageInTicks, idleAmount);
+        this.flap(right_BigWhisker, idleSpeed * 0.7F, idleDegree * 0.45F, true, 2.8F, 0.08F, ageInTicks, idleAmount);
+
+        this.swing(left_SmallWhisker, idleSpeed * 1.4F, idleDegree * 0.65F, false, 3.0F, 0.08F, ageInTicks, idleAmount);
+        this.swing(right_SmallWhisker, idleSpeed * 1.4F, idleDegree * 0.65F, true, 3.3F, 0.08F, ageInTicks, idleAmount);
+        this.flap(left_SmallWhisker, idleSpeed * 1.1F, idleDegree * 0.35F, false, 4.0F, 0.04F, ageInTicks, idleAmount);
+        this.flap(right_SmallWhisker, idleSpeed * 1.1F, idleDegree * 0.35F, true, 4.2F, 0.04F, ageInTicks, idleAmount);
+        left_SmallWhisker.rotateAngleY -= swimDrag * Mth.sin(limbSwing * swimSpeed + 0.7F) * 0.2F;
+        right_SmallWhisker.rotateAngleY += swimDrag * Mth.sin(limbSwing * swimSpeed + 0.7F) * 0.2F;
+
+        // ── AAA FEEDING / SPITTING ANIMATION ───────────────────────
+        if (spitProgress > 0.01F) {
+            float spitCurve = Mth.sin(spitProgress * Mth.PI);
+            head.rotateAngleX += spitCurve * 0.4F;
+            head.rotationPointZ += spitCurve * 1.5F;
+            body.setScale(body.getScaleX() + spitCurve * 0.06F,
+                          body.getScaleY() + spitCurve * 0.04F,
+                          body.getScaleZ());
+            left_fin.rotateAngleZ += spitCurve * 0.2F;
+            right_fin.rotateAngleZ -= spitCurve * 0.2F;
+            tail_fin.rotateAngleY += Mth.sin(spitCurve * Mth.PI * 2) * 0.08F;
+        }
+
+        // ── AAA LAND FLOPPING ───────────────────────────────────────
+        if (!inWater) {
+            float flopIntensity = 1.2F;
+            float flopSpeed = 1.15F;
+            this.swing(body, flopSpeed, flopIntensity, false, 0F, 0F, ageInTicks, 1.0F);
+            this.swing(tail, flopSpeed, flopIntensity * 1.15F, false, -0.8F, 0F, ageInTicks, 1.0F);
+            this.swing(tail_fin, flopSpeed, flopIntensity * 1.4F, false, -1.5F, 0F, ageInTicks, 1.0F);
+            this.flap(body, flopSpeed * 0.8F, 0.2F, false, 1.0F, 0F, ageInTicks, 1.0F);
+            this.flap(tail, flopSpeed * 0.8F, 0.3F, false, 0.5F, 0F, ageInTicks, 1.0F);
+            left_fin.rotateAngleZ += 0.3F;
+            right_fin.rotateAngleZ -= 0.3F;
+            left_fin.rotateAngleY += 0.15F;
+            right_fin.rotateAngleY -= 0.15F;
+            left_BigWhisker.rotateAngleX += 0.2F;
+            right_BigWhisker.rotateAngleX += 0.2F;
+            left_SmallWhisker.rotateAngleX += 0.25F;
+            right_SmallWhisker.rotateAngleX += 0.25F;
+            dorsal_fin.rotateAngleX -= 0.15F;
+        }
+
+        // ── HEAD TRACKING ──────────────────────────────────────────
+        this.faceTarget(netHeadYaw, headPitch, 1.0F, head);
     }
 
     @Override
@@ -122,7 +232,8 @@ public class ModelCatfishMedium extends AdvancedEntityModel<EntityCatfish> {
 
     @Override
     public Iterable<AdvancedModelBox> getAllParts() {
-        return ImmutableList.of(root, head, body, dorsal_fin, tail, left_fin, right_fin, left_BigWhisker, right_BigWhisker, left_SmallWhisker, right_SmallWhisker, tail_fin);
+        return ImmutableList.of(root, head, body, dorsal_fin, tail, left_fin, right_fin,
+                left_BigWhisker, right_BigWhisker, left_SmallWhisker, right_SmallWhisker, tail_fin);
     }
 
     public void setRotationAngle(AdvancedModelBox AdvancedModelBox, float x, float y, float z) {
@@ -130,4 +241,5 @@ public class ModelCatfishMedium extends AdvancedEntityModel<EntityCatfish> {
         AdvancedModelBox.rotateAngleY = y;
         AdvancedModelBox.rotateAngleZ = z;
     }
+
 }

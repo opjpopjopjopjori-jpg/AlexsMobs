@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.Mth;
 
 public class ModelRattlesnake extends AdvancedEntityModel<EntityRattlesnake> {
     private final AdvancedModelBox body;
@@ -108,8 +109,11 @@ public class ModelRattlesnake extends AdvancedEntityModel<EntityRattlesnake> {
 
     @Override
     public void setupAnim(EntityRattlesnake entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        this.resetToDefaultPose();
         animate(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+        //══════ 🐍 RATTLESNAKE — RATTLE-WARNING VENOM STRIKER ══════
+        // IDENTITY: Coiled S-curve ready to strike. Tail RATTLES as warning.
+        // Tongue flicks tasting air. Head tracks prey from S-bend.
+        // UNIQUE vs Anaconda (constrictor), FrilledShark (eel-swimmer).
         float walkSpeed = 1.0F;
         float walkDegree = 0.4F;
         float partialTick = Minecraft.getInstance().getFrameTime();
@@ -136,6 +140,12 @@ public class ModelRattlesnake extends AdvancedEntityModel<EntityRattlesnake> {
         }
         this.faceTarget(netHeadYaw, headPitch, 2, neck2, head);
         this.chainSwing(bodyParts, walkSpeed, walkDegree, -5, limbSwing, limbSwingAmount);
+        // AAA REPTILE BREATHING + IDLE MICRO-SWAY
+        float breath = Mth.cos(ageInTicks * 0.08F);
+        body.rotationPointY += breath * 0.04F;
+        body.setScale(1.0F + breath * 0.01F, 1.0F, 1.0F + breath * 0.01F);
+        // Idle tongue flick rhythm
+        if(entity.randomToungeTick > 0){ tongue.rotationPointZ += Mth.sin(ageInTicks * 2F) * 0.5F; }
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.github.alexthe666.citadel.client.model.AdvancedEntityModel;
 import com.github.alexthe666.citadel.client.model.AdvancedModelBox;
 import com.github.alexthe666.citadel.client.model.basic.BasicModelPart;
 import com.google.common.collect.ImmutableList;
+import net.minecraft.util.Mth;
 
 public class ModelCatfishLarge extends AdvancedEntityModel<EntityCatfish> {
     private final AdvancedModelBox root;
@@ -97,23 +98,190 @@ public class ModelCatfishLarge extends AdvancedEntityModel<EntityCatfish> {
     @Override
     public void setupAnim(EntityCatfish entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.resetToDefaultPose();
-        float idleSpeed = 0.2F;
-        float idleDegree = 0.25F;
+        //══════ 🐟 CATFISH — WHISKERED BOTTOM-FEEDER ══════
+        // IDENTITY: Barbels (whiskers) drag and sense bottom. Subcarangiform
+        // swimming wave. Dorsal fin ripples. Slow deliberate bottom-dweller.
+        // UNIQUE vs CosmicCod (drifter), FlyingFish (glider), Pupfish (darter).
+
+        // ── Core State ──────────────────────────────────────────────
+        boolean inWater = entity.isInWater();
+        float partialTick = ageInTicks - entity.tickCount;
+        float spitProgress = entity.getSpitTime() > 0 ? (entity.getSpitTime() - partialTick) / 10.0F : 0;
+        float swallowedProgress = entity.hasSwallowedEntity() ? 1.0F : 0.0F;
+
+        // ── Animation Parameters ────────────────────────────────────
+        // Swimming: subcarangiform wave — amplitude grows from head→tail
         float swimSpeed = 0.55F;
         float swimDegree = 0.75F;
-        AdvancedModelBox[] tailBoxes = new AdvancedModelBox[]{body, tail, tail_fin};
-        this.chainSwing(tailBoxes, swimSpeed, swimDegree * 0.9F, -2.5F, limbSwing, limbSwingAmount);
-        this.swing(head, swimSpeed, swimDegree * 0.2F, true, 2F, 0, limbSwing, limbSwingAmount);
-        this.flap(left_fin, swimSpeed, swimDegree, false, 4, -0.6F, limbSwing, limbSwingAmount);
-        this.flap(right_fin, swimSpeed, swimDegree, true, 4, -0.6F, limbSwing, limbSwingAmount);
-        this.bob(body, idleSpeed, idleDegree, false, ageInTicks, 1);
-        this.flap(left_fin, idleSpeed, idleDegree, false, 4, -0.1F, ageInTicks, 1);
-        this.flap(right_fin, idleSpeed, idleDegree, true, 4, -0.1F, ageInTicks, 1);
-        this.swing(left_BigWhisker, idleSpeed, idleDegree, false, 2, 0.1F, ageInTicks, 1);
-        this.swing(right_BigWhisker, idleSpeed, idleDegree, true, 2, 0.1F, ageInTicks, 1);
-        this.swing(left_SmallWhisker, idleSpeed, idleDegree, false, 3, 0.1F, ageInTicks, 1);
-        this.swing(right_SmallWhisker, idleSpeed, idleDegree, true, 3, 0.1F, ageInTicks, 1);
-        this.chainSwing(tailBoxes, idleSpeed, idleDegree * 0.1F, -2.5F, ageInTicks, 1);  }
+
+        // ── AAA BREATHING: Operculum Pumping ────────────────────────
+        // Catfish constantly pump water over gills — subtle rhythmic body expansion
+        float breathCycle = Mth.cos(ageInTicks * 0.12F);
+        float breathIntensity = 0.02F;
+        // Body subtly expands/contracts to simulate gill pumping
+        body.setScale(1.0F + breathCycle * breathIntensity,
+                      1.0F + breathCycle * breathIntensity * 0.7F,
+                      1.0F);
+        // Head position shifts with each "pump"
+        head.rotationPointY += breathCycle * 0.12F;
+        // Subtle mouth opening during breathing (ventral mouth drops slightly)
+        head.rotateAngleX += breathCycle * 0.015F;
+
+        // ── AAA SWIMMING: True Subcarangiform Body Wave ──────────────
+        // Real fish: traveling wave starts ~30% body length from head,
+        // amplitude increases exponentially toward tail
+        // Phase offset between body→tail→tail_fin creates the traveling illusion
+        if (inWater) {
+            // Body: subtle lateral oscillation (wave origin)
+            this.swing(body, swimSpeed, swimDegree * 0.15F, false, 1.0F, 0F, limbSwing, limbSwingAmount);
+            // Tail: stronger swing — phase lags behind body
+            this.swing(tail, swimSpeed, swimDegree * 0.65F, false, 0.3F, 0F, limbSwing, limbSwingAmount);
+            // Tail fin: maximum amplitude — whip-like terminus of the wave
+            this.swing(tail_fin, swimSpeed, swimDegree * 1.2F, false, -1.0F, 0F, limbSwing, limbSwingAmount);
+            // Head counter-swing: stabilizes the front, prevents wobble
+            this.swing(head, swimSpeed, swimDegree * 0.08F, true, 2.0F, 0F, limbSwing, limbSwingAmount);
+            // Body vertical undulation for 3D water column navigation
+            float bodyBob = Mth.sin(limbSwing * swimSpeed * 0.8F + 1.5F) * swimDegree * 0.25F * limbSwingAmount;
+            body.rotationPointY += bodyBob;
+            head.rotationPointY -= bodyBob * 0.3F;
+            tail.rotationPointY -= bodyBob * 0.5F;
+            tail_fin.rotationPointY -= bodyBob * 0.7F;
+        }
+
+        // ── AAA PECTORAL FIN MECHANICS ──────────────────────────────
+        // Fins perform figure-8 rowing: combine flap (vertical) + swing (horizontal)
+        // Creates the characteristic oar-like propulsion of catfish
+        if (inWater) {
+            // Primary rowing motion — figure-8 through combined axes
+            this.flap(left_fin, swimSpeed, swimDegree * 0.5F, false, 3.0F, -0.4F, limbSwing, limbSwingAmount);
+            this.flap(right_fin, swimSpeed, swimDegree * 0.5F, true, 3.0F, -0.4F, limbSwing, limbSwingAmount);
+            // Subtle fore-aft rowing component
+            this.walk(left_fin, swimSpeed, swimDegree * 0.3F, false, 2.0F, 0.2F, limbSwing, limbSwingAmount);
+            this.walk(right_fin, swimSpeed, swimDegree * 0.3F, true, 2.0F, 0.2F, limbSwing, limbSwingAmount);
+        }
+
+        // ── AAA DORSAL FIN ADJUSTMENT ───────────────────────────────
+        // Dorsal fin subtly adjusts angle based on swimming intensity
+        // Erects slightly during active swimming for stability
+        if (inWater) {
+            float dorsalAdjust = Mth.abs(Mth.sin(limbSwing * swimSpeed)) * limbSwingAmount * 0.08F;
+            dorsal_fin.rotateAngleX += dorsalAdjust;
+        }
+
+        // ── AAA IDLE BEHAVIOR ───────────────────────────────────────
+        float idleSpeed = 0.18F;
+        float idleDegree = 0.2F;
+        float idleAmount = 1.0F - (inWater ? limbSwingAmount * 0.5F : 0F);
+
+        // Subtle buoyancy drift — catfish hovering in water column
+        float hoverDrift = Mth.sin(ageInTicks * 0.07F + 1.3F) * 0.4F;
+        float hoverDrift2 = Mth.cos(ageInTicks * 0.09F + 0.5F) * 0.25F;
+        body.rotationPointY += hoverDrift * idleAmount;
+        body.rotationPointZ += hoverDrift2 * idleAmount * 0.3F;
+
+        // Gentle whole-body idle sway (current drift simulation)
+        this.swing(body, idleSpeed * 0.6F, idleDegree * 0.3F, false, 0F, 0F, ageInTicks, idleAmount);
+        this.swing(tail, idleSpeed * 0.6F, idleDegree * 0.5F, false, -1.0F, 0F, ageInTicks, idleAmount);
+        this.swing(tail_fin, idleSpeed * 0.6F, idleDegree * 0.7F, false, -2.0F, 0F, ageInTicks, idleAmount);
+        this.swing(head, idleSpeed * 0.6F, idleDegree * 0.15F, true, 1.0F, 0F, ageInTicks, idleAmount);
+
+        // Idle pectoral fin rippling — gentle, independent wave motion
+        this.flap(left_fin, idleSpeed, idleDegree * 0.4F, false, 3.5F, -0.1F, ageInTicks, idleAmount);
+        this.flap(right_fin, idleSpeed, idleDegree * 0.4F, true, 3.5F, -0.1F, ageInTicks, idleAmount);
+        // Asymmetric micro-adjustments for natural feel
+        this.flap(left_fin, idleSpeed * 1.3F, idleDegree * 0.15F, false, 5.0F, 0F, ageInTicks, idleAmount);
+        this.flap(right_fin, idleSpeed * 1.3F, idleDegree * 0.15F, true, 5.5F, 0F, ageInTicks, idleAmount);
+
+        // ── AAA BARBEL PHYSICS ──────────────────────────────────────
+        // Barbels are sensory organs with fluid drag behavior
+        // During swimming: sweep backward with delayed response
+        // During idle: independent probing motion
+        float swimDrag = inWater ? limbSwingAmount * 0.6F : 0F;
+
+        // Big whiskers (maxillary barbels) — primary sensory probes
+        // Sweep back during swimming
+        left_BigWhisker.rotateAngleY -= swimDrag * Mth.sin(limbSwing * swimSpeed + 0.5F) * 0.35F;
+        right_BigWhisker.rotateAngleY += swimDrag * Mth.sin(limbSwing * swimSpeed + 0.5F) * 0.35F;
+        left_BigWhisker.rotateAngleX += swimDrag * Mth.abs(Mth.cos(limbSwing * swimSpeed)) * 0.1F;
+        right_BigWhisker.rotateAngleX += swimDrag * Mth.abs(Mth.cos(limbSwing * swimSpeed)) * 0.1F;
+
+        // Idle probing — each barbel moves independently
+        this.swing(left_BigWhisker, idleSpeed, idleDegree * 0.9F, false, 2.0F, 0.15F, ageInTicks, idleAmount);
+        this.swing(right_BigWhisker, idleSpeed, idleDegree * 0.9F, true, 2.2F, 0.15F, ageInTicks, idleAmount);
+        // Vertical probing component
+        this.flap(left_BigWhisker, idleSpeed * 0.7F, idleDegree * 0.5F, false, 3.0F, 0.1F, ageInTicks, idleAmount);
+        this.flap(right_BigWhisker, idleSpeed * 0.7F, idleDegree * 0.5F, true, 2.8F, 0.1F, ageInTicks, idleAmount);
+
+        // Small whiskers (mandibular barbels) — shorter, faster probing
+        this.swing(left_SmallWhisker, idleSpeed * 1.4F, idleDegree * 0.7F, false, 3.0F, 0.1F, ageInTicks, idleAmount);
+        this.swing(right_SmallWhisker, idleSpeed * 1.4F, idleDegree * 0.7F, true, 3.3F, 0.1F, ageInTicks, idleAmount);
+        this.flap(left_SmallWhisker, idleSpeed * 1.1F, idleDegree * 0.4F, false, 4.0F, 0.05F, ageInTicks, idleAmount);
+        this.flap(right_SmallWhisker, idleSpeed * 1.1F, idleDegree * 0.4F, true, 4.2F, 0.05F, ageInTicks, idleAmount);
+        // Swim drag on small whiskers too
+        left_SmallWhisker.rotateAngleY -= swimDrag * Mth.sin(limbSwing * swimSpeed + 0.7F) * 0.25F;
+        right_SmallWhisker.rotateAngleY += swimDrag * Mth.sin(limbSwing * swimSpeed + 0.7F) * 0.25F;
+
+        // ── AAA FEEDING / SPITTING ANIMATION ───────────────────────
+        // Large catfish creates suction then forcefully expels
+        // Spit: mouth opens wide → body recoils backward → mouth snaps shut
+        if (spitProgress > 0.01F) {
+            float spitCurve = Mth.sin(spitProgress * Mth.PI); // 0→1→0 bell curve
+            // Mouth gape: head rotates down (ventral mouth opens)
+            head.rotateAngleX += spitCurve * 0.45F;
+            // Body recoil backward
+            head.rotationPointZ += spitCurve * 1.8F;
+            // Throat/body expansion (buccal cavity)
+            body.setScale(body.getScaleX() + spitCurve * 0.08F,
+                          body.getScaleY() + spitCurve * 0.06F,
+                          body.getScaleZ());
+            // Fins flare during spit for stability
+            left_fin.rotateAngleZ += spitCurve * 0.25F;
+            right_fin.rotateAngleZ -= spitCurve * 0.25F;
+            // Tail fin stiffens briefly
+            tail_fin.rotateAngleY += Mth.sin(spitCurve * Mth.PI * 2) * 0.1F;
+        }
+
+        // ── AAA SWALLOWED ENTITY BELLY BULGE ────────────────────────
+        // When large catfish has swallowed something, belly visibly distends
+        if (swallowedProgress > 0.01F) {
+            body.setScale(body.getScaleX(),
+                          body.getScaleY() + swallowedProgress * 0.18F,
+                          body.getScaleZ() + swallowedProgress * 0.12F);
+            // Heavier body moves slightly lower in water
+            body.rotationPointY -= swallowedProgress * 0.8F;
+            // Fins work harder to compensate for extra weight
+            float extraFinWork = swallowedProgress * 0.3F;
+            left_fin.rotateAngleZ += Mth.sin(ageInTicks * 0.3F) * extraFinWork;
+            right_fin.rotateAngleZ -= Mth.sin(ageInTicks * 0.3F) * extraFinWork;
+        }
+
+        // ── AAA LAND FLOPPING ───────────────────────────────────────
+        if (!inWater) {
+            // Desperate thrashing — rapid, erratic body convulsions
+            float flopIntensity = 1.3F;
+            float flopSpeed = 1.1F;
+            this.swing(body, flopSpeed, flopIntensity, false, 0F, 0F, ageInTicks, 1.0F);
+            this.swing(tail, flopSpeed, flopIntensity * 1.2F, false, -0.8F, 0F, ageInTicks, 1.0F);
+            this.swing(tail_fin, flopSpeed, flopIntensity * 1.5F, false, -1.5F, 0F, ageInTicks, 1.0F);
+            this.flap(body, flopSpeed * 0.8F, 0.25F, false, 1.0F, 0F, ageInTicks, 1.0F);
+            this.flap(tail, flopSpeed * 0.8F, 0.35F, false, 0.5F, 0F, ageInTicks, 1.0F);
+            // Fins spread wide — desperate attempt to move
+            left_fin.rotateAngleZ += 0.35F;
+            right_fin.rotateAngleZ -= 0.35F;
+            left_fin.rotateAngleY += 0.2F;
+            right_fin.rotateAngleY -= 0.2F;
+            // Barbels droop limply
+            left_BigWhisker.rotateAngleX += 0.25F;
+            right_BigWhisker.rotateAngleX += 0.25F;
+            left_SmallWhisker.rotateAngleX += 0.3F;
+            right_SmallWhisker.rotateAngleX += 0.3F;
+            // Dorsal fin erect — stress response
+            dorsal_fin.rotateAngleX -= 0.2F;
+        }
+
+        // ── HEAD TRACKING ──────────────────────────────────────────
+        this.faceTarget(netHeadYaw, headPitch, 1.0F, head);
+    }
 
     @Override
     public Iterable<BasicModelPart> parts() {
@@ -122,7 +290,8 @@ public class ModelCatfishLarge extends AdvancedEntityModel<EntityCatfish> {
 
     @Override
     public Iterable<AdvancedModelBox> getAllParts() {
-        return ImmutableList.of(root, head, body, dorsal_fin, tail, left_fin, right_fin, left_BigWhisker, right_BigWhisker, left_SmallWhisker, right_SmallWhisker, tail_fin);
+        return ImmutableList.of(root, head, body, dorsal_fin, tail, left_fin, right_fin,
+                left_BigWhisker, right_BigWhisker, left_SmallWhisker, right_SmallWhisker, tail_fin);
     }
 
     public void setRotationAngle(AdvancedModelBox AdvancedModelBox, float x, float y, float z) {
@@ -130,4 +299,5 @@ public class ModelCatfishLarge extends AdvancedEntityModel<EntityCatfish> {
         AdvancedModelBox.rotateAngleY = y;
         AdvancedModelBox.rotateAngleZ = z;
     }
+
 }

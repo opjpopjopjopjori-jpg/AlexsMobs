@@ -9,6 +9,7 @@ import com.github.alexthe666.citadel.client.model.basic.BasicModelPart;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.util.Mth;
 
 public class ModelCaiman extends AdvancedEntityModel<EntityCaiman> {
     private final AdvancedModelBox root;
@@ -134,11 +135,11 @@ public class ModelCaiman extends AdvancedEntityModel<EntityCaiman> {
         // MANDATORY: Always reset to default pose first (AAA Animation Rule)
         this.resetToDefaultPose();
 
-        float idleSpeed = 0.06F;
-        float idleDegree = 0.12F;
+        float idleSpeed = 0.08F;
+        float idleDegree = 0.15F;
         float walkSpeed = 1.05F;
         float walkDegree = 1.0F;
-        float swimSpeed = 0.65F;
+        float swimSpeed = 0.7F;
         float swimDegree = 0.65F;
 
         float partialTick = ageInTicks - entity.tickCount;
@@ -150,86 +151,114 @@ public class ModelCaiman extends AdvancedEntityModel<EntityCaiman> {
         float walkAmount = (1F - swimProgress) * limbSwingAmount;
         float swimAmount = swimProgress * limbSwingAmount;
 
-        // Procedural Reptilian Breathing
-        float breath = Maths.cos(ageInTicks * 0.09F);
-        body.rotationPointY += breath * 0.25F;
-        bottomJaw.rotateAngleX += breath * 0.03F;
+        //══════ 🐊 CAIMAN — AGILE RIVER HUNTER ══════
+        // IDENTITY: HIGHER walk than crocodile (croc = flat belly-drag).
+        // Caiman walks arched, alert, more nervous head movements.
+        // Quick, agile tail whips. Faster metabolism = more active.
+        // UNIQUE from Crocodile: Croc = flat, gape-mouth, death-roll specialist.
+        // Caiman = arched, alert, quick nervous hunter.
 
-        progressRotationPrev(rightArm, swimProgress, Maths.rad(75), 0, Maths.rad(60), 1F);
-        progressRotationPrev(leftArm, swimProgress, Maths.rad(75), 0, Maths.rad(-60), 1F);
-        progressRotationPrev(rightLeg, swimProgress, Maths.rad(75), 0, Maths.rad(60), 1F);
-        progressRotationPrev(leftLeg, swimProgress, Maths.rad(75), 0, Maths.rad(-60), 1F);
-        progressPositionPrev(head, swimAmount, 0, 2, 0, 1F);
-        progressPositionPrev(head, entity.holdProgress, 0, 0, 2, 5F);
-        progressPositionPrev(bottomJaw, grabProgress, 0, 1, 0, 5F);
-        progressRotationPrev(topJaw, grabProgress, Maths.rad(-15), 0, 0, 5F);
-        progressRotationPrev(bottomJaw, grabProgress, Maths.rad(25), 0, 0, 5F);
-        progressRotationPrev(head, sitProgress, Maths.rad(10), Maths.rad(-20), 0, 5F);
-        progressRotationPrev(body, sitProgress, 0, Maths.rad(10), 0, 5F);
-        progressPositionPrev(tail1, sitProgress, -1, 0, -1, 5F);
-        progressRotationPrev(tail1, sitProgress, 0, Maths.rad(40), 0, 5F);
-        progressRotationPrev(tail2, sitProgress, 0, Maths.rad(40), 0, 5F);
-        progressRotationPrev(tail3, sitProgress, 0, Maths.rad(50), 0, 5F);
+        // ── BREATHING: faster reptile metabolism than croc ──
+        float breath=Mth.cos(ageInTicks*0.11F);
+        body.setScale(1.0F,1.0F+breath*0.012F,1.0F);
+        body.rotationPointY+=breath*0.2F;
+        bottomJaw.rotateAngleX+=breath*0.02F;
 
-        this.bob(head, idleSpeed, idleDegree * 5, false, ageInTicks, 1.0F);
-        this.bob(body, 20, 0.5F, false, ageInTicks, vibrateProgress);
-        this.swing(body, 20, 0.04F, false, 3F, 0F, ageInTicks, vibrateProgress);
-        this.swing(head, 0.5F, 0.4F, true, 2, 0F, ageInTicks, grabProgress * 0.2F);
-        this.swing(body, 0.5F, 0.4F, false, 2, 0F, ageInTicks, grabProgress * 0.2F);
-        this.swing(tail1, 0.5F, 0.4F, false, 4, 0F, ageInTicks, grabProgress * 0.2F);
-        this.swing(tail2, 0.5F, 0.4F, false, 3, 0F, ageInTicks, grabProgress * 0.2F);
-        this.head.rotationPointX += walkValue(ageInTicks, grabProgress * 0.2F, 0.5F, 2F, 2, false);
+        // ── ARCHED POSTURE: caiman stays higher off ground than flat croc ──
+        // Body naturally arched upward, not dragging belly
+        if(limbSwingAmount<0.05F&&swimProgress<0.1F){
+            body.rotationPointY-=0.15F; // stays arched
+            head.rotateAngleX-=0.06F; // head slightly raised, alert
+        }
 
-        this.swing(tail1, idleSpeed, idleDegree, false, 3F, 0F, ageInTicks, 1.0F);
-        this.swing(tail2, idleSpeed, idleDegree, false, 2F, 0F, ageInTicks, 1.0F);
-        this.swing(tail3, idleSpeed, idleDegree, false, 1F, 0F, ageInTicks, 1.0F);
+        // ── NERVOUS HEAD: caiman constantly looks around ──
+        this.bob(head,idleSpeed,idleDegree*5,false,ageInTicks,1.0F);
+        if(limbSwingAmount<0.05F){
+            head.rotateAngleZ+=Mth.sin(ageInTicks*0.3F)*0.08F;
+            head.rotateAngleY+=Mth.sin(ageInTicks*0.25F+1F)*0.1F;
+        }
 
-        this.flap(body, walkSpeed, walkDegree * 0.1F, true, 1F, 0F, limbSwing, walkAmount);
-        this.flap(head, walkSpeed, walkDegree * 0.1F, false, 1F, 0F, limbSwing, walkAmount);
-        this.flap(leftLeg, walkSpeed, walkDegree * 0.1F, false, 1F, 0F, limbSwing, walkAmount);
-        this.flap(rightLeg, walkSpeed, walkDegree * 0.1F, false, 1F, 0F, limbSwing, walkAmount);
-        this.flap(leftArm, walkSpeed, walkDegree * 0.1F, false, 1F, 0F, limbSwing, walkAmount);
-        this.flap(rightArm, walkSpeed, walkDegree * 0.1F, false, 1F, 0F, limbSwing, walkAmount);
-        this.flap(tail1, walkSpeed, walkDegree * 0.1F, true, -1F, 0F, limbSwing, walkAmount);
-        this.swing(tail1, walkSpeed, walkDegree * 0.3F, false, 0F, 0F, limbSwing, walkAmount);
-        this.swing(tail2, walkSpeed, walkDegree * 0.3F, false, 1F, 0F, limbSwing, walkAmount);
-        this.swing(tail3, walkSpeed, walkDegree * 0.3F, false, -1F, 0F, limbSwing, walkAmount);
-        this.bob(head, walkSpeed, walkDegree * -1, false, limbSwing, walkAmount);
+        // ── VIBRATE ──
+        this.bob(body,2.0F,0.5F,false,ageInTicks,vibrateProgress);
+        this.swing(body,20,0.04F,false,3F,0F,ageInTicks,vibrateProgress);
+        this.swing(head,0.5F,0.4F,true,2,0F,ageInTicks,grabProgress*0.2F);
+        this.swing(body,0.5F,0.4F,false,2,0F,ageInTicks,grabProgress*0.2F);
+        this.swing(tail1,0.5F,0.4F,false,4,0F,ageInTicks,grabProgress*0.2F);
+        this.swing(tail2,0.5F,0.4F,false,3,0F,ageInTicks,grabProgress*0.2F);
+        this.head.rotationPointX+=walkValue(ageInTicks,grabProgress*0.2F,0.5F,2F,2,false);
 
-        float bodyBob = walkValue(limbSwing, walkAmount, walkSpeed, 0.5F, 1F, true) - walkAmount * 2;
-        this.body.rotationPointY += bodyBob;
+        // ── TAIL: quick side-to-side whip (faster than croc) ──
+        this.swing(tail1,idleSpeed*1.5F,idleDegree,false,3F,0F,ageInTicks,1.0F);
+        this.swing(tail2,idleSpeed*1.5F,idleDegree*1.2F,false,2F,0F,ageInTicks,1.0F);
+        this.swing(tail3,idleSpeed*1.5F,idleDegree*1.3F,false,1F,0F,ageInTicks,1.0F);
 
-        this.walk(leftArm, walkSpeed, walkDegree * 0.4F, true, 0F, 0F, limbSwing, walkAmount);
-        this.walk(leftHand, walkSpeed, walkDegree * 0.2F, true, -3F, 0.1F, limbSwing, walkAmount);
-        leftArm.rotationPointY += Math.min(0, walkValue(limbSwing, walkAmount, walkSpeed, -1.5F, 3, false)) - bodyBob;
-        leftArm.rotationPointZ += walkValue(limbSwing, walkAmount, walkSpeed, -1.5F, walkDegree * 3, false);
-        leftHand.rotationPointY += Math.min(0, walkValue(limbSwing, walkAmount, walkSpeed, -2.5F, walkDegree * 1F, true));
+        // ── WALK: higher, more agile than crocodile's belly-drag ──
+        this.flap(body,walkSpeed,walkDegree*0.1F,true,1F,0F,limbSwing,walkAmount);
+        this.flap(head,walkSpeed,walkDegree*0.1F,false,1F,0F,limbSwing,walkAmount);
+        this.flap(leftLeg,walkSpeed,walkDegree*0.1F,false,1F,0F,limbSwing,walkAmount);
+        this.flap(rightLeg,walkSpeed,walkDegree*0.1F,false,1F,0F,limbSwing,walkAmount);
+        this.flap(leftArm,walkSpeed,walkDegree*0.1F,false,1F,0F,limbSwing,walkAmount);
+        this.flap(rightArm,walkSpeed,walkDegree*0.1F,false,1F,0F,limbSwing,walkAmount);
+        this.flap(tail1,walkSpeed,walkDegree*0.1F,true,-1F,0F,limbSwing,walkAmount);
+        this.swing(tail1,walkSpeed,walkDegree*0.35F,false,0F,0F,limbSwing,walkAmount);
+        this.swing(tail2,walkSpeed,walkDegree*0.35F,false,1F,0F,limbSwing,walkAmount);
+        this.swing(tail3,walkSpeed,walkDegree*0.35F,false,-1F,0F,limbSwing,walkAmount);
+        this.bob(head,walkSpeed,walkDegree*-1,false,limbSwing,walkAmount);
 
-        this.walk(rightArm, walkSpeed, walkDegree * 0.4F, false, 0F, 0F, limbSwing, walkAmount);
-        this.walk(rightHand, walkSpeed, walkDegree * 0.2F, false, -3F, -0.1F, limbSwing, walkAmount);
-        rightArm.rotationPointY += Math.min(0, walkValue(limbSwing, walkAmount, walkSpeed, -1.5F, 3, true)) - bodyBob;
-        rightArm.rotationPointZ += walkValue(limbSwing, walkAmount, walkSpeed, -1.5F, walkDegree * 3, true);
-        rightHand.rotationPointY += Math.min(0, walkValue(limbSwing, walkAmount, walkSpeed, -2.5F, walkDegree * 1F, false));
+        float bodyBob=walkValue(limbSwing,walkAmount,walkSpeed,0.5F,1F,true)-walkAmount*2;
+        this.body.rotationPointY+=bodyBob;
 
-        this.walk(leftLeg, walkSpeed, walkDegree * 0.3F, false, 1F, 0F, limbSwing, walkAmount);
-        this.walk(leftFoot, walkSpeed, walkDegree * 0.2F, false, -2F, -0.1F, limbSwing, walkAmount);
-        leftLeg.rotationPointY += Math.min(0, walkValue(limbSwing, walkAmount, walkSpeed, -0.5F, 3, true)) - bodyBob;
-        leftLeg.rotationPointZ += walkValue(limbSwing, walkAmount, walkSpeed, -0.5F, walkDegree * 3, true);
-        leftLeg.rotationPointY += Math.min(0, walkValue(limbSwing, walkAmount, walkSpeed, -2F, walkDegree * 0.5F, false));
+        // ── LEGS: caiman walks with more lift, less splay than croc ──
+        this.walk(leftArm,walkSpeed,walkDegree*0.4F,true,0F,0F,limbSwing,walkAmount);
+        this.walk(leftHand,walkSpeed,walkDegree*0.2F,true,-3F,0.1F,limbSwing,walkAmount);
+        leftArm.rotationPointY+=Math.min(0,walkValue(limbSwing,walkAmount,walkSpeed,-1.5F,3,false))-bodyBob;
+        leftArm.rotationPointZ+=walkValue(limbSwing,walkAmount,walkSpeed,-1.5F,walkDegree*3,false);
+        leftHand.rotationPointY+=Math.min(0,walkValue(limbSwing,walkAmount,walkSpeed,-2.5F,walkDegree*1F,true));
 
-        this.walk(rightLeg, walkSpeed, walkDegree * 0.3F, true, 1F, 0F, limbSwing, walkAmount);
-        this.walk(rightFoot, walkSpeed, walkDegree * 0.2F, true, -2F, 0.1F, limbSwing, walkAmount);
-        rightLeg.rotationPointY += Math.min(0, walkValue(limbSwing, walkAmount, walkSpeed, -0.5F, 3, false)) - bodyBob;
-        rightLeg.rotationPointZ += walkValue(limbSwing, walkAmount, walkSpeed, -0.5F, walkDegree * 3, false);
-        rightFoot.rotationPointY += Math.min(0, walkValue(limbSwing, walkAmount, walkSpeed, -2F, walkDegree * 0.5F, true));
+        this.walk(rightArm,walkSpeed,walkDegree*0.4F,false,0F,0F,limbSwing,walkAmount);
+        this.walk(rightHand,walkSpeed,walkDegree*0.2F,false,-3F,-0.1F,limbSwing,walkAmount);
+        rightArm.rotationPointY+=Math.min(0,walkValue(limbSwing,walkAmount,walkSpeed,-1.5F,3,true))-bodyBob;
+        rightArm.rotationPointZ+=walkValue(limbSwing,walkAmount,walkSpeed,-1.5F,walkDegree*3,true);
+        rightHand.rotationPointY+=Math.min(0,walkValue(limbSwing,walkAmount,walkSpeed,-2.5F,walkDegree*1F,false));
 
-        this.walk(rightArm, swimSpeed, swimDegree, false, 0F, -0.25F, limbSwing, swimAmount);
-        this.walk(leftArm, swimSpeed, swimDegree, false, 0F, -0.25F, limbSwing, swimAmount);
-        this.walk(rightLeg, swimSpeed, swimDegree, true, 0F, 0.25F, limbSwing, swimAmount);
-        this.walk(leftLeg, swimSpeed, swimDegree, true, 0F, 0.25F, limbSwing, swimAmount);
-        this.swing(body, swimSpeed, swimDegree * 0.4F, false, 1.5F, 0F, limbSwing, swimAmount);
-        this.swing(head, swimSpeed, swimDegree * 0.1F, true, 2F, 0F, limbSwing, swimAmount);
-        this.chainSwing(new AdvancedModelBox[]{tail1, tail2, tail3}, swimSpeed, swimDegree * 1.0F, -2.5F, limbSwing, swimAmount);
+        this.walk(leftLeg,walkSpeed,walkDegree*0.3F,false,1F,0F,limbSwing,walkAmount);
+        this.walk(leftFoot,walkSpeed,walkDegree*0.2F,false,-2F,-0.1F,limbSwing,walkAmount);
+        leftLeg.rotationPointY+=Math.min(0,walkValue(limbSwing,walkAmount,walkSpeed,-0.5F,3,true))-bodyBob;
+        leftLeg.rotationPointZ+=walkValue(limbSwing,walkAmount,walkSpeed,-0.5F,walkDegree*3,true);
+        leftLeg.rotationPointY+=Math.min(0,walkValue(limbSwing,walkAmount,walkSpeed,-2F,walkDegree*0.5F,false));
+
+        this.walk(rightLeg,walkSpeed,walkDegree*0.3F,true,1F,0F,limbSwing,walkAmount);
+        this.walk(rightFoot,walkSpeed,walkDegree*0.2F,true,-2F,0.1F,limbSwing,walkAmount);
+        rightLeg.rotationPointY+=Math.min(0,walkValue(limbSwing,walkAmount,walkSpeed,-0.5F,3,false))-bodyBob;
+        rightLeg.rotationPointZ+=walkValue(limbSwing,walkAmount,walkSpeed,-0.5F,walkDegree*3,false);
+        rightFoot.rotationPointY+=Math.min(0,walkValue(limbSwing,walkAmount,walkSpeed,-2F,walkDegree*0.5F,true));
+
+        // ── SWIM: faster, more agile than croc ──
+        this.walk(rightArm,swimSpeed,swimDegree,false,0F,-0.25F,limbSwing,swimAmount);
+        this.walk(leftArm,swimSpeed,swimDegree,false,0F,-0.25F,limbSwing,swimAmount);
+        this.walk(rightLeg,swimSpeed,swimDegree,true,0F,0.25F,limbSwing,swimAmount);
+        this.walk(leftLeg,swimSpeed,swimDegree,true,0F,0.25F,limbSwing,swimAmount);
+        this.swing(body,swimSpeed,swimDegree*0.4F,false,1.5F,0F,limbSwing,swimAmount);
+        this.swing(head,swimSpeed,swimDegree*0.1F,true,2F,0F,limbSwing,swimAmount);
+        // Caiman chainSwing faster, tighter amplitude than croc
+        this.chainSwing(new AdvancedModelBox[]{tail1,tail2,tail3},swimSpeed,swimDegree*1.2F,-2.5F,limbSwing,swimAmount);
+
+        // ── TRANSITIONS ──
+        progressRotationPrev(rightArm,swimProgress,Maths.rad(75),0,Maths.rad(60),1F);
+        progressRotationPrev(leftArm,swimProgress,Maths.rad(75),0,Maths.rad(-60),1F);
+        progressRotationPrev(rightLeg,swimProgress,Maths.rad(75),0,Maths.rad(60),1F);
+        progressRotationPrev(leftLeg,swimProgress,Maths.rad(75),0,Maths.rad(-60),1F);
+        progressPositionPrev(head,swimAmount,0,2,0,1F);
+        progressPositionPrev(head,entity.holdProgress,0,0,2,5F);
+        progressPositionPrev(bottomJaw,grabProgress,0,1,0,5F);
+        progressRotationPrev(topJaw,grabProgress,Maths.rad(-15),0,0,5F);
+        progressRotationPrev(bottomJaw,grabProgress,Maths.rad(25),0,0,5F);
+        progressRotationPrev(head,sitProgress,Maths.rad(10),Maths.rad(-20),0,5F);
+        progressRotationPrev(body,sitProgress,0,Maths.rad(10),0,5F);
+        progressPositionPrev(tail1,sitProgress,-1,0,-1,5F);
+        progressRotationPrev(tail1,sitProgress,0,Maths.rad(40),0,5F);
+        progressRotationPrev(tail2,sitProgress,0,Maths.rad(40),0,5F);
+        progressRotationPrev(tail3,sitProgress,0,Maths.rad(50),0,5F);
 
         this.faceTarget(netHeadYaw, headPitch, 1.0F, head);
     }

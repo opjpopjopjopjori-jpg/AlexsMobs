@@ -154,6 +154,9 @@ public class ModelLaviathan extends AdvancedEntityModel<EntityLaviathan> {
                                 @Override
     public void setupAnim(EntityLaviathan entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.resetToDefaultPose();
+        //══════ 🐉 LAVIATHAN — LAVA SERPENT ══════
+        // IDENTITY: Magma snake. Undulates through lava.
+        // Heat shimmer. Segments ripple with molten energy.
         float partialTick = Minecraft.getInstance().getFrameTime();
         float hh1 = entity.prevHeadHeight;
         float hh2 = entity.getHeadHeight();
@@ -187,7 +190,7 @@ public class ModelLaviathan extends AdvancedEntityModel<EntityLaviathan> {
         float idleSpeed = 0.04f;
         float idleDegree = 0.3f;
         float walkSpeed = 0.9F;
-        if(entity.swimProgress >= 5F){
+        if(swimProgress >= 4.99F){
             walkSpeed = 0.3F;
         }
         float walkDegree = 0.5F + swimProgress * 0.05F;
@@ -211,6 +214,25 @@ public class ModelLaviathan extends AdvancedEntityModel<EntityLaviathan> {
         this.flap(leftArm, idleSpeed, idleDegree, false, 1, 0.2F, ageInTicks, swimProgress * 0.2F);
         this.flap(rightArm, idleSpeed, idleDegree, true, 1, 0.2F, ageInTicks, swimProgress * 0.2F);
         this.tail.rotationPointZ -= limbSwingAmount * swimProgress * 0.2F;
+        // AAA MEGAFAUNA BREATHING + HEAT VENT PULSE + MAGMA SHIMMER
+        float breath = Mth.cos(ageInTicks * 0.04F);
+        body.setScale(1.0F+breath*0.02F, 1.0F+breath*0.03F, 1.0F);
+        body.rotationPointY += breath * 0.3F;
+        shell.rotationPointY += breath * 0.15F;
+        // Heat vents pulse with magma energy (each at different phase)
+        vent1.rotateAngleZ += Mth.sin(ageInTicks * 0.12F) * 0.12F;
+        vent2.rotateAngleX += Mth.sin(ageInTicks * 0.10F + 0.8F) * 0.10F;
+        vent3.rotateAngleZ -= Mth.sin(ageInTicks * 0.14F + 1.5F) * 0.09F;
+        vent4.rotateAngleX -= Mth.sin(ageInTicks * 0.11F + 2.2F) * 0.11F;
+        // Jaw heat-exhaust micro-gape
+        top_jaw.rotateAngleX -= breath * 0.03F;
+        bottom_jaw.rotateAngleX += breath * 0.03F;
+        // Second undulation dimension for convection shimmer
+        AdvancedModelBox[] lavaChain = {body, tail};
+        this.chainFlap(lavaChain, walkSpeed * 0.55F, walkDegree * 0.18F, -1.5F, limbSwing, limbSwingAmount * swimProgress * 0.2F);
+        // Shell heat-shimmer ripple
+        shell.rotateAngleZ += Mth.sin(ageInTicks * 0.09F) * 0.04F;
+        shell.rotateAngleX += Mth.sin(ageInTicks * 0.07F + 0.8F) * 0.03F;
     }
 
     @Override

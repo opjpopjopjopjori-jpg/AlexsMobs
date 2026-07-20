@@ -82,6 +82,7 @@ public class ModelRainFrog extends AdvancedEntityModel<EntityRainFrog> {
     public Iterable<AdvancedModelBox> getAllParts() {
         return ImmutableList.of(root, body, right_eye, left_eye, right_arm, left_arm, right_leg, left_leg, tongue);
     }
+
     public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
         if (this.young) {
             float f = 1.25F;
@@ -105,13 +106,18 @@ public class ModelRainFrog extends AdvancedEntityModel<EntityRainFrog> {
             });
             matrixStackIn.popPose();
         }
-
     }
 
 
     @Override
-    public void setupAnim(EntityRainFrog entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
+    public void setupAnim(EntityRainFrog entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.resetToDefaultPose();
+        //══════ 🐸 RAIN FROG — HOPPING SQUEAKING BURROWER ══════
+        // IDENTITY: Synchronized lateral hop (not walk). Rear legs push
+        // together, front arms catch. Squeaks with body inflation. Burrows
+        // backward with leg-scrape. Grumpy head-tilt at idle.
+        // UNIQUE vs WarpedToad (hopping tongue-shooter, active predator).
+
         float walkSpeed = young ? 1F : 2.3F;
         float walkDegree = 1;
         float digSpeed = 0.8f;
@@ -123,8 +129,10 @@ public class ModelRainFrog extends AdvancedEntityModel<EntityRainFrog> {
         float danceProgress = entity.prevDanceProgress + (entity.danceProgress - entity.prevDanceProgress) * partialTick;
         float attackProgress = entity.prevAttackProgress + (entity.attackProgress - entity.prevAttackProgress) * partialTick;
         float stanceProgress = entity.prevStanceProgress + (entity.stanceProgress - entity.prevStanceProgress) * partialTick;
-        float blinkAmount = Math.max(0, ((float)Math.sin(ageInTicks * 0.1F) - 0.5F) * 2F) * (5f - stanceProgress) * 0.2F;
-        float digAmount = Mth.clamp((float)Math.sin(burrowProgress * Math.PI / 5F), 0, 1F);
+        float blinkAmount = Math.max(0, ((float) Math.sin(ageInTicks * 0.1F) - 0.5F) * 2F) * (5f - stanceProgress) * 0.2F;
+        float digAmount = Mth.clamp((float) Math.sin(burrowProgress * Math.PI / 5F), 0, 1F);
+
+        // ── State transitions (preserved) ──────────────────────────
         progressPositionPrev(right_eye, blinkAmount, 0F, 0.9F, 0.1F, 1f);
         progressPositionPrev(left_eye, blinkAmount, 0F, 0.9F, 0.1F, 1f);
         progressPositionPrev(body, danceProgress, 0F, -2F, 0F, 5f);
@@ -147,18 +155,40 @@ public class ModelRainFrog extends AdvancedEntityModel<EntityRainFrog> {
         progressPositionPrev(right_arm, stanceProgress, 0F, 2F, 0F, 5f);
         progressPositionPrev(left_eye, stanceProgress, 0F, -1, 0F, 5f);
         progressPositionPrev(right_eye, stanceProgress, 0F, -1, 0F, 5f);
-        this.body.setScale(1F + stanceProgress * 0.025F, 1F + stanceProgress * 0.075F, 1F + stanceProgress * 0.025F);
+
+        // ── AAA SQUEAK INFLATION: Rapid body pulse during stance ──
+        float squeakPulse = Mth.abs(Mth.sin(ageInTicks * 1.8F)) * stanceProgress * 0.2F;
+        this.body.setScale(1F + stanceProgress * 0.025F + squeakPulse * 0.05F, 
+                           1F + stanceProgress * 0.075F + squeakPulse * 0.1F, 
+                           1F + stanceProgress * 0.025F + squeakPulse * 0.05F);
+
+        // ── AAA BACKWARD BURROW: Leg scrape ───────────────────────
         this.swing(body, digSpeed, digDegree * 0.5F, false, 3F, 0F, ageInTicks, digAmount);
-        this.walk(right_arm, digSpeed, digDegree, false, -1.5F, -0.2F, ageInTicks, digAmount);
-        this.walk(left_arm, digSpeed, digDegree, false, -1.5F, -0.2F, ageInTicks, digAmount);
-        this.walk(right_leg, digSpeed, digDegree, false, -1.5F, 0.2F, ageInTicks, digAmount);
-        this.walk(left_leg, digSpeed, digDegree, false, -1.5F, 0.2F, ageInTicks, digAmount);
-        this.flap(body, walkSpeed, walkDegree * 0.35F, false, 0F, 0F, limbSwing, limbSwingAmount);
-        this.swing(body, walkSpeed, walkDegree * 0.35F, false, 1F, 0F, limbSwing, limbSwingAmount);
-        this.walk(left_arm, walkSpeed, walkDegree * 1.2F, false, -2.5F, -0.2F, limbSwing, limbSwingAmount);
-        this.walk(right_arm, walkSpeed, walkDegree * 1.2F, true, -2.5F, 0.2F, limbSwing, limbSwingAmount);
-        this.walk(right_leg, walkSpeed, walkDegree, false, -2.5F, 0.3F, limbSwing, limbSwingAmount);
-        this.walk(left_leg, walkSpeed, walkDegree, true, -2.5F, -0.3F, limbSwing, limbSwingAmount);
+        this.walk(right_arm, digSpeed, digDegree * 0.6F, false, -1.5F, -0.15F, ageInTicks, digAmount);
+        this.walk(left_arm, digSpeed, digDegree * 0.6F, false, -1.5F, -0.15F, ageInTicks, digAmount);
+        // Backward kick — legs scrape soil rearward during burrow
+        this.walk(right_leg, digSpeed, digDegree * 1.2F, false, 1.5F, 0.3F, ageInTicks, digAmount);
+        this.walk(left_leg, digSpeed, digDegree * 1.2F, false, 1.5F, 0.3F, ageInTicks, digAmount);
+        left_leg.rotationPointZ += Mth.sin(ageInTicks * 1.2F) * 2F * digAmount;
+        right_leg.rotationPointZ += Mth.sin(ageInTicks * 1.2F) * 2F * digAmount;
+
+        // ── AAA LATERAL HOP: Synchronized rear-leg push ────────────
+        // Both rear legs push together (NOT alternating)
+        // Both front arms catch together (NOT alternating)
+        float hopSwing = Mth.sin(limbSwing * walkSpeed);
+        float hopPush = Mth.clamp(hopSwing, 0F, 1F);
+        this.flap(body, walkSpeed, walkDegree * 0.4F, false, 0F, 0F, limbSwing, limbSwingAmount);
+        this.swing(body, walkSpeed, walkDegree * 0.4F, false, 1F, 0F, limbSwing, limbSwingAmount);
+        // Rear legs — synchronized push (both push together)
+        this.swing(left_leg, walkSpeed, walkDegree * 1.4F, false, 0F, -0.3F, limbSwing, limbSwingAmount);
+        this.swing(right_leg, walkSpeed, walkDegree * 1.4F, true, 0F, -0.3F, limbSwing, limbSwingAmount);
+        // Front arms — synchronized catch (both catch together, opposite phase)
+        this.swing(left_arm, walkSpeed, walkDegree * 0.8F, true, 1.8F, 0.2F, limbSwing, limbSwingAmount);
+        this.swing(right_arm, walkSpeed, walkDegree * 0.8F, false, 1.8F, 0.2F, limbSwing, limbSwingAmount);
+        // Body bobs up during push-off, down during landing
+        this.bob(body, walkSpeed, walkDegree * 4F, false, limbSwing, limbSwingAmount);
+
+        // Leg/arm ground-contact compensation (preserved)
         float leftLegS = (float) (Math.sin((double) (limbSwing * walkSpeed) - 2.5F) * (double) limbSwingAmount * (double) walkDegree - (double) (limbSwingAmount * walkDegree));
         float rightLegS = (float) (Math.sin(-(double) (limbSwing * walkSpeed) + 2.5F) * (double) limbSwingAmount * (double) walkDegree - (double) (limbSwingAmount * walkDegree));
         this.left_leg.rotationPointY += 1.5F * leftLegS;
@@ -169,16 +199,31 @@ public class ModelRainFrog extends AdvancedEntityModel<EntityRainFrog> {
         this.left_arm.rotationPointY += 1.5F * rightLegS;
         this.right_arm.rotationPointZ += 1F * leftLegS;
         this.left_arm.rotationPointZ += 1F * rightLegS;
+
+        // ── AAA GRUMPY IDLE HEAD-TILT ─────────────────────────────
+        // Body IS head — no separate head bone. Slow subtle tilt.
+        body.rotateAngleZ += Mth.sin(ageInTicks * 0.05F) * 0.06F;
+
+        // ── Dance state (preserved) ────────────────────────────────
         this.swing(body, danceSpeed, danceDegree * 0.5F, false, 1F, 0F, ageInTicks, danceProgress * 0.2F);
         this.walk(body, danceSpeed, danceDegree * 0.5F, false, 3F, -0.4F, ageInTicks, danceProgress * 0.2F);
         this.flap(right_arm, danceSpeed, danceDegree, false, 0F, 0.3F, ageInTicks, danceProgress * 0.2F);
         this.flap(left_arm, danceSpeed, danceDegree, true, 0F, 0.3F, ageInTicks, danceProgress * 0.2F);
+
+        // Leg stabilization (preserved)
         this.left_leg.rotateAngleX -= 1 * body.rotateAngleX;
         this.left_leg.rotateAngleY -= 1 * body.rotateAngleY;
         this.left_leg.rotateAngleZ -= 1 * body.rotateAngleZ;
         this.right_leg.rotateAngleX -= 1 * body.rotateAngleX;
         this.right_leg.rotateAngleY -= 1 * body.rotateAngleY;
         this.right_leg.rotateAngleZ -= 1 * body.rotateAngleZ;
+
+        // ── AAA AMPHIBIAN BREATHING ────────────────────────────────
+        float breath = Mth.cos(ageInTicks * 0.11F);
+        body.rotationPointY += breath * 0.09F;
+        body.setScale(body.getScaleX(), 1.0F + breath * 0.05F, body.getScaleZ());
+        left_eye.rotationPointY += breath * 0.02F;
+        right_eye.rotationPointY += breath * 0.02F;
     }
 
 

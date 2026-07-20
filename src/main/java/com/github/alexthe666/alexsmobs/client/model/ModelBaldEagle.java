@@ -202,49 +202,82 @@ public class ModelBaldEagle extends AdvancedEntityModel<EntityBaldEagle> {
         progressRotationPrev(head, swoopProgress, Maths.rad(-10), 0, 0, 5F);
         progressRotationPrev(head, biteProgress, Maths.rad(70), 0, 0, 2.5F);
 
-        // Procedural Avian Breathing (Chest expansion in flight / perch)
-        float breath = Maths.cos(ageInTicks * 0.12F);
-        body.rotationPointY += breath * 0.25F;
+        //══════ 🦅 BALD EAGLE — MAJESTIC SOARING RAPTOR ══════
+        // IDENTITY: Eagles SOAR 80% of flight time — wings spread wide,
+        // riding thermals in lazy circles. Head scans BELOW for prey.
+        // Landing: talons forward, wings spread. Ground: regal strut.
+        // UNIQUE from Sunbird: Eagle = soaring glider. Sunbird = hovering flame.
 
-        if(flyProgress > 0){
-            this.bob(body, flapSpeed * 0.5F, flapDegree * 4, true, ageInTicks, 1);
-            this.swing(wingL, flapSpeed, flapDegree * 3, true, 0F, 0F, ageInTicks, flapAmount);
-            this.swing(wingR, flapSpeed, flapDegree * 3, false, 0F, 0F, ageInTicks, flapAmount);
-            this.bob(body, flapSpeed * 0.5F, flapDegree * 4, true, ageInTicks, flapAmount);
+        // ── BREATHING: measured, regal ──
+        float breath=Mth.cos(ageInTicks*0.1F);
+        body.setScale(1.0F,1.0F+breath*0.015F,1.0F);
+        body.rotationPointY+=breath*0.15F;
 
-            // Wingtip secondary motion / flexibility during flight flapping
-            float wingTipLag = Maths.sin(ageInTicks * flapSpeed) * 0.35F * flyProgress;
-            tipL.rotateAngleZ += wingTipLag;
-            tipR.rotateAngleZ -= wingTipLag;
-        }else{
-            float walk = Math.min(limbSwingAmount, 1F);
-            progressRotationPrev(body, walk, Maths.rad(15), 0, 0, 1);
-            progressRotationPrev(legL, walk, Maths.rad(-15), 0, 0, 1);
-            progressRotationPrev(legR, walk, Maths.rad(-15), 0, 0, 1);
-            progressRotationPrev(wingL, walk, Maths.rad(-15), 0, 0, 1);
-            progressRotationPrev(wingR, walk, Maths.rad(-15), 0, 0, 1);
-            progressPositionPrev(body, walk, 0, 1, 0, 1);
-            this.bob(body, walkSpeed, walkDegree * 1.3F, true, limbSwing, limbSwingAmount);
-            this.walk(legL, walkSpeed, walkDegree * 1.85F, false, 0F, 0.2F, limbSwing, limbSwingAmount);
-            this.walk(legR, walkSpeed, walkDegree * 1.85F, true, 0F, 0.2F, limbSwing, limbSwingAmount);
-            this.walk(footL, walkSpeed, walkDegree * 0.4F, true, 2F, 0.2F, limbSwing, limbSwingAmount);
-            this.walk(footR, walkSpeed, walkDegree * 0.4F, false, 2F, 0.2F, limbSwing, limbSwingAmount);
-            this.walk(head, walkSpeed, walkDegree * 0.3F, false, 1F, -0.2F, limbSwing, limbSwingAmount);
-            this.flap(tail, walkSpeed, walkDegree * 0.2F, false, 1F, 0F, limbSwing, limbSwingAmount);
-            this.flap(body, walkSpeed, walkDegree * 0.2F, false, 0F, 0F, limbSwing, limbSwingAmount);
+        // ── HEAD SCANS BELOW: eagle surveys ground for prey ──
+        this.walk(head,idleSpeed*0.7F,idleDegree,false,-1F,0.05F,ageInTicks,1);
+        this.walk(tail,idleSpeed*0.7F,idleDegree,false,1F,0.05F,ageInTicks,1);
+        // Slow thermal-seeking head rotation
+        if(limbSwingAmount<0.05F&&flyProgress<0.1F){
+            head.rotateAngleX+=Mth.sin(ageInTicks*0.15F)*0.08F;
+            head.rotateAngleZ+=Mth.sin(ageInTicks*0.12F+1F)*0.05F;
         }
 
-        // Natural perching idle head and tail stabilization
-        this.walk(head, idleSpeed * 0.7F, idleDegree, false, -1F, 0.05F, ageInTicks, 1);
-        this.walk(tail, idleSpeed * 0.7F, idleDegree, false, 1F, 0.05F, ageInTicks, 1);
+        if(flyProgress>0){
+            // ── SOARING: wide wings, slow powerful flaps, thermal circling ──
+            // Eagles flap only ~30% of flight time; the rest is soaring
+            float soarCycle=Mth.sin(ageInTicks*0.035F); // slow thermal bank
+            float flapPulse=Mth.abs(Mth.sin(ageInTicks*flapSpeed))*flapAmount;
+
+            // Wings: wide, slow, majestic flaps — NOT hummingbird speed
+            this.swing(wingL,flapSpeed,flapDegree*3,true,0F,0F,ageInTicks,flapAmount);
+            this.swing(wingR,flapSpeed,flapDegree*3,false,0F,0F,ageInTicks,flapAmount);
+            this.bob(body,flapSpeed*0.5F,flapDegree*4,true,ageInTicks,flapAmount);
+
+            // THERMAL CIRCLING: body banks in wide circles
+            body.rotateAngleZ+=soarCycle*0.15F*flyProgress;
+            wingL.rotateAngleZ+=soarCycle*0.1F*flyProgress;
+            wingR.rotateAngleZ-=soarCycle*0.1F*flyProgress;
+
+            // Wingtip flexibility: feathers spread and adjust to air currents
+            float wingTipLag=Mth.sin(ageInTicks*flapSpeed)*0.35F*flyProgress;
+            tipL.rotateAngleZ+=wingTipLag;
+            tipR.rotateAngleZ-=wingTipLag;
+            // Wingtip feathers ripple during soaring
+            this.flap(tipL,0.25F,0.04F,true,0F,0,ageInTicks,flyProgress);
+            this.flap(tipR,0.25F,0.04F,false,0F,0,ageInTicks,flyProgress);
+
+            // Feet tuck during flight
+            legL.rotationPointZ-=flyProgress*0.5F;legR.rotationPointZ-=flyProgress*0.5F;
+        }else if(perchProgress>0.1F){
+            // ── PERCHING: majestic upright pose, surveying ──
+            this.walk(head,idleSpeed*0.5F,idleDegree*0.6F,false,-1F,0.03F,ageInTicks,1);
+            this.flap(tail,idleSpeed*0.4F,idleDegree*0.4F,false,0F,0,ageInTicks,1);
+        }else{
+            // ── GROUND: regal strut — deliberate, confident ──
+            float walk=Math.min(limbSwingAmount,1F);
+            progressRotationPrev(body,walk,Maths.rad(15),0,0,1);
+            progressRotationPrev(legL,walk,Maths.rad(-15),0,0,1);
+            progressRotationPrev(legR,walk,Maths.rad(-15),0,0,1);
+            progressRotationPrev(wingL,walk,Maths.rad(-15),0,0,1);
+            progressRotationPrev(wingR,walk,Maths.rad(-15),0,0,1);
+            progressPositionPrev(body,walk,0,1,0,1);
+            this.bob(body,walkSpeed,walkDegree*1.3F,true,limbSwing,limbSwingAmount);
+            this.walk(legL,walkSpeed,walkDegree*1.85F,false,0F,0.2F,limbSwing,limbSwingAmount);
+            this.walk(legR,walkSpeed,walkDegree*1.85F,true,0F,0.2F,limbSwing,limbSwingAmount);
+            this.walk(footL,walkSpeed,walkDegree*0.4F,true,2F,0.2F,limbSwing,limbSwingAmount);
+            this.walk(footR,walkSpeed,walkDegree*0.4F,false,2F,0.2F,limbSwing,limbSwingAmount);
+            this.walk(head,walkSpeed,walkDegree*0.3F,false,1F,-0.2F,limbSwing,limbSwingAmount);
+            this.flap(tail,walkSpeed,walkDegree*0.2F,false,1F,0F,limbSwing,limbSwingAmount);
+            this.flap(body,walkSpeed,walkDegree*0.2F,false,0F,0F,limbSwing,limbSwingAmount);
+        }
 
         if(!entity.isVehicle()){
-            head.rotateAngleY += netHeadYaw * 0.5F * Mth.DEG_TO_RAD;
-            head.rotateAngleZ += headPitch * 0.5F * Mth.DEG_TO_RAD;
+            head.rotateAngleY+=netHeadYaw*0.5F*Mth.DEG_TO_RAD;
+            head.rotateAngleX+=headPitch*0.5F*Mth.DEG_TO_RAD;
         }
 
-        float birdPitch = entity.prevBirdPitch + (entity.birdPitch - entity.prevBirdPitch) * partialTicks;
-        this.body.rotateAngleX += birdPitch * flyProgress * 0.2F * Mth.DEG_TO_RAD;
+        float birdPitch=entity.prevBirdPitch+(entity.birdPitch-entity.prevBirdPitch)*partialTicks;
+        this.body.rotateAngleX+=birdPitch*flyProgress*0.2F*Mth.DEG_TO_RAD;
     }
 
     @Override

@@ -110,8 +110,11 @@ public class ModelAlligatorSnappingTurtle extends AdvancedEntityModel<EntityAlli
 
     @Override
     public void setupAnim(EntityAlligatorSnappingTurtle entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        // MANDATORY: Always reset to default pose first to prevent angle accumulation (AAA Animation Rule)
         this.resetToDefaultPose();
+        //══════ 🐢 ALLIGATOR SNAPPING TURTLE — LURE-TONGUE AMBUSH PREDATOR ══════
+        // IDENTITY: Ancient armored ambusher. Tongue is a WORM-SHAPED LURE
+        // that wiggles to attract fish. Then EXPLOSIVE snap. Spiked shell.
+        // UNIQUE vs Terrapin (gentle swimmer), WarpedToad (hopping tongue-shooter).
 
         // Biomechanical constants for heavy reptile physics & weight transfer
         float idleSpeed = 0.06F;
@@ -140,6 +143,8 @@ public class ModelAlligatorSnappingTurtle extends AdvancedEntityModel<EntityAlli
         // Procedural Idle Breathing (Subtle chest and neck expansion reflecting massive reptile metabolism)
         float breathCycle = Maths.cos(ageInTicks * 0.08F);
         body.rotationPointY += breathCycle * 0.3F;
+        shell.setScale(1.0F+breathCycle*0.01F,1.0F+breathCycle*0.01F,1.0F+breathCycle*0.01F);
+        body.setScale(1.0F+breathCycle*0.015F,1.0F,1.0F+breathCycle*0.015F);
         neck.rotateAngleX += breathCycle * 0.03F;
 
         // Secondary Motion & Inertia: Tail follows body movement with phase lag
@@ -158,7 +163,7 @@ public class ModelAlligatorSnappingTurtle extends AdvancedEntityModel<EntityAlli
             this.bob(body, walkSpeed * 2.0F, walkDegree * 1.5F, true, limbSwing, limbSwingAmount);
             
             // Tail counter-steering during locomotion
-            this.swing(tail, walkSpeed * 1.35F, walkDegree * 1.2F, false, 3.0F, 0F, limbSwing, limbSwingAmount);
+            this.swing(tail, walkSpeed * 0.9F, walkDegree * 1.2F, false, 3.0F, 0F, limbSwing, limbSwingAmount);
             
             // Head and neck follow-through / inertia
             this.walk(neck, walkSpeed * 0.75F, walkDegree * 0.2F, false, -1.5F, 0F, limbSwing, limbSwingAmount);

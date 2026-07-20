@@ -77,6 +77,9 @@ public class ModelStraddler extends AdvancedEntityModel<EntityStraddler> {
 
     public void animate(IAnimatedEntity entity, float f, float f1, float f2, float f3, float f4) {
         this.resetToDefaultPose();
+        //══════ 🏄 STRADDLER — WAVE-RIDING SURFER ══════
+        // IDENTITY: Rides on straddleboard. Balances with arms out.
+        // Leans into turns. Feet grip board.
         animator.update(entity);
         animator.setAnimation(EntityStraddler.ANIMATION_LAUNCH);
         animator.startKeyframe(5);
@@ -137,6 +140,8 @@ public class ModelStraddler extends AdvancedEntityModel<EntityStraddler> {
         this.walk(hair, idleSpeed, idleDegree, false, 3, 0F, ageInTicks, 1);
         this.walk(leg_right, walkSpeed, walkDegree * 1.5F, false, 0, 0F, limbSwing, limbSwingAmount);
         this.walk(leg_left, walkSpeed, walkDegree * 1.5F, true, 0, 0F, limbSwing, limbSwingAmount);
+        body.rotateAngleZ+=Mth.sin(limbSwing*walkSpeed*0.7F)*0.06F*limbSwingAmount;
+        body.rotationPointX+=Mth.cos(limbSwing*walkSpeed*0.7F)*0.1F*limbSwingAmount;
         this.swing(body, walkSpeed, walkDegree * 0.3F, false, 0, 0F, limbSwing, limbSwingAmount);
         this.flap(body, walkSpeed, walkDegree * 0.3F, false, -2, 0F, limbSwing, limbSwingAmount);
         this.walk(body, walkSpeed, walkDegree * 0.3F, false, -1, 0F, limbSwing, limbSwingAmount);
@@ -148,6 +153,10 @@ public class ModelStraddler extends AdvancedEntityModel<EntityStraddler> {
             this.leg_right.rotateAngleX -= headPitch * 0.5F * Mth.DEG_TO_RAD;
             this.leg_left.rotateAngleX -= headPitch * 0.5F * Mth.DEG_TO_RAD;
         }
+        // AAA STRADDLER BREATHING + HAIR SWAY
+        float breath = Mth.cos(ageInTicks * 0.08F);
+        body.rotationPointY += breath * 0.05F;
+        this.flap(hair, 0.1F, 0.06F, false, 2, 0, ageInTicks, 1);
     }
 
 

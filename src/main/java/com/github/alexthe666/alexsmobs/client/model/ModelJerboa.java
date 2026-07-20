@@ -91,6 +91,10 @@ public class ModelJerboa extends AdvancedEntityModel<EntityJerboa> {
     @Override
     public void setupAnim(EntityJerboa entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
         this.resetToDefaultPose();
+        //══════ 🐭 JERBOA — BIPEDAL DESERT HOPPER ══════
+        // IDENTITY: Kangaroo-rat. HOPS on two legs. Long tail counterbalances.
+        // Tail tip has tuft that flicks. Big ears radiate heat.
+        // UNIQUE vs Kangaroo (marsupial hopper), SugarGlider (arboreal glider).
         float partialTicks = ageInTicks - entity.tickCount;
         float idleSpeed = 0.1F;
         float idleDegree = 0.2F;
@@ -151,11 +155,28 @@ public class ModelJerboa extends AdvancedEntityModel<EntityJerboa> {
             }
         }
 
+        // AAA SMALL RODENT BREATHING + JUMP MECHANICS + SECONDARY
+        float breath = Mth.cos(ageInTicks * 0.15F);
+        body.rotationPointY += breath * 0.08F; body.setScale(1.0F+breath*0.01F,1.0F,1.0F);
+        // AAA Ear twitch — large ears for heat regulation
+        this.flap(leftEar, 0.3F, 0.15F, false, 1F, 0F, ageInTicks, 1);
+        this.flap(rightEar, 0.3F, 0.15F, true, 1.3F, 0F, ageInTicks, 1);
+        this.swing(leftEar, 0.2F, 0.1F, true, 2F, 0, ageInTicks, 1);
+        this.swing(rightEar, 0.2F, 0.1F, false, 2.3F, 0, ageInTicks, 1);
+        // AAA Tail balance during jump + idle sway
+        float awake=1-Math.max(sleepProgress,begProgress);
+        tail.rotateAngleY += Mth.sin(ageInTicks*0.5F)*0.1F*awake;
+        this.swing(tail, 0.15F, 0.08F, true, 1F, 0, ageInTicks, awake);
+        // AAA Body bob during walk/hop
+        this.bob(body, 1.5F, 0.5F, false, limbSwing, limbSwingAmount*awake);
+
     }
 
     public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
         if (this.young) {
             float f = 1.75F;
+            head.setScale(f, f, f);
+            head.setShouldScaleChildren(true);
             matrixStackIn.pushPose();
             matrixStackIn.scale(0.65F, 0.65F, 0.65F);
             matrixStackIn.translate(0.0D, 0.815D, 0.125D);
@@ -163,6 +184,7 @@ public class ModelJerboa extends AdvancedEntityModel<EntityJerboa> {
                 p_228292_8_.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
             });
             matrixStackIn.popPose();
+            head.setScale(1F, 1F, 1F);
         } else {
             matrixStackIn.pushPose();
             parts().forEach((p_228290_8_) -> {

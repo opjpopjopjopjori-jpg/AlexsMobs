@@ -130,7 +130,6 @@ public class ModelGrizzlyBear extends AdvancedEntityModel<EntityGrizzlyBear> {
         animator.rotate(right_arm, Maths.rad(70F), 0, 0);
         animator.endKeyframe();
         animator.resetKeyframe(4);
-        animator.endKeyframe();
         animator.setAnimation(EntityGrizzlyBear.ANIMATION_SWIPE_R);
         animator.startKeyframe(7);
         animator.rotate(body, 0, Maths.rad(20F), 0);
@@ -175,7 +174,6 @@ public class ModelGrizzlyBear extends AdvancedEntityModel<EntityGrizzlyBear> {
         animator.rotate(head, Maths.rad(20), Maths.rad(-3), 0);
         animator.endKeyframe();
         animator.resetKeyframe(3);
-        animator.endKeyframe();
     }
 
     public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {
@@ -203,7 +201,6 @@ public class ModelGrizzlyBear extends AdvancedEntityModel<EntityGrizzlyBear> {
 
     @Override
     public void setupAnim(EntityGrizzlyBear entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        this.resetToDefaultPose();
         this.head.setShouldScaleChildren(true);
         animate(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
         float walkSpeed = 0.7F;
@@ -265,12 +262,104 @@ public class ModelGrizzlyBear extends AdvancedEntityModel<EntityGrizzlyBear> {
         this.walk(left_leg, walkSpeed, walkDegree, false, 0F, 0F, limbSwing, limbSwingAmount);
         this.bob(left_leg, walkSpeed, walkDegree, false, limbSwing, limbSwingAmount);
         this.walk(right_leg, walkSpeed, walkDegree, true, 0F, 0F, limbSwing, limbSwingAmount);
-        this.bob(left_leg, walkSpeed, walkDegree, false, limbSwing, limbSwingAmount);
+        this.bob(right_leg, walkSpeed, walkDegree, false, limbSwing, limbSwingAmount);
         if(standProgress == 0 && sitProgress == 0){
-            this.walk(right_arm, walkSpeed, walkDegree, false, 0F, 0F, limbSwing, limbSwingAmount);
-            this.walk(left_arm, walkSpeed, walkDegree, true, 0F, 0F, limbSwing, limbSwingAmount);
-            this.flap(midbody, walkSpeed, walkDegree * 0.2F, false, 1F, 0, limbSwing, limbSwingAmount);
-            this.flap(body, walkSpeed, walkDegree * 0.2F, false, 2F, 0, limbSwing, limbSwingAmount);
+            //══════ AAA BIOMECHANICS: BEAR PLANTIGRADE GAIT ══════
+            // Real bears: plantigrade (whole foot on ground), heavy rolling gait
+            // Weight rolls from outside→inside of foot, body sways massively side-to-side
+            // Shoulders rotate independently from pelvis — creates visible "waddle"
+        //══════ 🐻 GRIZZLY BEAR — PLANTIGRADE FOREST TITAN ══════
+        // IDENTITY: Massive plantigrade waddle. Shoulders roll independently.
+        // Snout CONSTANTLY sniffs air. Salmon-scooping paw swipes at idle.
+        // Heavy fur shake (whole body vibrates). Front-heavy gait.
+        // UNIQUE vs other bears: most massive, most deliberate.
+
+        // ── BREATHING: deepest bear breath ──
+        float breath=Mth.cos(ageInTicks*0.06F);
+        midbody.setScale(1.0F+breath*0.03F,1.0F+breath*0.04F,1.0F+breath*0.02F);
+        midbody.rotationPointY+=breath*0.25F;snout.rotationPointY+=breath*0.06F;
+
+        // ── SNOUT: constantly scenting the air ──
+        this.flap(snout,0.08F,0.06F,false,0F,0,ageInTicks,1);
+        snout.rotationPointX+=Mth.sin(ageInTicks*0.3F)*0.03F;
+
+        // ── PLANTIGRADE ROLLING GAIT ──
+        float lateralRock=Mth.sin(limbSwing*wkSp)*wkDg*1.5F*limbSwingAmount;
+        body.rotationPointX+=lateralRock;head.rotationPointX+=lateralRock*0.6F;
+        body.rotateAngleZ+=Mth.sin(limbSwing*wkSp+1.5F)*wkDg*0.07F*limbSwingAmount;
+        midbody.rotateAngleY+=Mth.sin(limbSwing*wkSp)*wkDg*0.09F*limbSwingAmount;
+        body.rotateAngleY-=Mth.sin(limbSwing*wkSp)*wkDg*0.05F*limbSwingAmount;
+        body.rotationPointZ+=Mth.sin(limbSwing*wkSp)*wkDg*0.6F*limbSwingAmount;
+        head.rotationPointZ+=Mth.sin(limbSwing*wkSp+0.5F)*wkDg*0.3F*limbSwingAmount;
+
+        // ── LEG LIFT: heavy plantigrade step ──
+        float lfLift=Mth.abs(Mth.sin(limbSwing*wkSp))*wkDg*2.5F*limbSwingAmount;
+        float rtLift=Mth.abs(Mth.cos(limbSwing*wkSp))*wkDg*2.5F*limbSwingAmount;
+        left_arm.rotationPointY+=lfLift;right_arm.rotationPointY+=rtLift;
+        left_leg.rotationPointY+=lfLift;right_leg.rotationPointY+=rtLift;
+        head.rotateAngleX+=Mth.sin(limbSwing*wkSp+1F)*wkDg*0.04F*limbSwingAmount;
+        this.bob(body,wkSp*2F,wkDg*1.8F,false,limbSwing,limbSwingAmount);
+
+        // ── EARS: lazy gentle flick ──
+        this.flap(left_ear,idSp*0.5F,idDg*0.3F,false,1F,0,ageInTicks,1);
+        this.flap(right_ear,idSp*0.5F,idDg*0.3F,true,1F,0,ageInTicks,1);
+
+        // ── PAW SWIPE AT IDLE: salmon-scooping gesture ──
+        if(limbSwingAmount<0.05F){
+            left_arm.rotateAngleX+=Mth.sin(ageInTicks*0.06F+1F)*0.15F*(left_arm.rotateAngleX>0?1:0);
+            right_arm.rotateAngleX+=Mth.sin(ageInTicks*0.06F+3F)*0.15F;
+        }
+
+        this.walk(right_arm,wkSp,wkDg*1.2F,false,0F,0F,limbSwing,limbSwingAmount);
+        this.walk(left_arm,wkSp,wkDg*1.2F,true,0F,0F,limbSwing,limbSwingAmount);
+        this.flap(midbody,wkSp,wkDg*0.2F,false,1F,0,limbSwing,limbSwingAmount);
+        this.flap(body,wkSp,wkDg*0.2F,false,2F,0,limbSwing,limbSwingAmount);
+        this.flap(head,wkSp,wkDg*-0.1F,false,2F,0,limbSwing,limbSwingAmount);
+
+            // ── SIT/STAND TRANSITIONS ──
+            //═══ AAA TRANSITIONS: Overlapping Action ═══
+            float legLead = Math.min(sitP, sitP*1.25F);
+            float armTrail = Math.max(0, sitP-0.6F);
+            float headTrail = Math.max(0, sitP-1.2F);
+            progressRotationPrev(body,sitP,Maths.rad(-80),0,0,10F);
+            progressPositionPrev(body,sitP,0,10,0,10F);
+            progressRotationPrev(left_leg,legLead,0,Maths.rad(10),Maths.rad(-30),10F);
+            progressRotationPrev(right_leg,legLead,0,Maths.rad(-10),Maths.rad(30),10F);
+            progressRotationPrev(left_arm,armTrail,Maths.rad(25),Maths.rad(10),0,10F);
+            progressRotationPrev(right_arm,armTrail,Maths.rad(25),Maths.rad(-10),0,10F);
+            progressPositionPrev(head,headTrail,0,4,-1,10F);
+            if(Math.max(standP,sitP)>5F){head.rotateAngleZ+=netHeadYaw*Mth.DEG_TO_RAD;}
+            else{head.rotateAngleY+=netHeadYaw*Mth.DEG_TO_RAD;}
+            head.rotateAngleX+=headPitch*Mth.DEG_TO_RAD;
+            if(entityIn.isFreddy()){
+                head.setScale(1.2F,1.2F,1.2F);snout.setScale(1.4F,1F,1F);
+                progressPositionPrev(snout,10F,0,0,2,10F);
+                progressPositionPrev(head,standP,0,-0.5F,-3,10F);
+                progressPositionPrev(body,standP,0,0,-5,10F);
+                progressRotationPrev(body,standP,Maths.rad(-90),0,0,10F);
+                progressRotationPrev(head,standP,Maths.rad(90),0,0,10F);
+                progressRotationPrev(left_arm,standP,Maths.rad(80),Maths.rad(15),0,10F);
+                progressRotationPrev(right_arm,standP,Maths.rad(80),Maths.rad(-15),0,10F);
+                progressPositionPrev(left_arm,standP,2,0,0,10F);
+                progressPositionPrev(right_arm,standP,-2,0,0,10F);
+                progressRotationPrev(left_leg,standP,Maths.rad(90),0,0,10F);
+                progressRotationPrev(right_leg,standP,Maths.rad(90),0,0,10F);
+                progressPositionPrev(left_leg,standP,0,-4,4,10F);
+                progressPositionPrev(right_leg,standP,0,-4,4,10F);
+            }else{
+                head.setScale(1F,1F,1F);snout.setScale(1F,1F,1F);
+                progressRotationPrev(left_leg,standP,Maths.rad(80),0,0,10F);
+                progressRotationPrev(right_leg,standP,Maths.rad(80),0,0,10F);
+                progressPositionPrev(left_leg,standP,0,-4,4,10F);
+                progressPositionPrev(right_leg,standP,0,-4,4,10F);
+                progressPositionPrev(head,standP,0,0,2,10F);
+                progressPositionPrev(body,standP,0,-1,-5,10F);
+                progressPositionPrev(head,standP,0,1,-3,10F);
+                progressRotationPrev(body,standP,Maths.rad(-80),0,0,10F);
+                progressRotationPrev(head,standP,Maths.rad(80),0,0,10F);
+                progressRotationPrev(left_arm,standP,Maths.rad(35),Maths.rad(-10),0,10F);
+                progressRotationPrev(right_arm,standP,Maths.rad(35),Maths.rad(10),0,10F);
+            }
         }else{
             this.walk(right_arm, walkSpeed, walkDegree * 0.1F, false, 0F, 0F, limbSwing, limbSwingAmount);
             this.walk(left_arm, walkSpeed, walkDegree * 0.1F, true, 0F, 0F, limbSwing, limbSwingAmount);
@@ -283,6 +372,12 @@ public class ModelGrizzlyBear extends AdvancedEntityModel<EntityGrizzlyBear> {
         }
         this.flap(head, walkSpeed, walkDegree * -0.1F, false, 2F, 0, limbSwing, limbSwingAmount);
         this.bob(body, walkSpeed, walkDegree, true, limbSwing, limbSwingAmount);
+
+        // AAA Plantigrade weight shift — body rocks front-to-back with each step
+        body.rotationPointZ += Mth.sin(limbSwing * walkSpeed) * 0.3F * limbSwingAmount;
+        body.rotateAngleX += Mth.sin(limbSwing * walkSpeed + 1F) * 0.04F * limbSwingAmount;
+        // AAA Head sways with shoulders
+        head.rotationPointX += Mth.sin(limbSwing * walkSpeed + 2F) * 0.15F * limbSwingAmount;
     }
 
     @Override

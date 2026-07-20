@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 
 public class ModelCapuchinMonkey extends AdvancedEntityModel<EntityCapuchinMonkey> {
@@ -34,7 +35,6 @@ public class ModelCapuchinMonkey extends AdvancedEntityModel<EntityCapuchinMonke
 
 		root = new AdvancedModelBox(this, "root");
 		root.setPos(0.0F, 24.0F, 0.0F);
-		
 
 		body = new AdvancedModelBox(this, "body");
 		body.setPos(0.0F, -9.9F, 3.9F);
@@ -71,7 +71,6 @@ public class ModelCapuchinMonkey extends AdvancedEntityModel<EntityCapuchinMonke
 		tail2.setPos(0.0F, -0.2F, 7.7F);
 		tail1.addChild(tail2);
 		setRotationAngle(tail2, 0.6981F, 0.0F, 0.0F);
-		
 
 		tail2_r1 = new AdvancedModelBox(this, "tail2_r1");
 		tail2_r1.setPos(0.0F, -0.1875F, -0.0791F);
@@ -205,51 +204,76 @@ public class ModelCapuchinMonkey extends AdvancedEntityModel<EntityCapuchinMonke
 
 	@Override
 	public void setupAnim(EntityCapuchinMonkey entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch){
-		// MANDATORY: Always reset to default pose first (AAA Animation Rule)
 		this.resetToDefaultPose();
-
 		this.animate(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
 
-		float idleSpeed = 0.22F;
-		float idleDegree = 0.45F;
-		float walkSpeed = 0.85F;
-		float walkDegree = 0.75F;
-		float stillProgress = 5F * (1F - limbSwingAmount);
-		float partialTick = Minecraft.getInstance().getFrameTime();
-		float sitProgress = entity.isPassenger() ? 0 : entity.prevSitProgress + (entity.sitProgress - entity.prevSitProgress) * partialTick;
-		float rideProgress = entity.isPassenger() && entity.getVehicle() instanceof LivingEntity && entity.isOwnedBy((LivingEntity) entity.getVehicle()) ? 10 : 0;
+		float idleSpeed=0.3F,idleDegree=0.55F,walkSpeed=0.9F,walkDegree=0.65F;
+		float stillProgress=5F*(1F-limbSwingAmount);
+		float partialTick=Minecraft.getInstance().getFrameTime();
+		float sitProgress=entity.isPassenger()?0:entity.prevSitProgress+(entity.sitProgress-entity.prevSitProgress)*partialTick;
+		float rideProgress=entity.isPassenger()&&entity.getVehicle()instanceof LivingEntity&&entity.isOwnedBy((LivingEntity)entity.getVehicle())?1F:0;
 
-		// Procedural Primate Chest Breathing
-		float breath = Maths.cos(ageInTicks * 0.12F);
-		body.rotationPointY += breath * 0.2F;
+		//══════ 🐒 CAPUCHIN — ACROBATIC PREHENSILE-TAIL SWINGER ══════
+		// IDENTITY: Fast fidgety quadruped. Tail is 5th limb — curls, grips, counterbalances.
+		// Head darts curiously. Hands reach out. NEVER still.
+		// UNIQUE vs Gelada (ground-sitter) vs Gorilla (knuckle-walker).
 
-		progressPositionPrev(body, rideProgress, 3, 12F, 0, 10F);
-		progressRotationPrev(body, rideProgress, 0,  Maths.rad(90), 0, 10F);
-		progressRotationPrev(head, rideProgress, 0,  Maths.rad(-90), 0, 10F);
-		progressRotationPrev(leg_right, rideProgress, 0, 0,  Maths.rad(-15), 10F);
-		progressRotationPrev(arm_right, rideProgress, 0, 0,  Maths.rad(-15), 10F);
+		// ── BREATHING: rapid small monkey ──
+		float breath=Mth.cos(ageInTicks*0.18F);
+		body.setScale(1.0F,1.0F+breath*0.015F,1.0F);body.rotationPointY+=breath*0.12F;
 
-		progressRotationPrev(tail1, stillProgress, Maths.rad(-55), 0, 0, 5F);
-		progressRotationPrev(tail2, stillProgress, Maths.rad(15), 0, 0, 5F);
-		progressPositionPrev(body, sitProgress, 0, 6F, 0, 10F);
-		progressRotationPrev(tail1, sitProgress, Maths.rad(-15),  Maths.rad(15), Maths.rad(90), 10F);
-		progressRotationPrev(arm_left, sitProgress, Maths.rad(-85), Maths.rad(-15), 0, 10F);
-		progressRotationPrev(arm_right, sitProgress, Maths.rad(-85), Maths.rad(15), 0, 10F);
-		progressRotationPrev(leg_left, sitProgress, Maths.rad(85), Maths.rad(-15), 0, 10F);
-		progressRotationPrev(leg_right, sitProgress, Maths.rad(85), Maths.rad(-15), 0, 10F);
+		// ── PREHENSILE TAIL: curls in spiral, grips, counterbalances ──
+		if(limbSwingAmount<0.05F){
+			tail1.rotateAngleX-=0.4F;tail2.rotateAngleX-=0.5F;tail2_r1.rotateAngleX-=0.6F;
+			tail1.rotateAngleZ+=Mth.sin(ageInTicks*0.35F)*0.15F;
+			tail2.rotateAngleZ+=Mth.sin(ageInTicks*0.4F+0.8F)*0.2F;
+			tail2_r1.rotateAngleZ+=Mth.sin(ageInTicks*0.45F+1.6F)*0.25F;
+		}
+		AdvancedModelBox[] tc={tail1,tail2,tail2_r1};
+		this.chainSwing(tc,walkSpeed,walkDegree*0.6F,-2F,limbSwing,limbSwingAmount);
+		this.flap(tail2_r1,idleSpeed,idleDegree*0.6F,false,0F,0,ageInTicks,1-limbSwingAmount*0.5F);
 
-		this.faceTarget(netHeadYaw, headPitch, 1.0F, head);
-		this.swing(tail1, idleSpeed, idleDegree * 0.25F, false, 0.3F, 0F, ageInTicks, 1.0F);
-		this.swing(tail2, idleSpeed, idleDegree * 0.25F, false, 0.3F, 0F, ageInTicks, 1.0F);
-		this.walk(tail1, walkSpeed, walkDegree * 0.25F, false, 1.0F, 0F, limbSwing, limbSwingAmount);
-		this.walk(tail2, walkSpeed, walkDegree * 0.25F, false, 1.3F, 0F, limbSwing, limbSwingAmount);
-		this.walk(tail2_r1, walkSpeed, walkDegree * 0.25F, false, 1.5F, 0F, limbSwing, limbSwingAmount);
-		this.walk(body, walkSpeed, walkDegree * 0.2F, false, 0, 0F, limbSwing, limbSwingAmount);
-		this.bob(body, walkSpeed, walkDegree * 2.2F, false, limbSwing, limbSwingAmount);
-		this.walk(arm_left, walkSpeed, walkDegree, false, 1.4F, 0F, limbSwing, limbSwingAmount);
-		this.walk(arm_right, walkSpeed, walkDegree, false, 1.4F, 0F, limbSwing, limbSwingAmount);
-		this.walk(leg_left, walkSpeed, walkDegree, false, -2.0F, 0F, limbSwing, limbSwingAmount);
-		this.walk(leg_right, walkSpeed, walkDegree, false, -2.0F, 0F, limbSwing, limbSwingAmount);
+		// ── FIDGETY BODY ──
+		this.walk(body,walkSpeed,walkDegree*0.15F,false,0,0F,limbSwing,limbSwingAmount);
+		this.bob(body,walkSpeed,walkDegree*2.2F,false,limbSwing,limbSwingAmount);
+		if(limbSwingAmount<0.05F){
+			body.rotationPointX+=Mth.sin(ageInTicks*0.5F)*0.08F;
+			body.rotateAngleZ+=Mth.sin(ageInTicks*0.45F)*0.03F;
+		}
+
+		// ── CURIOUS HEAD ──
+		this.faceTarget(netHeadYaw,headPitch,1.0F,head);
+		if(limbSwingAmount<0.05F){
+			head.rotateAngleX+=Mth.sin(ageInTicks*0.55F)*0.1F;
+			head.rotateAngleZ+=Mth.sin(ageInTicks*0.6F+1F)*0.15F;
+			snout.rotationPointY+=Mth.sin(ageInTicks*0.7F)*0.03F;
+		}
+		this.walk(head,walkSpeed*0.7F,walkDegree*0.15F,false,1.5F,0.03F,limbSwing,limbSwingAmount);
+
+		// ── QUADRUPEDAL SCAMPER ──
+		this.walk(arm_left,walkSpeed,walkDegree,false,1.4F,0F,limbSwing,limbSwingAmount);
+		this.walk(arm_right,walkSpeed,walkDegree,false,1.4F,0F,limbSwing,limbSwingAmount);
+		this.walk(leg_left,walkSpeed,walkDegree,false,-2.0F,0F,limbSwing,limbSwingAmount);
+		this.walk(leg_right,walkSpeed,walkDegree,false,-2.0F,0F,limbSwing,limbSwingAmount);
+		if(limbSwingAmount<0.05F){
+			arm_left.rotateAngleX+=Mth.sin(ageInTicks*0.4F+2F)*0.08F;
+			arm_right.rotateAngleX+=Mth.sin(ageInTicks*0.4F)*0.08F;
+		}
+
+		// ── TRANSITIONS ──
+		progressRotationPrev(tail1,stillProgress,Maths.rad(-55),0,0,5F);
+		progressRotationPrev(tail2,stillProgress,Maths.rad(15),0,0,5F);
+		progressPositionPrev(body,sitProgress,0,6F,0,10F);
+		progressRotationPrev(tail1,sitProgress,Maths.rad(-15),Maths.rad(15),Maths.rad(90),10F);
+		progressRotationPrev(arm_left,sitProgress,Maths.rad(-85),Maths.rad(-15),0,10F);
+		progressRotationPrev(arm_right,sitProgress,Maths.rad(-85),Maths.rad(15),0,10F);
+		progressRotationPrev(leg_left,sitProgress,Maths.rad(85),Maths.rad(-15),0,10F);
+		progressRotationPrev(leg_right,sitProgress,Maths.rad(85),Maths.rad(-15),0,10F);
+		progressPositionPrev(body,rideProgress,3,12F,0,1F);
+		progressRotationPrev(body,rideProgress,0,Maths.rad(90),0,1F);
+		progressRotationPrev(head,rideProgress,0,Maths.rad(-90),0,1F);
+		progressRotationPrev(leg_right,rideProgress,0,0,Maths.rad(-15),1F);
+		progressRotationPrev(arm_right,rideProgress,0,0,Maths.rad(-15),1F);
 	}
 
 	public void renderToBuffer(PoseStack matrixStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) {

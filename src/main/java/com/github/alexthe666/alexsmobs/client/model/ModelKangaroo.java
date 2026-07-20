@@ -35,7 +35,7 @@ public class ModelKangaroo extends AdvancedEntityModel<EntityKangaroo> {
 	public final AdvancedModelBox ear_left;
 	public final AdvancedModelBox ear_right;
 	public final AdvancedModelBox snout;
-	public static boolean renderOnlyHead = false;
+	public boolean renderOnlyHead = false;
 	private ModelAnimator animator;
 
 	public ModelKangaroo() {
@@ -144,6 +144,10 @@ public class ModelKangaroo extends AdvancedEntityModel<EntityKangaroo> {
 
 	public void animate(IAnimatedEntity entity, float f, float f1, float f2, float f3, float f4) {
 		this.resetToDefaultPose();
+        //══════ 🦘 KANGAROO — MARSUPIAL BOUNDING HOPPER ══════
+        // IDENTITY: Powerful hind legs bound. Tail acts as TRIPOD at rest.
+        // Pouch carries joey. Head stabilizes during hop.
+        // UNIQUE vs Jerboa (rodent hopper), Platypus (aquatic).
 		animator.update(entity);
 		animator.setAnimation(EntityKangaroo.ANIMATION_EAT_GRASS);
 		animator.startKeyframe(5);
@@ -324,6 +328,44 @@ public class ModelKangaroo extends AdvancedEntityModel<EntityKangaroo> {
 		this.head.rotateAngleY += netHeadYaw * 0.35F * Mth.DEG_TO_RAD;
 		this.head.rotateAngleX += headPitch * 0.65F * Mth.DEG_TO_RAD;
 		this.neck.rotateAngleY += netHeadYaw * 0.15F * Mth.DEG_TO_RAD;
+		//══════ AAA BIOMECHANICS: KANGAROO HOPPING ══════
+		// Real kangaroos: bipedal hopping, tail acts as 5th limb (tripod)
+		// Legs are spring-like tendons, minimal energy cost at speed
+		// Arms tucked, body leans forward, tail counterbalances
+		float breath = Mth.cos(ageInTicks * 0.09F);
+		body.rotationPointY += breath * 0.15F; chest.rotationPointY += breath * 0.08F;
+
+		// ── HOP RHYTHM: both legs spring together, tail pushes ground ──
+		float hopCycle = Mth.sin(limbSwing*1.5F);
+		float hopAmount = limbSwingAmount;
+
+		// Legs compress then explode
+		float legCompress = hopCycle > 0 ? hopCycle * hopAmount * 0.5F : 0;
+		float legExtend = hopCycle < 0 ? -hopCycle * hopAmount * 0.8F : 0;
+		leg_left.rotateAngleX += legCompress*0.4F - legExtend*0.6F;
+		leg_right.rotateAngleX += legCompress*0.4F - legExtend*0.6F;
+		knee_left.rotateAngleX -= legCompress*0.3F + legExtend*0.5F;
+		knee_right.rotateAngleX -= legCompress*0.3F + legExtend*0.5F;
+
+		// ── TAIL TRIPOD: pushes off ground during hop ──
+		tail1.rotateAngleX += Mth.abs(hopCycle)*0.3F*hopAmount;
+		tail2.rotateAngleX -= Mth.abs(hopCycle)*0.25F*hopAmount;
+		tail1.rotationPointY -= Mth.abs(hopCycle)*1.5F*hopAmount;
+
+		// ── BODY LEAN FORWARD at speed ──
+		body.rotateAngleX += limbSwingAmount*0.25F;
+		chest.rotateAngleX += limbSwingAmount*0.15F;
+
+		// ── BODY BOB ──
+		body.rotationPointY += Mth.sin(limbSwing*3F)*2.5F*hopAmount;
+
+		// ── ARMS TUCKED ──
+		this.flap(arm_left,0.2F,0.08F,false,1F,0,ageInTicks,1);
+		this.flap(arm_right,0.2F,0.08F,true,1F,0,ageInTicks,1);
+
+		// ── EAR TWITCH ──
+		this.flap(ear_left,0.2F,0.1F,false,1F,0,ageInTicks,1);
+		this.flap(ear_right,0.2F,0.1F,true,1.3F,0,ageInTicks,1);
 		if(entity.isBaby() && entity.isPassenger() && entity.getVehicle() instanceof EntityKangaroo) {
 			this.head.rotateAngleX -= 50 * 0.017453292F;
 			this.neck.rotateAngleX += 120 * 0.017453292F;

@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.Mth;
 
 public class ModelCrocodile extends AdvancedEntityModel<EntityCrocodile> {
     private final AdvancedModelBox root;
@@ -39,115 +40,93 @@ public class ModelCrocodile extends AdvancedEntityModel<EntityCrocodile> {
     public ModelCrocodile() {
         texWidth = 256;
         texHeight = 256;
-
         root = new AdvancedModelBox(this, "root");
         root.setRotationPoint(0.0F, 24.0F, 0.0F);
-
-
         body = new AdvancedModelBox(this, "body");
         body.setRotationPoint(0.0F, -9.0F, 0.0F);
         root.addChild(body);
         body.setTextureOffset(0, 0).addBox(-8.0F, -7.0F, -13.0F, 16.0F, 12.0F, 27.0F, 0.0F, false);
-
         left_leg = new AdvancedModelBox(this, "left_leg");
         left_leg.setRotationPoint(8.0F, 3.0F, 10.0F);
         body.addChild(left_leg);
         left_leg.setTextureOffset(0, 0).addBox(-2.0F, -2.0F, -5.0F, 5.0F, 8.0F, 8.0F, 0.0F, false);
-
         left_foot = new AdvancedModelBox(this, "left_foot");
         left_foot.setRotationPoint(2.0F, 6.0F, -3.0F);
         left_leg.addChild(left_foot);
         left_foot.setTextureOffset(45, 42).addBox(-2.0F, -0.01F, -5.0F, 5.0F, 0.0F, 6.0F, 0.0F, false);
-
         right_leg = new AdvancedModelBox(this, "right_leg");
         right_leg.setRotationPoint(-8.0F, 3.0F, 10.0F);
         body.addChild(right_leg);
         right_leg.setTextureOffset(0, 0).addBox(-3.0F, -2.0F, -5.0F, 5.0F, 8.0F, 8.0F, 0.0F, true);
-
         right_foot = new AdvancedModelBox(this, "right_foot");
         right_foot.setRotationPoint(-2.0F, 6.0F, -3.0F);
         right_leg.addChild(right_foot);
         right_foot.setTextureOffset(45, 42).addBox(-3.0F, -0.01F, -5.0F, 5.0F, 0.0F, 6.0F, 0.0F, true);
-
         left_arm = new AdvancedModelBox(this, "left_arm");
         left_arm.setRotationPoint(9.0F, 1.0F, -9.0F);
         body.addChild(left_arm);
         left_arm.setTextureOffset(0, 40).addBox(-2.0F, -2.0F, -2.0F, 4.0F, 10.0F, 4.0F, 0.0F, false);
-
         left_hand = new AdvancedModelBox(this, "left_hand");
         left_hand.setRotationPoint(0.0F, 8.0F, 1.0F);
         left_arm.addChild(left_hand);
         left_hand.setTextureOffset(0, 17).addBox(-2.0F, -0.01F, -7.0F, 6.0F, 0.0F, 7.0F, 0.0F, false);
-
         right_arm = new AdvancedModelBox(this, "right_arm");
         right_arm.setRotationPoint(-9.0F, 1.0F, -9.0F);
         body.addChild(right_arm);
         right_arm.setTextureOffset(0, 40).addBox(-2.0F, -2.0F, -2.0F, 4.0F, 10.0F, 4.0F, 0.0F, true);
-
         right_hand = new AdvancedModelBox(this, "right_hand");
         right_hand.setRotationPoint(0.0F, 8.0F, 1.0F);
         right_arm.addChild(right_hand);
         right_hand.setTextureOffset(0, 17).addBox(-4.0F, -0.01F, -7.0F, 6.0F, 0.0F, 7.0F, 0.0F, true);
-
         tail1 = new AdvancedModelBox(this, "tail1");
         tail1.setRotationPoint(0.0F, 0.0F, 16.0F);
         body.addChild(tail1);
         tail1.setTextureOffset(0, 40).addBox(-5.0F, -5.0F, -2.0F, 10.0F, 10.0F, 24.0F, 0.0F, false);
         tail1.setTextureOffset(45, 51).addBox(-5.0F, -7.0F, -2.0F, 10.0F, 2.0F, 24.0F, 0.0F, false);
-
         tail2 = new AdvancedModelBox(this, "tail2");
         tail2.setRotationPoint(0.0F, 1.0F, 24.0F);
         tail1.addChild(tail2);
         tail2.setTextureOffset(62, 15).addBox(-3.0F, -3.0F, -2.0F, 6.0F, 7.0F, 25.0F, 0.0F, false);
         tail2.setTextureOffset(43, 78).addBox(-2.0F, -5.0F, -2.0F, 4.0F, 2.0F, 20.0F, 0.0F, false);
-
         tail3 = new AdvancedModelBox(this, "tail3");
         tail3.setRotationPoint(0.0F, 0.0F, 18.0F);
         tail2.addChild(tail3);
         tail3.setTextureOffset(0, 75).addBox(0.0F, -6.0F, 0.0F, 0.0F, 10.0F, 21.0F, 0.0F, false);
-
         neck = new AdvancedModelBox(this, "neck");
         neck.setRotationPoint(0.0F, 0.0F, -15.0F);
         body.addChild(neck);
         neck.setTextureOffset(80, 89).addBox(-6.0F, -5.0F, -10.0F, 12.0F, 10.0F, 12.0F, 0.0F, false);
         neck.setTextureOffset(60, 0).addBox(-4.0F, -6.0F, -10.0F, 8.0F, 1.0F, 12.0F, 0.0F, false);
-
         head = new AdvancedModelBox(this, "head");
         head.setRotationPoint(0.0F, 1.0F, -11.0F);
         neck.addChild(head);
         head.setTextureOffset(72, 78).addBox(-5.0F, -4.0F, -5.0F, 10.0F, 4.0F, 6.0F, 0.0F, false);
         head.setTextureOffset(60, 14).addBox(-4.0F, -5.0F, -5.0F, 8.0F, 1.0F, 5.0F, 0.0F, false);
         head.setTextureOffset(22, 78).addBox(-3.0F, -4.0F, -17.0F, 6.0F, 4.0F, 12.0F, 0.0F, false);
-
         crown = new AdvancedModelBox(this, "crown");
         crown.setRotationPoint(0.0F, -5.0F, -2.0F);
         head.addChild(crown);
         crown.setTextureOffset(49, 54).addBox(-1.5F, -5.0F, -2.0F, 3.0F, 5.0F, 3.0F, 0.0F, false);
-
         left_upperteeth = new AdvancedModelBox(this, "left_upperteeth");
         left_upperteeth.setRotationPoint(0.0F, 0.0F, -17.0F);
         head.addChild(left_upperteeth);
         setRotationAngle(left_upperteeth, 0.0F, 0.0F, -0.0873F);
         left_upperteeth.setTextureOffset(104, 23).addBox(0.0F, 0.0F, -0.025F, 3.0F, 2.0F, 11.0F, 0.0F, false);
-
         right_upperteeth = new AdvancedModelBox(this, "right_upperteeth");
         right_upperteeth.setRotationPoint(0.0F, 0.0F, -17.0F);
         head.addChild(right_upperteeth);
         setRotationAngle(right_upperteeth, 0.0F, 0.0F, 0.0873F);
         right_upperteeth.setTextureOffset(104, 23).addBox(-3.0F, 0.0F, -0.025F, 3.0F, 2.0F, 11.0F, 0.0F, true);
-
         jaw = new AdvancedModelBox(this, "jaw");
         jaw.setRotationPoint(0.0F, 0.0F, 0.0F);
         head.addChild(jaw);
         jaw.setTextureOffset(100, 7).addBox(-5.5F, -2.0F, -6.0F, 11.0F, 5.0F, 7.0F, 0.001F, false);
         jaw.setTextureOffset(90, 48).addBox(-3.0F, 0.0F, -17.0F, 6.0F, 3.0F, 11.0F, 0.0F, false);
-
         left_lowerteeth = new AdvancedModelBox(this, "left_lowerteeth");
         left_lowerteeth.setRotationPoint(0.0F, 0.0F, -17.0F);
         jaw.addChild(left_lowerteeth);
         setRotationAngle(left_lowerteeth, 0.0F, 0.0F, 0.0873F);
         left_lowerteeth.setTextureOffset(105, 67).addBox(0.0F, -2.0F, -0.025F, 3.0F, 2.0F, 11.0F, 0.0F, false);
-
         right_lowerteeth = new AdvancedModelBox(this, "right_lowerteeth");
         right_lowerteeth.setRotationPoint(0.0F, 0.0F, -17.0F);
         jaw.addChild(right_lowerteeth);
@@ -187,13 +166,12 @@ public class ModelCrocodile extends AdvancedEntityModel<EntityCrocodile> {
         int rolls = 3;
         animator.rotate(body, 0, 0, Maths.rad(-360 * rolls));
         animator.endKeyframe();
-
     }
 
     @Override
     public void setupAnim(EntityCrocodile entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        this.resetToDefaultPose();
         animate(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+
         boolean swimAnimate = entityIn.isInWater();
         float walkSpeed = 0.7F;
         float walkDegree = 0.7F;
@@ -203,27 +181,62 @@ public class ModelCrocodile extends AdvancedEntityModel<EntityCrocodile> {
         float swimProgress = entityIn.prevSwimProgress + (entityIn.swimProgress - entityIn.prevSwimProgress) * partialTick;
         float baskProgress = entityIn.prevBaskingProgress + (entityIn.baskingProgress - entityIn.prevBaskingProgress) * partialTick;
         float grabProgress = entityIn.prevGrabProgress + (entityIn.grabProgress - entityIn.prevGrabProgress) * partialTick;
+
+        //══════ 🐊 CROCODILE — ANCIENT AMBUSH PREDATOR ══════
+        // IDENTITY: Belly-drags on land. Death-rolls in water. Mouth GAPES
+        // for thermoregulation. Tail is primary swim propeller. Jaw snap = lightning.
+        // UNIQUE from Komodo: Croc stays FLAT (sprawl), Komodo STANDS proud.
+        float breath=Mth.cos(ageInTicks*0.08F);
+        body.setScale(1.0F,1.0F+breath*0.015F,1.0F+breath*0.01F);
+        body.rotationPointY+=breath*0.12F;neck.rotationPointY+=breath*0.06F;
+        jaw.rotateAngleX+=breath*0.02F;
+        // ── MOUTH GAPE THERMOREGULATION: occasionally opens wide ──
+        float gape=Mth.sin(ageInTicks*0.03F+2F)*0.5F+0.5F; // slow 0→1→0 cycle
+        if(limbSwingAmount<0.05F){jaw.rotateAngleX+=gape*0.03F;}
+        // ── SPRAWL WALK ──
+        if(!swimAnimate){
+            this.walk(right_arm,walkSpeed,walkDegree,false,0F,0.25F,limbSwing,limbSwingAmount);
+            this.walk(left_arm,walkSpeed,walkDegree,true,0F,-0.25F,limbSwing,limbSwingAmount);
+            this.walk(right_leg,walkSpeed,walkDegree,true,0F,0.25F,limbSwing,limbSwingAmount);
+            this.walk(left_leg,walkSpeed,walkDegree,false,0F,-0.25F,limbSwing,limbSwingAmount);
+            body.rotationPointX+=Mth.sin(limbSwing*walkSpeed)*walkDegree*0.3F*limbSwingAmount;
+        }
+
+        // ── TAIL PROPULSION (swim) + IDLE SWAY ──
+        AdvancedModelBox[] tailBoxes = new AdvancedModelBox[]{tail1, tail2, tail3};
+        if(swimAnimate){ this.chainSwing(tailBoxes, swimSpeed, swimDegree*2F, -2.5F, limbSwing, limbSwingAmount); }
+        else{ this.chainSwing(tailBoxes, walkSpeed, walkDegree*0.3F, -2.5F, limbSwing, limbSwingAmount); }
+        // ── IDLE MICRO-SWAY ──
+        float idleAmt = 1.0F - limbSwingAmount*0.7F;
+        this.swing(tail1,0.08F,0.05F,false,1F,0,ageInTicks,idleAmt);
+        this.swing(tail2,0.08F,0.06F,false,0.5F,0,ageInTicks,idleAmt);
+        this.swing(tail3,0.08F,0.08F,false,-0.5F,0,ageInTicks,idleAmt);
+
         if (!swimAnimate && grabProgress <= 0) {
             this.faceTarget(netHeadYaw, headPitch, 2, neck, head);
         }
+        //═══ AAA TRANSITIONS: Overlapping Action for swim/land ═══
+        float swimLead = Math.min(swimProgress, swimProgress*1.3F);
+        float landLead = Math.min(baskProgress, baskProgress*1.2F);
         progressRotationPrev(jaw, grabProgress, Maths.rad(30), 0, 0, 10F);
         progressRotationPrev(head, grabProgress, Maths.rad(-10), 0, 0, 10F);
+
         if (entityIn.baskingType == 0) {
-            progressRotationPrev(body, baskProgress, 0, Maths.rad(-7), 0, 10F);
-            progressRotationPrev(tail1, baskProgress, 0, Maths.rad(30), 0, 10F);
-            progressRotationPrev(tail2, baskProgress, 0, Maths.rad(20), 0, 10F);
-            progressRotationPrev(tail3, baskProgress, 0, Maths.rad(30), 0, 10F);
-            progressRotationPrev(neck, baskProgress, 0, Maths.rad(-10), 0, 10F);
-            progressRotationPrev(head, baskProgress, Maths.rad(-60), Maths.rad(-10), 0, 10F);
-            progressRotationPrev(jaw, baskProgress, Maths.rad(60), 0, 0, 10F);
+            progressRotationPrev(body, landLead, 0, Maths.rad(-7), 0, 10F);
+            progressRotationPrev(tail1, landLead, 0, Maths.rad(30), 0, 10F);
+            progressRotationPrev(tail2, Math.max(0, baskProgress-0.4F), 0, Maths.rad(20), 0, 10F);
+            progressRotationPrev(tail3, Math.max(0, baskProgress-0.8F), 0, Maths.rad(30), 0, 10F);
+            progressRotationPrev(neck, landLead, 0, Maths.rad(-10), 0, 10F);
+            progressRotationPrev(head, landLead, Maths.rad(-60), Maths.rad(-10), 0, 10F);
+            progressRotationPrev(jaw, landLead, Maths.rad(60), 0, 0, 10F);
         } else if (entityIn.baskingType == 1) {
-            progressRotationPrev(body, baskProgress, 0, Maths.rad(7), 0, 10F);
-            progressRotationPrev(tail1, baskProgress, 0, Maths.rad(-30), 0, 10F);
-            progressRotationPrev(tail2, baskProgress, 0, Maths.rad(-20), 0, 10F);
-            progressRotationPrev(tail3, baskProgress, 0, Maths.rad(-30), 0, 10F);
-            progressRotationPrev(neck, baskProgress, 0, Maths.rad(10), 0, 10F);
-            progressRotationPrev(head, baskProgress, Maths.rad(-60), Maths.rad(10), 0, 10F);
-            progressRotationPrev(jaw, baskProgress, Maths.rad(60), 0, 0, 10F);
+            progressRotationPrev(body, landLead, 0, Maths.rad(7), 0, 10F);
+            progressRotationPrev(tail1, landLead, 0, Maths.rad(-30), 0, 10F);
+            progressRotationPrev(tail2, Math.max(0, baskProgress-0.4F), 0, Maths.rad(-20), 0, 10F);
+            progressRotationPrev(tail3, Math.max(0, baskProgress-0.8F), 0, Maths.rad(-30), 0, 10F);
+            progressRotationPrev(neck, landLead, 0, Maths.rad(10), 0, 10F);
+            progressRotationPrev(head, landLead, Maths.rad(-60), Maths.rad(10), 0, 10F);
+            progressRotationPrev(jaw, landLead, Maths.rad(60), 0, 0, 10F);
         }
         progressPositionPrev(body, baskProgress, 0, 3, -3, 10F);
         progressPositionPrev(tail1, baskProgress, 0, 0, -3, 10F);
@@ -240,23 +253,22 @@ public class ModelCrocodile extends AdvancedEntityModel<EntityCrocodile> {
         progressRotationPrev(left_foot, baskProgress, 0, 0, Maths.rad(30), 10F);
         progressRotationPrev(right_leg, baskProgress, 0, 0, Maths.rad(30), 10F);
         progressRotationPrev(right_foot, baskProgress, 0, 0, Maths.rad(-30), 10F);
+        progressRotationPrev(right_arm, swimLead, Maths.rad(75), 0, Maths.rad(90), 10F);
+        progressPositionPrev(left_arm, swimLead, 0, 2, 0, 10F);
+        progressRotationPrev(left_arm, swimLead, Maths.rad(75), 0, Maths.rad(-90), 10F);
+        progressPositionPrev(right_leg, swimLead, 0, 2, 0, 10F);
+        progressRotationPrev(right_leg, swimLead, Maths.rad(75), 0, Maths.rad(90), 10F);
+        progressPositionPrev(left_leg, swimLead, 0, 2, 0, 10F);
+        progressRotationPrev(left_leg, swimLead, Maths.rad(75), 0, Maths.rad(-90), 10F);
+        progressPositionPrev(left_foot, swimLead, -2, 0, 0, 10F);
+        progressRotationPrev(left_foot, swimLead, Maths.rad(75), 0, 0, 10F);
+        progressPositionPrev(right_foot, swimLead, 2, 0, 0, 10F);
+        progressRotationPrev(right_foot, swimLead, Maths.rad(75), 0, 0, 10F);
+        progressPositionPrev(left_hand, swimLead, -1, 0, 0, 10F);
+        progressRotationPrev(left_hand, swimLead, Maths.rad(75), 0, 0, 10F);
+        progressPositionPrev(right_hand, swimLead, 1, 0, 0, 10F);
+        progressRotationPrev(right_hand, swimLead, Maths.rad(75), 0, 0, 10F);
 
-        progressRotationPrev(right_arm, swimProgress, Maths.rad(75), 0, Maths.rad(90), 10F);
-        progressPositionPrev(left_arm, swimProgress, 0, 2, 0, 10F);
-        progressRotationPrev(left_arm, swimProgress, Maths.rad(75), 0, Maths.rad(-90), 10F);
-        progressPositionPrev(right_leg, swimProgress, 0, 2, 0, 10F);
-        progressRotationPrev(right_leg, swimProgress, Maths.rad(75), 0, Maths.rad(90), 10F);
-        progressPositionPrev(left_leg, swimProgress, 0, 2, 0, 10F);
-        progressRotationPrev(left_leg, swimProgress, Maths.rad(75), 0, Maths.rad(-90), 10F);
-        progressPositionPrev(left_foot, swimProgress, -2, 0, 0, 10F);
-        progressRotationPrev(left_foot, swimProgress, Maths.rad(75), 0, 0, 10F);
-        progressPositionPrev(right_foot, swimProgress, 2, 0, 0, 10F);
-        progressRotationPrev(right_foot, swimProgress, Maths.rad(75), 0, 0, 10F);
-        progressPositionPrev(left_hand, swimProgress, -1, 0, 0, 10F);
-        progressRotationPrev(left_hand, swimProgress, Maths.rad(75), 0, 0, 10F);
-        progressPositionPrev(right_hand, swimProgress, 1, 0, 0, 10F);
-        progressRotationPrev(right_hand, swimProgress, Maths.rad(75), 0, 0, 10F);
-        AdvancedModelBox[] tailBoxes = new AdvancedModelBox[]{tail1, tail2, tail3};
         if (swimAnimate) {
             this.walk(right_arm, swimSpeed, swimDegree, false, 0F, -0.25F, limbSwing, limbSwingAmount);
             this.walk(left_arm, swimSpeed, swimDegree, false, 0F, -0.25F, limbSwing, limbSwingAmount);
@@ -265,20 +277,10 @@ public class ModelCrocodile extends AdvancedEntityModel<EntityCrocodile> {
             this.swing(body, swimSpeed, swimDegree * 0.7F, false, 3F, 0F, limbSwing, limbSwingAmount);
             this.swing(neck, swimSpeed, swimDegree * 0.5F, true, 2F, 0F, limbSwing, limbSwingAmount);
             this.swing(head, swimSpeed, swimDegree * 0.3F, true, 2F, 0F, limbSwing, limbSwingAmount);
-            this.chainSwing(tailBoxes, swimSpeed, swimDegree * 2F, -2.5F, limbSwing, limbSwingAmount);
-        } else {
-            this.walk(right_arm, walkSpeed, walkDegree, false, 0F, 0.25F, limbSwing, limbSwingAmount);
-            this.walk(left_arm, walkSpeed, walkDegree, true, 0F, -0.25F, limbSwing, limbSwingAmount);
-            this.walk(right_leg, walkSpeed, walkDegree, true, 0F, 0.25F, limbSwing, limbSwingAmount);
-            this.walk(left_leg, walkSpeed, walkDegree, false, 0F, -0.25F, limbSwing, limbSwingAmount);
-            this.swing(body, walkSpeed, walkDegree * 0.1F, false, 3F, 0F, limbSwing, limbSwingAmount);
-            this.swing(neck, walkSpeed, walkDegree * 0.1F, false, 2F, 0F, limbSwing, limbSwingAmount);
-            this.chainSwing(tailBoxes, walkSpeed, walkDegree * 0.3F, -2.5F, limbSwing, limbSwingAmount);
         }
         if (baskProgress > 0) {
             this.walk(head, 0.1F, 0.1F, false, 1F, 0.1F, ageInTicks, 1);
-            this.jaw.rotateAngleX = -head.rotateAngleX;
-
+            this.jaw.rotateAngleX += -head.rotateAngleX;
         }
     }
 
@@ -312,7 +314,6 @@ public class ModelCrocodile extends AdvancedEntityModel<EntityCrocodile> {
             });
             matrixStackIn.popPose();
         }
-
     }
 
     public void setRotationAngle(AdvancedModelBox advancedModelBox, float x, float y, float z) {
